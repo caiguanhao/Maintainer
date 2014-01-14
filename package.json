@@ -1,0 +1,35 @@
+{
+  "name": "Maintainer",
+  "version": "0.0.0",
+  "description": "A server maintainer.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiguanhao/Maintainer.git"
+  },
+  "keywords": [
+    "server",
+    "maintain",
+    "maintainer",
+    "administration",
+    "administrator",
+    "admin"
+  ],
+  "author": "Choi Goon-ho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/caiguanhao/Maintainer/issues"
+  },
+  "homepage": "https://github.com/caiguanhao/Maintainer",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-develop": "~0.3.0"
+  },
+  "dependencies": {
+    "express": "~3.4.7"
+  }
+}

@@ -1,0 +1,3 @@
+# ignore these files on git diff
+assets/js/vendor/** -diff
+assets/css/vendor/** -diff
