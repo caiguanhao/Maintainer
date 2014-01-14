@@ -31,6 +31,7 @@
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li>{{#link-to "index"}}Home{{/link-to}}</li>
+              <li>{{#link-to "jobs"}}Jobs{{/link-to}}</li>
               <li>{{#link-to "about"}}About{{/link-to}}</li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -51,6 +52,21 @@
     <div id="content" class="container">
       {{outlet}}
     </div>
+  </script>
+  <script type="text/x-handlebars" id="jobs">
+    <ul class="list-group">
+      {{#each}}
+        <li class="list-group-item">
+          {{#link-to 'job' this}}
+            {{title}}
+          {{/link-to}}
+        </li>
+      {{/each}}
+    </ul>
+    {{outlet}}
+  </script>
+  <script type="text/x-handlebars" id="job">
+    <h1>{{title}}</h1>
   </script>
   <script type="text/x-handlebars" id="about">
     <p>A server maintainer.</p>

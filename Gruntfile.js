@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         files: [ 'assets/js/**/*.js', 'public/**/*.html' ]
       },
       server: {
-        files: [ '<%= pkg.main %>' ],
+        files: [ '<%= pkg.main %>', 'models/**' ],
         tasks: [ 'develop' ],
         options: {
           nospawn: true
