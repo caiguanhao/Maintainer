@@ -59,11 +59,7 @@ App.Jobs = Ember.Object.extend({
 App.ContentView = Ember.TextArea.extend({
   tagName: 'p',
   contenteditable: 'true',
-  attributeBindings: [ 'contenteditable' ],
-  _elementValueDidChange: function() {
-    this._super();
-    Ember.set(this, '_parentView.controller.untouched', false);
-  }
+  attributeBindings: [ 'contenteditable' ]
 });
 
 App.TitleView = App.ContentView.extend({
@@ -105,16 +101,32 @@ App.JobRoute = Ember.Route.extend({
       }
     });
   },
-  serialize: function(model, params) {
-    return { job_id: model._id };
+  serialize: function(job, params) {
+    return { job_id: job._id };
   },
-  setupController: function(controller, model) {
-    controller.set('job', model);
+  setupController: function(controller, job) {
+    if (job._published === undefined) {
+      job._published = $.extend(true, {}, job.published);
+    }
+    if (job.untouched === undefined) {
+      job.untouched = true;
+    }
+    controller.set('job', job);
   }
 });
 
 App.JobController = Ember.Controller.extend({
-  untouched: true,
+  touch: function() {
+    var self = this;
+    var job = self.get('job');
+    self.set('job.untouched', true);
+    $.each(job._published, function(key, val) {
+      if (val !== job.published[key]) {
+        self.set('job.untouched', false);
+        return false;
+      }
+    });
+  }.observes('job.published.title'),
   actions: {
     update_job: function() {
       var self = this;
@@ -127,7 +139,8 @@ App.JobController = Ember.Controller.extend({
           content: job.published.content
         }
       }).then(function() {
-        self.set('untouched', true);
+        self.set('job._published', $.extend(true, {}, job.published));
+        self.set('job.untouched', true);
       }, function(response) {
         var error = $.parseJSON(response.responseText);
         alert(error.error);
