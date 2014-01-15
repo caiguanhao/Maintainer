@@ -1,3 +1,21 @@
+/* extend jQuery's val() method to h1 and p */
+var get_set_val = {
+  get: function(elem) {
+    return $(elem).text();
+  },
+  set: function(elem, value) {
+    return $(elem).text(value);
+  }
+};
+
+jQuery.extend({
+  valHooks: {
+    h1: get_set_val,
+    p: get_set_val
+  }
+});
+
+/* Ember.js */
 App = Ember.Application.create();
 
 App.ApplicationRoute = Ember.Route.extend({
@@ -18,7 +36,7 @@ App.Router.map(function() {
   this.resource('not_found', { path: '/*path' });
 });
 
-App.Job = Ember.Object.extend({
+App.Jobs = Ember.Object.extend({
   loadedJobs: false,
   loadJobs: function() {
     var self = this;
@@ -38,17 +56,13 @@ App.Job = Ember.Object.extend({
   }
 });
 
-App.ContentView = Ember.Component.extend(Ember.TextSupport, {
+App.ContentView = Ember.TextArea.extend({
   tagName: 'p',
   contenteditable: 'true',
   attributeBindings: [ 'contenteditable' ],
   _elementValueDidChange: function() {
-    Ember.set(this, '_parentView.controller.untouched', false);
-    Ember.set(this, 'value', this.$().text());
-  },
-  didInsertElement: function() {
     this._super();
-    this.$().text(this.value)
+    Ember.set(this, '_parentView.controller.untouched', false);
   }
 });
 
@@ -72,7 +86,7 @@ App.JobsNewController = Ember.Controller.extend({
   }
 });
 
-var jobs = App.Job.create();
+var jobs = App.Jobs.create();
 
 App.JobsRoute = Ember.Route.extend({
   model: function() {
