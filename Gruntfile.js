@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         files: [ 'Gruntfile.js' ]
       },
       js: {
-        files: [ 'assets/js/**/*.js', 'public/**/*.html' ]
+        files: [ 'assets/js/**/*.js', 'assets/css/**/*.css', 'public/**/*.html' ]
       },
       server: {
         files: [ '<%= pkg.main %>', 'models/**' ],

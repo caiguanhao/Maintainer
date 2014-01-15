@@ -6,6 +6,7 @@
   <title>Maintainer</title>
   <link rel="stylesheet" href="/css/vendor/bootstrap.css">
   <link rel="stylesheet" href="/css/vendor/bootstrap-theme.css">
+  <link rel="stylesheet" href="/css/main.css">
   <script src="/js/vendor/jquery-2.0.3.min.js"></script>
   <script src="/js/vendor/handlebars-v1.3.0.js"></script>
   <script src="/js/vendor/ember.js"></script>
@@ -62,6 +63,9 @@
               {{published.title}}
             {{/link-to}}
           {{/each}}
+          {{#link-to 'jobs.new' classNames="list-group-item"}}
+            Create New
+          {{/link-to}}
         </div>
       </div>
       <div class="col-sm-8">
@@ -73,6 +77,13 @@
     <h1>{{published.title}}</h1>
     <p>{{published.created_at}}</p>
     <p>{{published.content}}</p>
+  </script>
+  <script type="text/x-handlebars" id="jobs/new">
+    <form {{action "create_new_job" on="submit"}}>
+      {{view App.TitleView value=title placeholder="Title for the new job"}}
+      {{view App.ContentView value=content placeholder="Here types your content"}}
+      <button type="submit" class="btn btn-default">Create</button>
+    </form>
   </script>
   <script type="text/x-handlebars" id="about">
     <p>A server maintainer.</p>

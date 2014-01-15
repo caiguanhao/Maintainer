@@ -17,7 +17,7 @@ app.get('/jobs/:job_id?', function(req, res, next) {
     find._id = job_id;
   }
   Job.find(find).exec(function(error, jobs) {
-    if (error) return next();
+    if (error) return next(error);
     res.send(jobs);
   });
 });
@@ -36,8 +36,8 @@ app.post('/jobs', function(req, res, next) {
     created_at: new Date()
   });
   new_job.save(function(error) {
-    if (error) return console.log(error);
-    res.send({ status: 'OK' });
+    if (error) return next(error);
+    res.send(new_job);
   })
 });
 
@@ -45,7 +45,7 @@ app.put('/jobs/:job_id', function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
   Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
-    if (error) return next();
+    if (error) return next(error);
     var updated_job = {
       title: title,
       content: content,
@@ -54,10 +54,15 @@ app.put('/jobs/:job_id', function(req, res, next) {
     job.published = updated_job;
     job.revisions.push(updated_job);
     job.save(function(error) {
-      if (error) return next();
+      if (error) return next(error);
       res.send({ status: 'OK' });
     });
   });
+});
+
+app.use(function(err, req, res, next) {
+  res.status(err.status || 400);
+  res.send({ error: err.toString() });
 });
 
 app.use(express.static(__dirname + '/assets'));

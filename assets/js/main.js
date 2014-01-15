@@ -12,6 +12,7 @@ App.ApplicationRoute = Ember.Route.extend({
 App.Router.map(function() {
   this.resource('about');
   this.resource('jobs', function() {
+    this.route('new');
     this.resource('job', { path: ':job_id' });
   });
   this.resource('not_found', { path: '/*path' });
@@ -34,6 +35,36 @@ App.Job = Ember.Object.extend({
         }));
       }
     });
+  }
+});
+
+App.ContentView = Ember.Component.extend(Ember.TextSupport, {
+  tagName: 'p',
+  placeholder: '',
+  contenteditable: 'true',
+  attributeBindings: [ 'contenteditable', 'placeholder' ],
+  _elementValueDidChange: function() {
+    Ember.set(this, 'value', this.$().text());
+  }
+});
+
+App.TitleView = App.ContentView.extend({
+  tagName: 'h1'
+});
+
+App.JobsNewController = Ember.Controller.extend({
+  actions: {
+    create_new_job: function() {
+      $.post('/jobs', this.getProperties('title', 'content'))
+       .then(function(new_job) {
+        jobs.loadJobs().then(function(jobs) {
+          jobs.addObject(new_job);
+        });
+      }, function(response) {
+        var error = $.parseJSON(response.responseText);
+        alert(error.error);
+      })
+    }
   }
 });
 
