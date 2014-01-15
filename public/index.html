@@ -74,9 +74,12 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
-    <h1>{{published.title}}</h1>
-    <p>{{published.created_at}}</p>
-    <p>{{published.content}}</p>
+    <h1>{{job.published.title}}</h1>
+    <p>{{job.published.created_at}}</p>
+    <p>{{job.published.content}}</p>
+    <div class="btn-group">
+      <button type="button" class="btn btn-danger" {{action "remove_job"}}>Remove this job</button>
+    </div>
   </script>
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>

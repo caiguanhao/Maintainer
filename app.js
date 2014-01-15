@@ -60,6 +60,13 @@ app.put('/jobs/:job_id', function(req, res, next) {
   });
 });
 
+app.delete('/jobs/:job_id', function(req, res, next) {
+  Job.findOneAndRemove({ _id: req.params.job_id }).exec(function(error) {
+    if (error) return next(error);
+    res.send({ status: 'OK' });
+  });
+});
+
 app.use(function(err, req, res, next) {
   res.status(err.status || 400);
   res.send({ error: err.toString() });
@@ -67,6 +74,11 @@ app.use(function(err, req, res, next) {
 
 app.use(express.static(__dirname + '/assets'));
 app.use(express.static(__dirname + '/public'));
+
+app.use(function(req, res) {
+  res.status(404);
+  res.send({ error: 'Page Not Found.' });
+});
 
 app.listen(app.get('port'), function() {
   console.log('Listening on port ' + app.get('port'));

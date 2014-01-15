@@ -4,7 +4,7 @@ App.ApplicationRoute = Ember.Route.extend({
   actions: {
     error: function(error) {
       alert(error);
-      this.transitionTo('index');
+      this.transitionToRoute('index');
     }
   }
 });
@@ -63,7 +63,7 @@ App.JobsNewController = Ember.Controller.extend({
       }, function(response) {
         var error = $.parseJSON(response.responseText);
         alert(error.error);
-      })
+      });
     }
   }
 });
@@ -89,11 +89,35 @@ App.JobRoute = Ember.Route.extend({
   },
   serialize: function(model, params) {
     return { job_id: model._id };
+  },
+  setupController: function(controller, model) {
+    controller.set('job', model);
+  }
+});
+
+App.JobController = Ember.Controller.extend({
+  actions: {
+    remove_job: function() {
+      var self = this;
+      var job = self.get('job');
+      $.ajax({
+        url: '/jobs/' + job._id,
+        type: 'DELETE'
+      }).then(function() {
+        jobs.loadJobs().then(function(jobs) {
+          jobs.removeObject(job);
+          self.transitionToRoute('jobs');
+        });
+      }, function(response) {
+        var error = $.parseJSON(response.responseText);
+        alert(error.error);
+      });
+    }
   }
 });
 
 App.NotFoundRoute = Ember.Route.extend({
   redirect: function() {
-    this.transitionTo('index');
+    this.transitionToRoute('index');
   }
 });
