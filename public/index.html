@@ -59,7 +59,7 @@
         <div class="list-group">
           {{#each}}
             {{#link-to 'job' this classNames="list-group-item"}}
-              {{title}}
+              {{published.title}}
             {{/link-to}}
           {{/each}}
         </div>
@@ -70,7 +70,9 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
-    <h1>{{title}}</h1>
+    <h1>{{published.title}}</h1>
+    <p>{{published.created_at}}</p>
+    <p>{{published.content}}</p>
   </script>
   <script type="text/x-handlebars" id="about">
     <p>A server maintainer.</p>

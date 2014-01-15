@@ -1,24 +1,63 @@
 var express = require('express');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/maintainer');
 
 var app = express();
 
 app.set('port', 3000);
+app.use(express.bodyParser());
 
-var jobs = JSON.parse(require('fs').readFileSync('models/jobs.json'));
+var Job = require('./models/job');
 
-app.get('/jobs/:job_id?', function(req, res) {
+app.get('/jobs/:job_id?', function(req, res, next) {
   var job_id = req.params.job_id;
+  var find = {};
   if (job_id) {
-    for (var i = 0; i < jobs.length; i++) {
-      if (jobs[i].id == job_id) {
-        res.send(jobs[i]);
-        return;
-      }
-    }
-    res.send(null);
-  } else {
-    res.send(jobs);
+    find._id = job_id;
   }
+  Job.find(find).exec(function(error, jobs) {
+    if (error) return next();
+    res.send(jobs);
+  });
+});
+
+app.post('/jobs', function(req, res, next) {
+  var title = req.body.title;
+  var content = req.body.content;
+  var job = {
+    title: title,
+    content: content,
+    created_at: new Date()
+  };
+  var new_job = new Job({
+    published: job,
+    revisions: [ job ],
+    created_at: new Date()
+  });
+  new_job.save(function(error) {
+    if (error) return console.log(error);
+    res.send({ status: 'OK' });
+  })
+});
+
+app.put('/jobs/:job_id', function(req, res, next) {
+  var title = req.body.title;
+  var content = req.body.content;
+  Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
+    if (error) return next();
+    var updated_job = {
+      title: title,
+      content: content,
+      created_at: new Date()
+    }
+    job.published = updated_job;
+    job.revisions.push(updated_job);
+    job.save(function(error) {
+      if (error) return next();
+      res.send({ status: 'OK' });
+    });
+  });
 });
 
 app.use(express.static(__dirname + '/assets'));

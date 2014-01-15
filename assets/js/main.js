@@ -48,13 +48,16 @@ App.JobsRoute = Ember.Route.extend({
 App.JobRoute = Ember.Route.extend({
   model: function(params) {
     return jobs.loadJobs().then(function(jobs) {
-      var job = jobs.findBy('id', params.job_id);
+      var job = jobs.findBy('_id', params.job_id);
       if (job) {
         return job;
       } else {
         throw 'Job does not exist.';
       }
     });
+  },
+  serialize: function(model, params) {
+    return { job_id: model._id };
   }
 });
 
