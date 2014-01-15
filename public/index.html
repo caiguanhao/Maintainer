@@ -78,7 +78,8 @@
     <p>{{job.published.created_at}}</p>
     {{view App.ContentView value=job.published.content placeholder="Job content"}}
     <div class="btn-group">
-      <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-info" {{action "update_job"}}>Save Changes</button>
+      <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}}>Save Changes</button>
+      <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}}>Reset</button>
       <button type="button" class="btn btn-danger" {{action "remove_job"}}>Remove this job</button>
     </div>
   </script>

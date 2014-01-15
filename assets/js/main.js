@@ -126,7 +126,7 @@ App.JobController = Ember.Controller.extend({
         return false;
       }
     });
-  }.observes('job.published.title'),
+  }.observes('job.published.title', 'job.published.content'),
   actions: {
     update_job: function() {
       var self = this;
@@ -145,6 +145,10 @@ App.JobController = Ember.Controller.extend({
         var error = $.parseJSON(response.responseText);
         alert(error.error);
       });
+    },
+    reset_job: function() {
+      this.set('job.published', $.extend(true, {}, this.get('job._published')));
+      this.set('job.untouched', true);
     },
     remove_job: function() {
       var self = this;
