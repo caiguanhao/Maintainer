@@ -3,6 +3,7 @@ App = Ember.Application.create();
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
     error: function(error) {
+      alert(error);
       this.transitionTo('index');
     }
   }
@@ -16,15 +17,44 @@ App.Router.map(function() {
   this.resource('not_found', { path: '/*path' });
 });
 
+App.Job = Ember.Object.extend({
+  loadedJobs: false,
+  loadJobs: function() {
+    var self = this;
+    return Ember.Deferred.promise(function(promise) {
+      if (self.get('loadedJobs')) {
+        promise.resolve(self.get('jobs'));
+      } else {
+        promise.resolve($.getJSON('/jobs').then(function(jobs) {
+          self.setProperties({
+            jobs: jobs,
+            loadedJobs: true
+          });
+          return jobs;
+        }));
+      }
+    });
+  }
+});
+
+var jobs = App.Job.create();
+
 App.JobsRoute = Ember.Route.extend({
   model: function() {
-    return $.getJSON('/jobs');
+    return jobs.loadJobs();
   }
 });
 
 App.JobRoute = Ember.Route.extend({
   model: function(params) {
-    return $.getJSON('/jobs/' + params.job_id);
+    return jobs.loadJobs().then(function(jobs) {
+      var job = jobs.findBy('id', params.job_id);
+      if (job) {
+        return job;
+      } else {
+        throw 'Job does not exist.';
+      }
+    });
   }
 });
 

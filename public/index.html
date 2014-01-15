@@ -54,16 +54,20 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="jobs">
-    <ul class="list-group">
-      {{#each}}
-        <li class="list-group-item">
-          {{#link-to 'job' this}}
-            {{title}}
-          {{/link-to}}
-        </li>
-      {{/each}}
-    </ul>
-    {{outlet}}
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="list-group">
+          {{#each}}
+            {{#link-to 'job' this classNames="list-group-item"}}
+              {{title}}
+            {{/link-to}}
+          {{/each}}
+        </div>
+      </div>
+      <div class="col-sm-8">
+        {{outlet}}
+      </div>
+    </div>
   </script>
   <script type="text/x-handlebars" id="job">
     <h1>{{title}}</h1>
