@@ -40,11 +40,15 @@ App.Job = Ember.Object.extend({
 
 App.ContentView = Ember.Component.extend(Ember.TextSupport, {
   tagName: 'p',
-  placeholder: '',
   contenteditable: 'true',
-  attributeBindings: [ 'contenteditable', 'placeholder' ],
+  attributeBindings: [ 'contenteditable' ],
   _elementValueDidChange: function() {
+    Ember.set(this, '_parentView.controller.untouched', false);
     Ember.set(this, 'value', this.$().text());
+  },
+  didInsertElement: function() {
+    this._super();
+    this.$().text(this.value)
   }
 });
 
@@ -96,7 +100,25 @@ App.JobRoute = Ember.Route.extend({
 });
 
 App.JobController = Ember.Controller.extend({
+  untouched: true,
   actions: {
+    update_job: function() {
+      var self = this;
+      var job = self.get('job');
+      $.ajax({
+        url: '/jobs/' + job._id,
+        type: 'PUT',
+        data: {
+          title: job.published.title,
+          content: job.published.content
+        }
+      }).then(function() {
+        self.set('untouched', true);
+      }, function(response) {
+        var error = $.parseJSON(response.responseText);
+        alert(error.error);
+      });
+    },
     remove_job: function() {
       var self = this;
       var job = self.get('job');

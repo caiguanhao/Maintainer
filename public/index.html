@@ -74,10 +74,11 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
-    <h1>{{job.published.title}}</h1>
+    {{view App.TitleView value=job.published.title placeholder="Job title"}}
     <p>{{job.published.created_at}}</p>
-    <p>{{job.published.content}}</p>
+    {{view App.ContentView value=job.published.content placeholder="Job content"}}
     <div class="btn-group">
+      <button {{bind-attr disabled="untouched"}} type="button" class="btn btn-info" {{action "update_job"}}>Save Changes</button>
       <button type="button" class="btn btn-danger" {{action "remove_job"}}>Remove this job</button>
     </div>
   </script>

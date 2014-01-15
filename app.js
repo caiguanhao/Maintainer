@@ -16,7 +16,7 @@ app.get('/jobs/:job_id?', function(req, res, next) {
   if (job_id) {
     find._id = job_id;
   }
-  Job.find(find).exec(function(error, jobs) {
+  Job.find(find, '_id published created_at').exec(function(error, jobs) {
     if (error) return next(error);
     res.send(jobs);
   });
