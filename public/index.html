@@ -142,11 +142,6 @@
     </div>
     {{outlet}}
   </script>
-  <script type="text/x-handlebars" id="job_revision">
-    <h3>Revision Content</h3>
-    {{revision._id}}
-    {{revision.content}}
-  </script>
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>
       {{view App.TitleView value=title placeholder="Title for the new job"}}
