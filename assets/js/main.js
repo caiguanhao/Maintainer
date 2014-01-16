@@ -1,4 +1,4 @@
-/* extend jQuery's val() method to h1 and p */
+/* extend jQuery's val() method to h1 */
 var get_set_val = {
   get: function(elem) {
     return $(elem).text();
@@ -10,8 +10,7 @@ var get_set_val = {
 
 jQuery.extend({
   valHooks: {
-    h1: get_set_val,
-    p: get_set_val
+    h1: get_set_val
   }
 });
 
@@ -76,14 +75,38 @@ App.Jobs = Ember.Object.extend({
   }
 });
 
-App.ContentView = Ember.TextArea.extend({
-  tagName: 'p',
+App.TitleView = Ember.TextArea.extend({
+  tagName: 'h1',
   contenteditable: 'true',
   attributeBindings: [ 'contenteditable' ]
 });
 
-App.TitleView = App.ContentView.extend({
-  tagName: 'h1'
+App.CodeView = Ember.TextArea.extend({
+  _CodeMirrorDidChange: function(editor) {
+    Ember.set(editor._view, 'value', editor.getValue());
+  },
+  _CodeHorrorInit: Ember.observer('value', function() {
+    var value = Ember.get(this, 'value'),
+        $el = this.$(),
+        $editor = $el.data('editor');
+    if (!$editor) {
+      $editor = CodeMirror.fromTextArea($el.get(0), {
+        lineNumbers: true,
+        indentWithTabs: false,
+        tabSize: 2
+      });
+      $editor._view = this;
+      $editor.on('change', this._CodeMirrorDidChange, this);
+      $el.data('editor', $editor);
+    }
+    if ($editor && value !== $editor.getValue()) {
+      $editor.setValue(value || (this.get('placeholder') || ''));
+    }
+  }),
+  init: function() {
+    this._super();
+    this.on("didInsertElement", this, this._CodeHorrorInit);
+  }
 });
 
 App.JobsNewRoute = Ember.Route.extend({

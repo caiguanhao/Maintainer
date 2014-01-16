@@ -6,11 +6,14 @@
   <title>Maintainer</title>
   <link rel="stylesheet" href="/css/vendor/bootstrap.css">
   <link rel="stylesheet" href="/css/vendor/bootstrap-theme.css">
+  <link rel="stylesheet" href="/css/vendor/codemirror.css">
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/vendor/jquery-2.0.3.min.js"></script>
   <script src="/js/vendor/handlebars-v1.3.0.js"></script>
   <script src="/js/vendor/ember.js"></script>
   <script src="/js/vendor/bootstrap.min.js"></script>
+  <script src="/js/vendor/codemirror.js"></script>
+  <script src="/js/vendor/codemirror/shell.js"></script>
   <script src="/js/main.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 </head>
@@ -76,7 +79,9 @@
   <script type="text/x-handlebars" id="job">
     {{view App.TitleView value=job.published.title placeholder="Job title"}}
     <p>{{job.published.created_at}}</p>
-    {{view App.ContentView value=job.published.content placeholder="Job content"}}
+    <div class="code-content">
+      {{view App.CodeView value=job.published.content placeholder="# Job content" classNames="code-editor"}}
+    </div>
     <div class="btn-group">
       <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}}>Save Changes</button>
       <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}}>Reset</button>
@@ -86,8 +91,12 @@
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>
       {{view App.TitleView value=title placeholder="Title for the new job"}}
-      {{view App.ContentView value=content placeholder="Here types your content"}}
-      <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-primary">Create</button>
+      <div class="code-content">
+        {{view App.CodeView value=content placeholder="# Here types your content"}}
+      </div>
+      <div class="btn-group">
+        <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-primary">Create</button>
+      </div>
     </form>
   </script>
   <script type="text/x-handlebars" id="about">

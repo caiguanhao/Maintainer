@@ -5,9 +5,6 @@
 [contenteditable]:focus {
   outline: none;
 }
-p[contenteditable] {
-  white-space: pre-wrap;
-  font-family: monospace;
-  display: block;
-  min-height: 100px;
+.code-content {
+  margin: 10px 0;
 }
