@@ -85,6 +85,9 @@
     <div class="row">
       <div class="col-sm-6 pull-right text-right">
         <div class="btn-group">
+          <button type="button" class="btn btn-info" {{action "show_revisions"}}>
+            <span class="glyphicon glyphicon-time"></span>
+          </button>
           <button type="button" class="btn btn-danger" {{action "remove_job"}}>
             <span class="glyphicon glyphicon-trash"></span>
           </button>
@@ -100,6 +103,25 @@
           </button>
         </div>
       </div>
+    </div>
+    {{outlet}}
+  </script>
+  <script type="text/x-handlebars" id="job/revisions">
+    <h3>Revisions</h3>
+    <div class="list-group">
+      {{#each revision in job.revisions}}
+        <div class="list-group-item">
+          <div class="pull-right">
+            <button type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-transfer"></span> Compare
+            </button>
+          </div>
+          <div class="pull-left same-btn-height">
+            {{revision.created_at}}
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      {{/each}}
     </div>
   </script>
   <script type="text/x-handlebars" id="jobs/new">

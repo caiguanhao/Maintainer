@@ -12,14 +12,18 @@ var Job = require('./models/job');
 
 app.get('/jobs/:job_id?', function(req, res, next) {
   var job_id = req.params.job_id;
-  var find = {};
   if (job_id) {
-    find._id = job_id;
+    Job.findOne({ _id: job_id }).exec(function(error, job) {
+      if (error) return next(error);
+      res.send(job);
+    });
+  } else {
+    Job.find({}, '_id published created_at').sort('created_at')
+      .exec(function(error, jobs) {
+      if (error) return next(error);
+      res.send(jobs);
+    });
   }
-  Job.find(find, '_id published created_at').sort('created_at').exec(function(error, jobs) {
-    if (error) return next(error);
-    res.send(jobs);
-  });
 });
 
 app.post('/jobs', function(req, res, next) {
