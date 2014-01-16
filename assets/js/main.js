@@ -109,11 +109,41 @@ App.CodeView = Ember.TextArea.extend({
         lineWrapping: true
       });
       $editor._view = this;
-      $editor.on('change', this._CodeMirrorDidChange, this);
+      $editor.on('change', this._CodeMirrorDidChange);
       $el.data('editor', $editor);
     }
     if ($editor && value !== $editor.getValue()) {
       $editor.setValue(value || (this.get('placeholder') || ''));
+    }
+  }),
+  init: function() {
+    this._super();
+    this.on("didInsertElement", this, this._CodeHorrorInit);
+  }
+});
+
+App.MergeView = Ember.View.extend({
+  _CodeMirrorDidChange: function(editor) {
+    Ember.set(editor._view, 'value', editor.getValue());
+  },
+  _CodeHorrorInit: Ember.observer('value', function() {
+    var value = Ember.get(this, 'value'),
+        $el = this.$(),
+        $editor = $el.data('editor');
+    if (!$editor) {
+      $editor = CodeMirror.MergeView($el.get(0), {
+        value: value,
+        origLeft: null,
+        orig: value,
+        lineNumbers: true,
+        highlightDifferences: true
+      });
+      $editor.edit._view = this;
+      $editor.edit.on('change', this._CodeMirrorDidChange);
+      $el.data('editor', $editor);
+    }
+    if ($editor && value !== $editor.edit.getValue()) {
+      $editor.edit.setValue(value || (this.get('placeholder') || ''));
     }
   }),
   init: function() {
@@ -183,6 +213,9 @@ App.JobRoute = Ember.Route.extend({
     if (job.untouched === undefined) {
       job.untouched = true;
     }
+    if (job.useMergeView === undefined) {
+      job.useMergeView = false;
+    }
     controller.set('job', job);
   }
 });
@@ -242,6 +275,9 @@ App.JobController = Ember.Controller.extend({
     },
     show_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
+    },
+    toggle_view: function() {
+      this.set('job.useMergeView', !this.get('job.useMergeView'));
     }
   }
 });

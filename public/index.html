@@ -7,13 +7,16 @@
   <link rel="stylesheet" href="/css/vendor/bootstrap.css">
   <link rel="stylesheet" href="/css/vendor/bootstrap-theme.css">
   <link rel="stylesheet" href="/css/vendor/codemirror.css">
+  <link rel="stylesheet" href="/css/vendor/codemirror-merge.css">
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/vendor/jquery-2.0.3.min.js"></script>
   <script src="/js/vendor/handlebars-v1.3.0.js"></script>
   <script src="/js/vendor/ember.js"></script>
   <script src="/js/vendor/bootstrap.min.js"></script>
+  <script src="/js/vendor/diff_match_patch.js"></script>
   <script src="/js/vendor/codemirror.js"></script>
   <script src="/js/vendor/codemirror/shell.js"></script>
+  <script src="/js/vendor/codemirror/merge.js"></script>
   <script src="/js/main.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 </head>
@@ -87,11 +90,18 @@
     {{view App.TitleView value=job.published.title placeholder="Job title"}}
     <p>{{job.published.created_at}}</p>
     <div class="code-content">
-      {{view App.CodeView value=job.published.content placeholder="# Job content" classNames="code-editor"}}
+      {{#if job.useMergeView}}
+        {{view App.MergeView value=job.published.content}}
+      {{else}}
+        {{view App.CodeView value=job.published.content placeholder="# Job content"}}
+      {{/if}}
     </div>
     <div class="row">
       <div class="col-sm-6 pull-right text-right">
         <div class="btn-group">
+          <button type="button" class="btn btn-default" {{action "toggle_view"}}>
+            <span class="glyphicon glyphicon-resize-horizontal"></span>
+          </button>
           <button type="button" class="btn btn-info" {{action "show_revisions"}}>
             <span class="glyphicon glyphicon-time"></span>
           </button>
