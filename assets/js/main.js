@@ -67,14 +67,25 @@ App.TitleView = App.ContentView.extend({
 });
 
 App.JobsNewController = Ember.Controller.extend({
+  untouched: true,
+  touch: function() {
+    this.set('untouched', !(this.get('title') && this.get('content')));
+  }.observes('title', 'content'),
   actions: {
     create_new_job: function() {
+      var self = this;
+      self.set('untouched', true);
       $.post('/jobs', this.getProperties('title', 'content'))
        .then(function(new_job) {
         jobs.loadJobs().then(function(jobs) {
           jobs.addObject(new_job);
         });
+        self.setProperties({
+          title: '',
+          content: ''
+        });
       }, function(response) {
+        self.set('untouched', false);
         var error = $.parseJSON(response.responseText);
         alert(error.error);
       });
@@ -131,6 +142,7 @@ App.JobController = Ember.Controller.extend({
     update_job: function() {
       var self = this;
       var job = self.get('job');
+      self.set('job.untouched', true);
       $.ajax({
         url: '/jobs/' + job._id,
         type: 'PUT',
@@ -140,8 +152,8 @@ App.JobController = Ember.Controller.extend({
         }
       }).then(function() {
         self.set('job._published', $.extend(true, {}, job.published));
-        self.set('job.untouched', true);
       }, function(response) {
+        self.set('job.untouched', false);
         var error = $.parseJSON(response.responseText);
         alert(error.error);
       });
