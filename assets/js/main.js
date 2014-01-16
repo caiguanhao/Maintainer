@@ -133,12 +133,13 @@ App.JobsNewController = Ember.Controller.extend({
       self.set('untouched', true);
       $.post('/jobs', this.getProperties('title', 'content'))
        .then(function(new_job) {
-        jobs.loadJobs().then(function(jobs) {
-          jobs.addObject(new_job);
-        });
         self.setProperties({
           title: '',
           content: ''
+        });
+        jobs.loadJobs().then(function(jobs) {
+          jobs.addObject(new_job);
+          self.transitionToRoute('job', new_job);
         });
       }, function(response) {
         self.set('untouched', false);
