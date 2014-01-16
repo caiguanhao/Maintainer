@@ -106,13 +106,13 @@
     </div>
     {{outlet}}
   </script>
-  <script type="text/x-handlebars" id="job/revisions">
+  <script type="text/x-handlebars" id="job_revisions">
     <h3>Revisions</h3>
     <div class="list-group">
       {{#each revision in job.revisions}}
         <div class="list-group-item">
           <div class="pull-right">
-            <button type="button" class="btn btn-default">
+            <button type="button" class="btn btn-default" {{action "compare_revision" revision}}>
               <span class="glyphicon glyphicon-transfer"></span> Compare
             </button>
           </div>
@@ -123,6 +123,12 @@
         </div>
       {{/each}}
     </div>
+    {{outlet}}
+  </script>
+  <script type="text/x-handlebars" id="job_revision">
+    <h3>Revision Content</h3>
+    {{revision._id}}
+    {{revision.content}}
   </script>
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>

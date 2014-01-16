@@ -47,7 +47,9 @@ App.Router.map(function() {
   this.resource('jobs', function() {
     this.route('new');
     this.resource('job', { path: ':job_id' }, function() {
-      this.route('revisions');
+      this.resource('job_revisions', { path: 'revisions' }, function() {
+        this.resource('job_revision', { path: ':revision_id' });
+      });
     });
   });
   this.resource('not_found', { path: '/*path' });
@@ -239,12 +241,17 @@ App.JobController = Ember.Controller.extend({
       });
     },
     show_revisions: function() {
-      this.transitionToRoute('job.revisions', this.get('job._id'));
+      this.transitionToRoute('job_revisions', this.get('job._id'));
     }
   }
 });
 
 App.JobRevisionsController = Ember.Controller.extend({
+  actions: {
+    compare_revision: function(job) {
+      this.transitionToRoute('job_revision', job._id);
+    }
+  }
 });
 
 App.JobRevisionsRoute = Ember.Route.extend({
@@ -257,7 +264,24 @@ App.JobRevisionsRoute = Ember.Route.extend({
     });
   },
   setupController: function(controller, job) {
-    controller.set('job', job)
+    controller.set('job', job);
+  }
+});
+
+App.JobRevisionController = Ember.Controller.extend({
+});
+
+App.JobRevisionRoute = Ember.Route.extend({
+  model: function(revision) {
+    var job = this.modelFor('job_revisions');
+    return Ember.Deferred.promise(function(promise) {
+      promise.resolve($.getJSON('/jobs/' + job._id + '/' + revision.revision_id).then(function(revision) {
+        return revision;
+      }));
+    });
+  },
+  setupController: function(controller, revision) {
+    controller.set('revision', revision);
   }
 });
 

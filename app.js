@@ -10,13 +10,26 @@ app.use(express.bodyParser());
 
 var Job = require('./models/job');
 
-app.get('/jobs/:job_id?', function(req, res, next) {
+app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
   var job_id = req.params.job_id;
   if (job_id) {
-    Job.findOne({ _id: job_id }).exec(function(error, job) {
-      if (error) return next(error);
-      res.send(job);
-    });
+    var revision_id = req.params.revision_id;
+    if (revision_id) {
+      Job.findOne({ _id: job_id }, 'revisions').exec(function(error, job) {
+        if (error) return next(error);
+        for (var i = 0; i < job.revisions.length; i++) {
+          if (job.revisions[i]._id == revision_id) {
+            return res.send(job.revisions[i]);
+          }
+        }
+        return next();
+      });
+    } else {
+      Job.findOne({ _id: job_id }, '-revisions.content').exec(function(error, job) {
+        if (error) return next(error);
+        res.send(job);
+      });
+    }
   } else {
     Job.find({}, '_id published created_at').sort('created_at')
       .exec(function(error, jobs) {
