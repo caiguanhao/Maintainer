@@ -127,23 +127,30 @@ App.MergeView = Ember.View.extend({
     Ember.set(editor._view, 'value', editor.getValue());
   },
   _CodeHorrorInit: Ember.observer('value', function() {
-    var value = Ember.get(this, 'value'),
+    var value = Ember.get(this, 'value') || '',
+        orig = Ember.get(this, 'orig') || '',
         $el = this.$(),
-        $editor = $el.data('editor');
+        $editor = $el.data('editor'),
+        toCreateNew = false;
     if (!$editor) {
+      toCreateNew = true;
+    }
+    if ($editor && value !== $editor.edit.getValue() &&
+      orig !== $editor.right.orig.getValue()) {
+      toCreateNew = true;
+    }
+    if (toCreateNew) {
+      $el.empty();
       $editor = CodeMirror.MergeView($el.get(0), {
         value: value,
         origLeft: null,
-        orig: value,
+        orig: orig,
         lineNumbers: true,
         highlightDifferences: true
       });
       $editor.edit._view = this;
       $editor.edit.on('change', this._CodeMirrorDidChange);
       $el.data('editor', $editor);
-    }
-    if ($editor && value !== $editor.edit.getValue()) {
-      $editor.edit.setValue(value || (this.get('placeholder') || ''));
     }
   }),
   init: function() {

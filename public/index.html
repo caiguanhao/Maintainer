@@ -91,7 +91,7 @@
     <p>{{job.published.created_at}}</p>
     <div class="code-content">
       {{#if job.useMergeView}}
-        {{view App.MergeView value=job.published.content}}
+        {{view App.MergeView value=job.published.content orig=job.published.content}}
       {{else}}
         {{view App.CodeView value=job.published.content placeholder="# Job content"}}
       {{/if}}
