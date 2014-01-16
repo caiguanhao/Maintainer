@@ -126,20 +126,14 @@ App.MergeView = Ember.View.extend({
   _CodeMirrorDidChange: function(editor) {
     Ember.set(editor._view, 'value', editor.getValue());
   },
-  _CodeHorrorInit: Ember.observer('value', function() {
+  _CodeHorrorInitCommon: function() {
     var value = Ember.get(this, 'value') || '',
         orig = Ember.get(this, 'orig') || '',
         $el = this.$(),
-        $editor = $el.data('editor'),
-        toCreateNew = false;
-    if (!$editor) {
-      toCreateNew = true;
-    }
-    if ($editor && value !== $editor.edit.getValue() &&
-      orig !== $editor.right.orig.getValue()) {
-      toCreateNew = true;
-    }
-    if (toCreateNew) {
+        $editor = $el.data('editor');
+    // CodeMirror does not allow changing content of orig
+    // so it needs to be re-initialized.
+    if (!$editor || orig !== $editor.right.orig.getValue()) {
       $el.empty();
       $editor = CodeMirror.MergeView($el.get(0), {
         value: value,
@@ -152,10 +146,20 @@ App.MergeView = Ember.View.extend({
       $editor.edit.on('change', this._CodeMirrorDidChange);
       $el.data('editor', $editor);
     }
+    if ($editor && value !== $editor.edit.getValue()) {
+      $editor.edit.setValue(value);
+    }
+  },
+  _CodeHorrorInit: Ember.observer('value', function() {
+    this._CodeHorrorInitCommon.call(this);
+  }),
+  _CodeHorrorInit2: Ember.observer('orig', function() {
+    this._CodeHorrorInitCommon.call(this);
   }),
   init: function() {
     this._super();
     this.on("didInsertElement", this, this._CodeHorrorInit);
+    this.on("didInsertElement", this, this._CodeHorrorInit2);
   }
 });
 
@@ -217,6 +221,9 @@ App.JobRoute = Ember.Route.extend({
     if (job._published === undefined) {
       job._published = $.extend(true, {}, job.published);
     }
+    if (job._content_to_compare === undefined) {
+      job._content_to_compare = job._published.content;
+    }
     if (job.untouched === undefined) {
       job.untouched = true;
     }
@@ -254,6 +261,7 @@ App.JobController = Ember.Controller.extend({
         }
       }).then(function() {
         self.set('job._published', $.extend(true, {}, job.published));
+        self.set('job._content_to_compare', job.published.content);
       }, function(response) {
         self.set('job.untouched', false);
         var error = $.parseJSON(response.responseText);
