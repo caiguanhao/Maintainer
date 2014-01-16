@@ -75,6 +75,14 @@ App.Jobs = Ember.Object.extend({
   }
 });
 
+App.NavView = Ember.View.extend({
+  tagName: 'li',
+  classNameBindings: [ 'active' ],
+  active: function() {
+    return this.get('childViews.firstObject.active');
+  }.property('childViews.firstObject.active')
+});
+
 App.TitleView = Ember.TextArea.extend({
   tagName: 'h1',
   contenteditable: 'true',
@@ -93,7 +101,8 @@ App.CodeView = Ember.TextArea.extend({
       $editor = CodeMirror.fromTextArea($el.get(0), {
         lineNumbers: true,
         indentWithTabs: false,
-        tabSize: 2
+        tabSize: 2,
+        lineWrapping: true
       });
       $editor._view = this;
       $editor.on('change', this._CodeMirrorDidChange, this);

@@ -34,9 +34,9 @@
           </div>
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-              <li>{{#link-to "index"}}Home{{/link-to}}</li>
-              <li>{{#link-to "jobs"}}Jobs{{/link-to}}</li>
-              <li>{{#link-to "about"}}About{{/link-to}}</li>
+              {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
+              {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+              {{#view App.NavView}}{{#link-to "about"}}About{{/link-to}}{{/view}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
               <li class="dropdown">
