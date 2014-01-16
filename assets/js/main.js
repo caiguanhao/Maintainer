@@ -15,8 +15,24 @@ jQuery.extend({
   }
 });
 
+function set_title(title) {
+  document.title = (title ? title + ' - ' : '') + 'Maintainer';
+}
+
 /* Ember.js */
 App = Ember.Application.create();
+
+Ember.Route.reopen({
+  activate: function() {
+    this._super();
+    var title = this.get('title');
+    if (!title) {
+      title = this.routeName.replace(/\..*$/, '');
+      title = Ember.String.capitalize(title);
+    }
+    set_title(title);
+  }
+});
 
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
@@ -34,6 +50,10 @@ App.Router.map(function() {
     this.resource('job', { path: ':job_id' });
   });
   this.resource('not_found', { path: '/*path' });
+});
+
+App.IndexRoute = Ember.Route.extend({
+  title: 'Home'
 });
 
 App.Jobs = Ember.Object.extend({
@@ -64,6 +84,10 @@ App.ContentView = Ember.TextArea.extend({
 
 App.TitleView = App.ContentView.extend({
   tagName: 'h1'
+});
+
+App.JobsNewRoute = Ember.Route.extend({
+  title: 'Create New Job'
 });
 
 App.JobsNewController = Ember.Controller.extend({
@@ -137,6 +161,7 @@ App.JobController = Ember.Controller.extend({
         return false;
       }
     });
+    set_title(job.published.title);
   }.observes('job.published.title', 'job.published.content'),
   actions: {
     update_job: function() {
