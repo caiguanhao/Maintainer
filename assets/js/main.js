@@ -336,6 +336,10 @@ App.JobController = Ember.Controller.extend({
 
 App.JobRevisionsController = Ember.Controller.extend({
   needs: 'job',
+  isJobUpdated: function() {
+    // when a job is updated, go to revisions route to reload the model
+    this.transitionToRoute('job_revisions', this.get('controllers.job.job._id'));
+  }.observes('controllers.job.job._published'),
   actions: {
     close_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
