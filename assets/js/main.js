@@ -164,17 +164,17 @@ App.MergeView = Ember.View.extend({
 });
 
 App.RevisionSelect = Ember.Select.extend({
-  _reselect_blank: false,
+  _prevent_do_this_on_start: false,
   _change: function() {
     this._super();
     if (this.get('selection')) {
       this.get('controller').send('compare_revision', this.get('selection._id'));
     } else {
-      if (this.get('_reselect_blank')) {
+      if (this.get('_prevent_do_this_on_start')) {
         this.get('controller').send('close_revisions');
       }
-      this.set('_reselect_blank', true);
     }
+    this.set('_prevent_do_this_on_start', true);
   }
 });
 
@@ -331,7 +331,7 @@ App.JobRevisionsController = Ember.Controller.extend({
   needs: 'job',
   actions: {
     close_revisions: function() {
-      this.get('controllers.job').send('close_revisions');
+      this.transitionToRoute('job_revisions', this.get('job._id'));
     },
     compare_revision: function(id) {
       this.transitionToRoute('job_revision', id);
@@ -345,17 +345,40 @@ App.JobRevisionsController = Ember.Controller.extend({
   }
 });
 
+// http://jsperf.com/js-array-reverse-vs-while-loop/5
+function for_swap_half_for_array_reverse(array) {
+  var length = array.length;
+  var left = null;
+  var right = null;
+  for (left = 0; left < length / 2; left += 1) {
+      right = length - 1 - left;
+      var temporary = array[left];
+      array[left] = array[right];
+      array[right] = temporary;
+  }
+}
+
 App.JobRevisionsRoute = Ember.Route.extend({
   model: function() {
     var job = this.modelFor('job');
     return Ember.Deferred.promise(function(promise) {
       promise.resolve($.getJSON('/jobs/' + job._id).then(function(job) {
+        for_swap_half_for_array_reverse(job.revisions);
+        for (var i = 0; i < job.revisions.length; i++) {
+          var rev = job.revisions[i];
+          rev.display_title = '[' + rev.created_at.replace('T', ' ').replace(/\..*$/, '') + '] ';
+          rev.display_title += rev.title;
+          if (i === 0) {
+            rev.display_title += ' (latest)';
+          }
+        }
         return job;
       }));
     });
   },
   setupController: function(controller, job) {
     controller.set('job', job);
+    controller.get('controllers.job').set('showingRevisions', true);
   }
 });
 
