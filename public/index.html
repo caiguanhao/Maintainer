@@ -89,7 +89,6 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
-    {{outlet}}
     {{view App.TitleView value=job.published.title placeholder="Job title"}}
     <div class="code-content">
       {{#if job.useMergeView}}
@@ -125,6 +124,7 @@
         </div>
       </div>
     </div>
+    {{outlet}}
   </script>
   <script type="text/x-handlebars" id="job_revisions">
     <h3>
