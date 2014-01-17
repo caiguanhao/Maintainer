@@ -254,8 +254,12 @@ App.JobRoute = Ember.Route.extend({
     controller.set('job', job);
   },
   afterModel: function(job) {
-    if (this.get('controller')) {
-      this.set('controller.showingRevisions', false);
+    var controller = this.get('controller');
+    if (controller) {
+      // resets everything when you go back to job route from other route
+      controller.set('job._content_to_compare', controller.get('job._published.content'));
+      controller.set('job.useMergeView', false);
+      controller.set('showingRevisions', false);
     }
   }
 });
@@ -345,6 +349,11 @@ App.JobRevisionsController = Ember.Controller.extend({
     // when a job is updated, go to revisions route to reload the model
     this.transitionToRoute('job_revisions', this.get('controllers.job.job._id'));
   }.observes('controllers.job.job._published'),
+
+  selectionChanged: function() {
+    this.set('job.revision_index', this.get('job.revisions').indexOf(this.get('selection')) + 1);
+  }.observes('selection'),
+
   actions: {
     close_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
@@ -401,6 +410,7 @@ App.JobRevisionsRoute = Ember.Route.extend({
     });
   },
   setupController: function(controller, job) {
+    job.revision_index = 0;
     controller.set('job', job);
     var parentController = controller.get('controllers.job');
     parentController.set('job._content_to_compare', parentController.get('job._published.content'));

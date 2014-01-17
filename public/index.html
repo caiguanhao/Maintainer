@@ -132,7 +132,8 @@
           <span class="glyphicon glyphicon-chevron-right"></span> Show Next
         </button>
       </div>
-      <span class="glyphicon glyphicon-transfer"></span> Revisions ({{job.revisions.length}})
+      <span class="glyphicon glyphicon-transfer"></span> Revisions
+        ({{job.revision_index}}/{{job.revisions.length}})
     </h3>
     {{view App.RevisionSelect
        content=job.revisions
