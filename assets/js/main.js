@@ -21,15 +21,18 @@ function set_title(title) {
 /* Ember.js */
 App = Ember.Application.create();
 
+// setting title to false in route to skip using title
 Ember.Route.reopen({
   activate: function() {
     this._super();
     var title = this.get('title');
-    if (!title) {
-      title = this.routeName.replace(/\..*$/, '');
-      title = Ember.String.capitalize(title);
+    if (title !== false) {
+      if (!title) {
+        title = this.routeName.replace(/\..*$/, '');
+        title = Ember.String.capitalize(title);
+      }
+      set_title(title);
     }
-    set_title(title);
   }
 });
 
@@ -218,6 +221,10 @@ App.JobsNewController = Ember.Controller.extend({
 
 var jobs = App.Jobs.create();
 
+App.JobIndexRoute = Ember.Route.extend({
+  title: false
+});
+
 App.JobsRoute = Ember.Route.extend({
   model: function() {
     return jobs.loadJobs();
@@ -394,7 +401,12 @@ function for_swap_half_for_array_reverse(array) {
   }
 }
 
+App.JobRevisionsIndexRoute = Ember.Route.extend({
+  title: false
+});
+
 App.JobRevisionsRoute = Ember.Route.extend({
+  title: false,
   model: function() {
     var job = this.modelFor('job');
     return Ember.Deferred.promise(function(promise) {
@@ -431,6 +443,7 @@ App.JobRevisionController = Ember.Controller.extend({
 });
 
 App.JobRevisionRoute = Ember.Route.extend({
+  title: false,
   model: function(revision) {
     var job = this.modelFor('job_revisions');
     return Ember.Deferred.promise(function(promise) {
