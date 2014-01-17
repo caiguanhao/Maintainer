@@ -87,6 +87,7 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
+    {{outlet}}
     {{view App.TitleView value=job.published.title placeholder="Job title"}}
     <p>{{job.published.created_at}}</p>
     <div class="code-content">
@@ -121,26 +122,24 @@
         </div>
       </div>
     </div>
-    {{outlet}}
   </script>
   <script type="text/x-handlebars" id="job_revisions">
-    <h3>Revisions</h3>
-    <div class="list-group">
-      {{#each revision in job.revisions}}
-        <div class="list-group-item">
-          <div class="pull-right">
-            <button type="button" class="btn btn-default" {{action "compare_revision" revision}}>
-              <span class="glyphicon glyphicon-transfer"></span> Compare
-            </button>
-          </div>
-          <div class="pull-left same-btn-height">
-            {{revision.created_at}}
-          </div>
-          <div class="clearfix"></div>
-        </div>
-      {{/each}}
+    <h3><span class="glyphicon glyphicon-transfer"></span> Revisions</h3>
+    <div class="row">
+      <div class="col-sm-8">
+        {{view App.RevisionSelect
+               content=job.revisions
+               optionValuePath="content._id"
+               optionLabelPath="content.created_at"
+               prompt="Choose a revision..."
+               classNames="form-control"}}
+      </div>
+      <div class="col-sm-4">
+        <button type="button" class="btn btn-default">
+          Next
+        </button>
+      </div>
     </div>
-    {{outlet}}
   </script>
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>

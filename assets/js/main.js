@@ -163,6 +163,21 @@ App.MergeView = Ember.View.extend({
   }
 });
 
+App.RevisionSelect = Ember.Select.extend({
+  _reselect_blank: false,
+  _change: function() {
+    this._super();
+    if (this.get('selection')) {
+      this.get('controller').send('compare_revision', this.get('selection._id'));
+    } else {
+      if (this.get('_reselect_blank')) {
+        this.get('controller').send('close_revisions');
+      }
+      this.set('_reselect_blank', true);
+    }
+  }
+});
+
 App.JobsNewRoute = Ember.Route.extend({
   title: 'Create New Job'
 });
@@ -288,6 +303,9 @@ App.JobController = Ember.Controller.extend({
         alert(error.error);
       });
     },
+    close_revisions: function() {
+      this.transitionToRoute('job', this.get('job._id'));
+    },
     show_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
     },
@@ -300,8 +318,11 @@ App.JobController = Ember.Controller.extend({
 App.JobRevisionsController = Ember.Controller.extend({
   needs: 'job',
   actions: {
-    compare_revision: function(job) {
-      this.transitionToRoute('job_revision', job._id);
+    close_revisions: function() {
+      this.get('controllers.job').send('close_revisions');
+    },
+    compare_revision: function(id) {
+      this.transitionToRoute('job_revision', id);
     },
     compare_revision_content: function(content) {
       this.set('controllers.job.job._content_to_compare', content);

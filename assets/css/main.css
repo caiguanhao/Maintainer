@@ -11,6 +11,12 @@
 .CodeMirror {
   border: 1px solid #E2E2E2;
 }
+.CodeMirror-merge-gap {
+  border-top: 1px solid #E2E2E2;
+  border-bottom: 1px solid #E2E2E2;
+  border-left: 0;
+  border-right: 0;
+}
 .same-btn-height {
   height: 34px;
   line-height: 34px;
