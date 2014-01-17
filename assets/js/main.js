@@ -313,6 +313,7 @@ App.JobController = Ember.Controller.extend({
       });
     },
     close_revisions: function() {
+      this.set('job._content_to_compare', this.get('job._published.content'));
       this.transitionToRoute('job', this.get('job._id'));
       this.set('showingRevisions', false);
     },
@@ -346,7 +347,6 @@ App.JobRevisionsController = Ember.Controller.extend({
       this.set('selection', this.get('job.revisions').findBy('_id', revision._id));
       this.set('controllers.job.job._content_to_compare', revision.content);
       this.set('controllers.job.job.useMergeView', true);
-      this.set('controllers.job.job.showingRevisions', true);
     },
     show_next_revision: function() {
       var selection = this.get('selection');
@@ -393,7 +393,9 @@ App.JobRevisionsRoute = Ember.Route.extend({
   },
   setupController: function(controller, job) {
     controller.set('job', job);
-    controller.get('controllers.job').set('showingRevisions', true);
+    var parentController = controller.get('controllers.job');
+    parentController.set('job._content_to_compare', parentController.get('job._published.content'));
+    parentController.set('showingRevisions', true);
   }
 });
 
