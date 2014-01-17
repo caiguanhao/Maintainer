@@ -251,6 +251,9 @@ App.JobRoute = Ember.Route.extend({
     if (job.useMergeView === undefined) {
       job.useMergeView = false;
     }
+    if (job.showingRevisions === undefined) {
+      job.showingRevisions = false;
+    }
     controller.set('job', job);
   },
   afterModel: function(job) {
@@ -258,8 +261,9 @@ App.JobRoute = Ember.Route.extend({
     if (controller) {
       // resets everything when you go back to job route from other route
       controller.set('job._content_to_compare', controller.get('job._published.content'));
-      controller.set('job.useMergeView', false);
-      controller.set('showingRevisions', false);
+      controller.set('job.showingRevisions', false);
+      // keep merge view
+      // controller.set('job.useMergeView', false);
     }
   }
 });
@@ -278,8 +282,6 @@ App.JobController = Ember.Controller.extend({
     set_title(job.published.title);
   }.observes('job.published.title', 'job.published.content'),
 
-  showingRevisions: false,
-
   actions: {
     update_job: function() {
       var self = this;
@@ -295,6 +297,11 @@ App.JobController = Ember.Controller.extend({
       }).then(function() {
         self.set('job._published', $.extend(true, {}, job.published));
         self.set('job._content_to_compare', job.published.content);
+
+        // if we are in revisions page, reload the page:
+        if (self.get('job.showingRevisions')) {
+          self.transitionToRoute('job_revisions', job._id);
+        }
       }, function(response) {
         self.set('job.untouched', false);
         var error = $.parseJSON(response.responseText);
@@ -324,14 +331,14 @@ App.JobController = Ember.Controller.extend({
     close_revisions: function() {
       this.set('job._content_to_compare', this.get('job._published.content'));
       this.transitionToRoute('job', this.get('job._id'));
-      this.set('showingRevisions', false);
+      this.set('job.showingRevisions', false);
     },
     show_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
-      this.set('showingRevisions', true);
+      this.set('job.showingRevisions', true);
     },
     toggle_show_revisions: function() {
-      if (this.get('showingRevisions')) {
+      if (this.get('job.showingRevisions')) {
         this.send('close_revisions');
       } else {
         this.send('show_revisions');
@@ -345,10 +352,6 @@ App.JobController = Ember.Controller.extend({
 
 App.JobRevisionsController = Ember.Controller.extend({
   needs: 'job',
-  isJobUpdated: function() {
-    // when a job is updated, go to revisions route to reload the model
-    this.transitionToRoute('job_revisions', this.get('controllers.job.job._id'));
-  }.observes('controllers.job.job._published'),
 
   selectionChanged: function() {
     this.set('job.revision_index', this.get('job.revisions').indexOf(this.get('selection')) + 1);
@@ -414,7 +417,7 @@ App.JobRevisionsRoute = Ember.Route.extend({
     controller.set('job', job);
     var parentController = controller.get('controllers.job');
     parentController.set('job._content_to_compare', parentController.get('job._published.content'));
-    parentController.set('showingRevisions', true);
+    parentController.set('job.showingRevisions', true);
   }
 });
 
