@@ -113,7 +113,7 @@
             <span class="glyphicon glyphicon-resize-horizontal"></span>
           </button>
           <button type="button" {{bind-attr class=":btn :btn-default job.showingRevisions:active"}} {{action "toggle_show_revisions"}} title="Show or hide revisions">
-            <span class="glyphicon glyphicon-time"></span>
+            <span class="glyphicon glyphicon-time"></span> {{job.revision_count}}
           </button>
         </div>
       </div>

@@ -9,5 +9,7 @@ var job_model = {
 module.exports = mongoose.model('Job', new Schema({
   published: job_model,
   revisions: [ job_model ],
-  created_at: { type: Date }
+  revision_count: { type: Number, default: 1 },
+  created_at: { type: Date },
+  updated_at: { type: Date }
 }))

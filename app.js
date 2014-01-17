@@ -31,7 +31,7 @@ app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
       });
     }
   } else {
-    Job.find({}, '_id published created_at').sort('created_at')
+    Job.find({}, '_id published revision_count created_at updated_at').sort('created_at')
       .exec(function(error, jobs) {
       if (error) return next(error);
       res.send(jobs);
@@ -50,7 +50,9 @@ app.post('/jobs', function(req, res, next) {
   var new_job = new Job({
     published: job,
     revisions: [ job ],
-    created_at: new Date()
+    revision_count: 1,
+    created_at: new Date(),
+    updated_at: new Date()
   });
   new_job.save(function(error) {
     if (error) return next(error);
@@ -70,6 +72,8 @@ app.put('/jobs/:job_id', function(req, res, next) {
     }
     job.published = updated_job;
     job.revisions.push(updated_job);
+    job.revision_count += 1;
+    job.updated_at = new Date();
     job.save(function(error) {
       if (error) return next(error);
       res.send({ status: 'OK' });
