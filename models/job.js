@@ -12,4 +12,4 @@ module.exports = mongoose.model('Job', new Schema({
   revision_count: { type: Number, default: 1 },
   created_at: { type: Date },
   updated_at: { type: Date }
-}))
+}));

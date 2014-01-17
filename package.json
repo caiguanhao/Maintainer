@@ -27,10 +27,10 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-develop": "~0.3.0"
+    "grunt-express-server": "~0.4.11"
   },
   "dependencies": {
-    "express": "~3.4.7",
+    "express": "~3.3.0",
     "mongoose": "~3.8.4"
   }
 }

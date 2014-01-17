@@ -3,33 +3,47 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     watch: {
-      options: {
-        livereload: true
-      },
       gruntfile: {
         files: [ 'Gruntfile.js' ]
       },
       js: {
-        files: [ 'assets/js/**/*.js', 'assets/css/**/*.css', 'public/**/*.html' ]
+        files: [ 'assets/js/**/*.js', 'assets/css/**/*.css', 'public/**/*.html' ],
+        options: {
+          livereload: true
+        }
       },
       server: {
         files: [ '<%= pkg.main %>', 'models/**' ],
-        tasks: [ 'develop' ],
+        tasks: [ 'express', 'delay' ],
         options: {
-          nospawn: true
+          spawn: false
+        }
+      },
+      server_again: {
+        files: [ '<%= pkg.main %>', 'models/**' ],
+        options: {
+          livereload: true
         }
       }
     },
-    develop: {
+    express: {
       server: {
-        file: '<%= pkg.main %>'
+        options: {
+          script: '<%= pkg.main %>'
+        }
       }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-develop');
+  // page is reloaded before express server is restarted
+  // the browser may fail to connect, so we delay the reload
+  grunt.registerTask('delay', 'livereload is too fast to reload', function() {
+    setTimeout(this.async(), 500);
+  });
 
-  grunt.registerTask('default', [ 'develop', 'watch' ]);
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-express-server');
+
+  grunt.registerTask('default', [ 'express', 'watch' ]);
 
 };
