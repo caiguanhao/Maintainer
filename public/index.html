@@ -126,23 +126,21 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job_revisions">
-    <h3><span class="glyphicon glyphicon-transfer"></span> Revisions ({{job.revisions.length}})</h3>
-    <div class="row">
-      <div class="col-sm-8">
-        {{view App.RevisionSelect
-               content=job.revisions
-               optionValuePath="content._id"
-               optionLabelPath="content.display_title"
-               prompt="Choose a revision..."
-               selection=selection
-               classNames="form-control"}}
-      </div>
-      <div class="col-sm-4">
+    <h3>
+      <div class="pull-right">
         <button type="button" class="btn btn-default" {{action "show_next_revision"}}>
-          <span class="glyphicon glyphicon-chevron-right"></span> Next
+          <span class="glyphicon glyphicon-chevron-right"></span> Show Next
         </button>
       </div>
-    </div>
+      <span class="glyphicon glyphicon-transfer"></span> Revisions ({{job.revisions.length}})
+    </h3>
+    {{view App.RevisionSelect
+       content=job.revisions
+       optionValuePath="content._id"
+       optionLabelPath="content.display_title"
+       prompt="Choose a revision..."
+       selection=selection
+       classNames="form-control"}}
   </script>
   <script type="text/x-handlebars" id="jobs/new">
     <form {{action "create_new_job" on="submit"}}>

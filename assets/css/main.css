@@ -2,8 +2,8 @@
   content: attr(placeholder);
   color: #ccc;
 }
-[contenteditable]:focus {
-  outline: none;
+[contenteditable]:focus, button:focus {
+  outline: none !important;
 }
 .code-content {
   margin: 10px 0;
@@ -16,10 +16,6 @@
   border-bottom: 1px solid #E2E2E2;
   border-left: 0;
   border-right: 0;
-}
-.same-btn-height {
-  height: 34px;
-  line-height: 34px;
 }
 .footer {
   padding: 10px 0 50px;
