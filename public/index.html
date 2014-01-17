@@ -73,7 +73,9 @@
         <div class="list-group">
           {{#each}}
             {{#link-to 'job' this classNames="list-group-item"}}
-              {{published.title}}
+              <span {{bind-attr class="touched:touched:untouched"}}>
+                {{published.title}}
+              </span>
             {{/link-to}}
           {{/each}}
           {{#link-to 'jobs.new' classNames="list-group-item"}}

@@ -22,3 +22,10 @@
   margin: 100px 0;
   border-top: 1px solid #F1F1F1;
 }
+.touched {
+  font-style: italic;
+  color: #FF2F2F;
+}
+.active .touched {
+  color: #FFF;
+}

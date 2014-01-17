@@ -192,14 +192,20 @@ App.JobsNewRoute = Ember.Route.extend({
 });
 
 App.JobsNewController = Ember.Controller.extend({
-  untouched: true,
+  touched: false,
+
   touch: function() {
-    this.set('untouched', !(this.get('title') && this.get('content')));
+    this.set('touched', (this.get('title') && this.get('content')));
   }.observes('title', 'content'),
+
+  set_untouched: function() {
+    this.set('untouched', !this.get('touched'));
+  }.observes('touched'),
+
   actions: {
     create_new_job: function() {
       var self = this;
-      self.set('untouched', true);
+      self.set('touched', false);
       $.post('/jobs', this.getProperties('title', 'content'))
        .then(function(new_job) {
         self.setProperties({
@@ -211,7 +217,7 @@ App.JobsNewController = Ember.Controller.extend({
           self.transitionToRoute('job', new_job);
         });
       }, function(response) {
-        self.set('untouched', false);
+        self.set('touched', true);
         var error = $.parseJSON(response.responseText);
         alert(error.error);
       });
@@ -252,8 +258,8 @@ App.JobRoute = Ember.Route.extend({
     if (job._content_to_compare === undefined) {
       job._content_to_compare = job._published.content;
     }
-    if (job.untouched === undefined) {
-      job.untouched = true;
+    if (job.touched === undefined) {
+      job.touched = false;
     }
     if (job.useMergeView === undefined) {
       job.useMergeView = false;
@@ -279,21 +285,25 @@ App.JobController = Ember.Controller.extend({
   touch: function() {
     var self = this;
     var job = self.get('job');
-    self.set('job.untouched', true);
+    self.set('job.touched', false);
     $.each(job._published, function(key, val) {
       if (val !== job.published[key]) {
-        self.set('job.untouched', false);
+        self.set('job.touched', true);
         return false;
       }
     });
     set_title(job.published.title);
   }.observes('job.published.title', 'job.published.content'),
 
+  set_untouched: function() {
+    this.set('job.untouched', !this.get('job.touched'));
+  }.observes('job.touched'),
+
   actions: {
     update_job: function() {
       var self = this;
       var job = self.get('job');
-      self.set('job.untouched', true);
+      self.set('job.touched', false);
       $.ajax({
         url: '/jobs/' + job._id,
         type: 'PUT',
@@ -310,14 +320,14 @@ App.JobController = Ember.Controller.extend({
           self.transitionToRoute('job_revisions', job._id);
         }
       }, function(response) {
-        self.set('job.untouched', false);
+        self.set('job.touched', true);
         var error = $.parseJSON(response.responseText);
         alert(error.error);
       });
     },
     reset_job: function() {
       this.set('job.published', $.extend(true, {}, this.get('job._published')));
-      this.set('job.untouched', true);
+      this.set('job.touched', false);
     },
     remove_job: function() {
       var self = this;
