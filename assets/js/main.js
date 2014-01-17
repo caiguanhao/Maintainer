@@ -252,6 +252,11 @@ App.JobRoute = Ember.Route.extend({
       job.useMergeView = false;
     }
     controller.set('job', job);
+  },
+  afterModel: function(job) {
+    if (this.get('controller')) {
+      this.set('controller.showingRevisions', false);
+    }
   }
 });
 

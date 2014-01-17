@@ -98,26 +98,28 @@
       {{/if}}
     </div>
     <div class="row">
-      <div class="col-sm-6 pull-right text-right">
-        <div class="btn-group">
-          <button type="button" class="btn btn-default" {{action "toggle_view"}}>
-            <span class="glyphicon glyphicon-resize-horizontal"></span>
-          </button>
-          <button type="button" {{bind-attr class=":btn :btn-info showingRevisions:active"}} {{action "toggle_show_revisions"}}>
-            <span class="glyphicon glyphicon-time"></span>
-          </button>
-          <button type="button" class="btn btn-danger" {{action "remove_job"}}>
-            <span class="glyphicon glyphicon-trash"></span>
-          </button>
-        </div>
-      </div>
-      <div class="col-sm-6">
+      <div class="col-sm-9">
         <div class="btn-group">
           <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}}>
             <span class="glyphicon glyphicon-floppy-disk"></span> Save
           </button>
           <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}}>
             <span class="glyphicon glyphicon-repeat"></span>
+          </button>
+        </div>
+        <div class="btn-group">
+          <button type="button" {{bind-attr class=":btn :btn-default job.useMergeView:active"}} {{action "toggle_view"}}>
+            <span class="glyphicon glyphicon-resize-horizontal"></span>
+          </button>
+          <button type="button" {{bind-attr class=":btn :btn-default showingRevisions:active"}} {{action "toggle_show_revisions"}}>
+            <span class="glyphicon glyphicon-time"></span>
+          </button>
+        </div>
+      </div>
+      <div class="col-sm-3 text-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger" {{action "remove_job"}}>
+            <span class="glyphicon glyphicon-trash"></span>
           </button>
         </div>
       </div>
