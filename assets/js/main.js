@@ -264,24 +264,19 @@ App.JobRoute = Ember.Route.extend({
     if (job.useMergeView === undefined) {
       job.useMergeView = false;
     }
-    if (job.showingRevisions === undefined) {
-      job.showingRevisions = false;
-    }
     controller.set('job', job);
   },
   afterModel: function(job) {
     var controller = this.get('controller');
     if (controller) {
-      // resets everything when you go back to job route from other route
+      // resets content when you go back to job route from other route
       controller.set('job._content_to_compare', controller.get('job._published.content'));
-      controller.set('job.showingRevisions', false);
-      // keep merge view
-      // controller.set('job.useMergeView', false);
     }
   }
 });
 
 App.JobController = Ember.Controller.extend({
+  needs: 'application',
   touch: function() {
     var self = this;
     var job = self.get('job');
@@ -298,6 +293,16 @@ App.JobController = Ember.Controller.extend({
   set_untouched: function() {
     this.set('job.untouched', !this.get('job.touched'));
   }.observes('job.touched'),
+
+  is_showing_revisions: function() {
+    var currentPath = this.get('controllers.application.currentPath');
+    if (currentPath && currentPath.indexOf('job_revisions') >= 0) {
+      this.set('job.showingRevisions', true);
+    } else {
+      this.set('job.showingRevisions', false);
+    }
+  }.observes('controllers.application.currentPath', 'job'),
+  // observe: path changes, same path but different job
 
   actions: {
     update_job: function() {
@@ -348,11 +353,9 @@ App.JobController = Ember.Controller.extend({
     close_revisions: function() {
       this.set('job._content_to_compare', this.get('job._published.content'));
       this.transitionToRoute('job', this.get('job._id'));
-      this.set('job.showingRevisions', false);
     },
     show_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
-      this.set('job.showingRevisions', true);
     },
     toggle_show_revisions: function() {
       if (this.get('job.showingRevisions')) {
@@ -439,7 +442,6 @@ App.JobRevisionsRoute = Ember.Route.extend({
     controller.set('job', job);
     var parentController = controller.get('controllers.job');
     parentController.set('job._content_to_compare', parentController.get('job._published.content'));
-    parentController.set('job.showingRevisions', true);
   }
 });
 
