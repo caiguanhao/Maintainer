@@ -262,6 +262,9 @@ App.JobController = Ember.Controller.extend({
     });
     set_title(job.published.title);
   }.observes('job.published.title', 'job.published.content'),
+
+  showingRevisions: false,
+
   actions: {
     update_job: function() {
       var self = this;
@@ -305,9 +308,18 @@ App.JobController = Ember.Controller.extend({
     },
     close_revisions: function() {
       this.transitionToRoute('job', this.get('job._id'));
+      this.set('showingRevisions', false);
     },
     show_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
+      this.set('showingRevisions', true);
+    },
+    toggle_show_revisions: function() {
+      if (this.get('showingRevisions')) {
+        this.send('close_revisions');
+      } else {
+        this.send('show_revisions');
+      }
     },
     toggle_view: function() {
       this.set('job.useMergeView', !this.get('job.useMergeView'));
@@ -324,9 +336,11 @@ App.JobRevisionsController = Ember.Controller.extend({
     compare_revision: function(id) {
       this.transitionToRoute('job_revision', id);
     },
-    compare_revision_content: function(content) {
-      this.set('controllers.job.job._content_to_compare', content);
+    compare_revision_content: function(revision) {
+      this.set('selection', this.get('job.revisions').findBy('_id', revision._id));
+      this.set('controllers.job.job._content_to_compare', revision.content);
       this.set('controllers.job.job.useMergeView', true);
+      this.set('controllers.job.job.showingRevisions', true);
     }
   }
 });
@@ -348,8 +362,8 @@ App.JobRevisionsRoute = Ember.Route.extend({
 App.JobRevisionController = Ember.Controller.extend({
   needs: 'job_revisions',
   actions: {
-    compare_revision_content: function(content) {
-      this.get('controllers.job_revisions').send('compare_revision_content', content);
+    compare_revision_content: function(revision) {
+      this.get('controllers.job_revisions').send('compare_revision_content', revision);
     }
   }
 });
@@ -364,7 +378,7 @@ App.JobRevisionRoute = Ember.Route.extend({
     });
   },
   setupController: function(controller, revision) {
-    controller.send('compare_revision_content', revision.content);
+    controller.send('compare_revision_content', revision);
   }
 });
 

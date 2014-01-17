@@ -103,7 +103,7 @@
           <button type="button" class="btn btn-default" {{action "toggle_view"}}>
             <span class="glyphicon glyphicon-resize-horizontal"></span>
           </button>
-          <button type="button" class="btn btn-info" {{action "show_revisions"}}>
+          <button type="button" class="btn btn-info" {{action "toggle_show_revisions"}}>
             <span class="glyphicon glyphicon-time"></span>
           </button>
           <button type="button" class="btn btn-danger" {{action "remove_job"}}>
@@ -132,6 +132,7 @@
                optionValuePath="content._id"
                optionLabelPath="content.created_at"
                prompt="Choose a revision..."
+               selection=selection
                classNames="form-control"}}
       </div>
       <div class="col-sm-4">
