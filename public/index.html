@@ -103,7 +103,7 @@
           <button type="button" class="btn btn-default" {{action "toggle_view"}}>
             <span class="glyphicon glyphicon-resize-horizontal"></span>
           </button>
-          <button type="button" class="btn btn-info" {{action "toggle_show_revisions"}}>
+          <button type="button" {{bind-attr class=":btn :btn-info showingRevisions:active"}} {{action "toggle_show_revisions"}}>
             <span class="glyphicon glyphicon-time"></span>
           </button>
           <button type="button" class="btn btn-danger" {{action "remove_job"}}>
