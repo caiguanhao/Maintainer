@@ -175,6 +175,12 @@ App.RevisionSelect = Ember.Select.extend({
       }
     }
     this.set('_prevent_do_this_on_start', true);
+  },
+  _selectionDidChangeSingle: function() {
+    this._super();
+    if (this.get('_prevent_do_this_on_start')) {
+      this._change();
+    }
   }
 });
 
@@ -341,6 +347,15 @@ App.JobRevisionsController = Ember.Controller.extend({
       this.set('controllers.job.job._content_to_compare', revision.content);
       this.set('controllers.job.job.useMergeView', true);
       this.set('controllers.job.job.showingRevisions', true);
+    },
+    show_next_revision: function() {
+      var selection = this.get('selection');
+      if (selection) {
+        var index = this.get('job.revisions').indexOf(selection);
+        this.set('selection', this.get('job.revisions').nextObject(index+1));
+      } else {
+        this.set('selection', this.get('job.revisions.firstObject'));
+      }
     }
   }
 });
