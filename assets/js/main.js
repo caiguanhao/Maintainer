@@ -42,9 +42,14 @@ Ember.Route.reopen({
 
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
-    error: function(error) {
-      alert(error);
-      this.transitionToRoute('index');
+    error: function(error, transition, originRoute) {
+      if (error.responseJSON && error.responseJSON.error) {
+        alert(error.responseJSON.error);
+      } else {
+        alert(error);
+      }
+      this.transitionTo('index');
+      // or: originRoute.router.transitionTo('index');
     }
   }
 });
@@ -369,8 +374,8 @@ App.JobRevisionRoute = Ember.Route.extend({
 });
 
 App.NotFoundRoute = Ember.Route.extend({
-  redirect: function() {
-    this.transitionToRoute('index');
+  setupController: function(controller) {
+    controller.transitionToRoute('index');
   }
 });
 
