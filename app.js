@@ -1,18 +1,24 @@
-var express = require('tty.js');
+var tty = require('tty.js');
+var Server = tty.Server;
+var express = tty.express;
+
 var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/maintainer');
 
-var port = 3000;
+Server.prototype.initMiddleware = function() {
+  this.use(express.bodyParser());
+  this.use(express.static(__dirname + '/assets'));
+  this.use(express.static(__dirname + '/public'));
+};
 
-var app = express.createServer({
+Server.prototype.initRoutes = function() {
+};
+
+var app = Server({
   shell: 'bash',
-  port: port,
-  static: 'public'
+  port: 3000
 });
-
-app.set('port', port);
-app.use(express.bodyParser());
 
 var Job = require('./models/job');
 
@@ -99,14 +105,9 @@ app.use(function(err, req, res, next) {
   res.send({ error: err.toString() });
 });
 
-app.use(express.static(__dirname + '/assets'));
-app.use(express.static(__dirname + '/public'));
-
 app.use(function(req, res) {
   res.status(404);
   res.send({ error: 'Page Not Found.' });
 });
 
-app.listen(app.get('port'), function() {
-  console.log('Listening on port ' + app.get('port'));
-});
+app.listen();
