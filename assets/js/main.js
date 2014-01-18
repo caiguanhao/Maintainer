@@ -62,131 +62,6 @@ App.IndexRoute = Ember.Route.extend({
   title: 'Home'
 });
 
-App.Jobs = Ember.Object.extend({
-  loadedJobs: false,
-  loadJobs: function() {
-    var self = this;
-    return Ember.Deferred.promise(function(promise) {
-      if (self.get('loadedJobs')) {
-        promise.resolve(self.get('jobs'));
-      } else {
-        promise.resolve($.getJSON('/jobs').then(function(jobs) {
-          self.setProperties({
-            jobs: jobs,
-            loadedJobs: true
-          });
-          return jobs;
-        }));
-      }
-    });
-  }
-});
-
-App.NavView = Ember.View.extend({
-  tagName: 'li',
-  classNameBindings: [ 'active' ],
-  active: function() {
-    return this.get('childViews.firstObject.active');
-  }.property('childViews.firstObject.active')
-});
-
-App.TitleView = Ember.TextArea.extend({
-  tagName: 'h1',
-  contenteditable: 'true',
-  attributeBindings: [ 'contenteditable' ]
-});
-
-App.CodeView = Ember.TextArea.extend({
-  _CodeMirrorDidChange: function(editor) {
-    Ember.set(editor._view, 'value', editor.getValue());
-  },
-  _CodeHorrorInit: Ember.observer('value', function() {
-    var value = Ember.get(this, 'value'),
-        $el = this.$(),
-        $editor = $el.data('editor');
-    if (!$editor) {
-      $editor = CodeMirror.fromTextArea($el.get(0), {
-        lineNumbers: true,
-        indentWithTabs: false,
-        tabSize: 2,
-        lineWrapping: true
-      });
-      $editor._view = this;
-      $editor.on('change', this._CodeMirrorDidChange);
-      $el.data('editor', $editor);
-    }
-    if ($editor && value !== $editor.getValue()) {
-      $editor.setValue(value || (this.get('placeholder') || ''));
-    }
-  }),
-  init: function() {
-    this._super();
-    this.on("didInsertElement", this, this._CodeHorrorInit);
-  }
-});
-
-App.MergeView = Ember.View.extend({
-  _CodeMirrorDidChange: function(editor) {
-    Ember.set(editor._view, 'value', editor.getValue());
-  },
-  _CodeHorrorInitCommon: function() {
-    var value = Ember.get(this, 'value') || '',
-        orig = Ember.get(this, 'orig') || '',
-        $el = this.$(),
-        $editor = $el.data('editor');
-    // CodeMirror does not allow changing content of orig
-    // so it needs to be re-initialized.
-    if (!$editor || orig !== $editor.right.orig.getValue()) {
-      $el.empty();
-      $editor = CodeMirror.MergeView($el.get(0), {
-        value: value,
-        origLeft: null,
-        orig: orig,
-        lineNumbers: true,
-        highlightDifferences: true
-      });
-      $editor.edit._view = this;
-      $editor.edit.on('change', this._CodeMirrorDidChange);
-      $el.data('editor', $editor);
-    }
-    if ($editor && value !== $editor.edit.getValue()) {
-      $editor.edit.setValue(value);
-    }
-  },
-  _CodeHorrorInit: Ember.observer('value', function() {
-    this._CodeHorrorInitCommon.call(this);
-  }),
-  _CodeHorrorInit2: Ember.observer('orig', function() {
-    this._CodeHorrorInitCommon.call(this);
-  }),
-  init: function() {
-    this._super();
-    this.on("didInsertElement", this, this._CodeHorrorInit);
-    this.on("didInsertElement", this, this._CodeHorrorInit2);
-  }
-});
-
-App.RevisionSelect = Ember.Select.extend({
-  _prevent_do_this_on_start: false,
-  _change: function() {
-    this._super();
-    if (this.get('selection')) {
-      this.get('controller').send('compare_revision', this.get('selection._id'));
-    } else {
-      if (this.get('_prevent_do_this_on_start')) {
-        this.get('controller').send('close_revisions');
-      }
-    }
-    this.set('_prevent_do_this_on_start', true);
-  },
-  _selectionDidChangeSingle: function() {
-    this._super();
-    if (this.get('_prevent_do_this_on_start')) {
-      this._change();
-    }
-  }
-});
-
 App.JobsNewRoute = Ember.Route.extend({
   title: 'Create New Job'
 });
@@ -222,6 +97,26 @@ App.JobsNewController = Ember.Controller.extend({
         alert(error.error);
       });
     }
+  }
+});
+
+App.Jobs = Ember.Object.extend({
+  loadedJobs: false,
+  loadJobs: function() {
+    var self = this;
+    return Ember.Deferred.promise(function(promise) {
+      if (self.get('loadedJobs')) {
+        promise.resolve(self.get('jobs'));
+      } else {
+        promise.resolve($.getJSON('/jobs').then(function(jobs) {
+          self.setProperties({
+            jobs: jobs,
+            loadedJobs: true
+          });
+          return jobs;
+        }));
+      }
+    });
   }
 });
 
@@ -472,5 +367,112 @@ App.JobRevisionRoute = Ember.Route.extend({
 App.NotFoundRoute = Ember.Route.extend({
   redirect: function() {
     this.transitionToRoute('index');
+  }
+});
+
+/* Ember Views */
+
+App.NavView = Ember.View.extend({
+  tagName: 'li',
+  classNameBindings: [ 'active' ],
+  active: function() {
+    return this.get('childViews.firstObject.active');
+  }.property('childViews.firstObject.active')
+});
+
+App.TitleView = Ember.TextArea.extend({
+  tagName: 'h1',
+  contenteditable: 'true',
+  attributeBindings: [ 'contenteditable' ]
+});
+
+App.CodeView = Ember.TextArea.extend({
+  _CodeMirrorDidChange: function(editor) {
+    Ember.set(editor._view, 'value', editor.getValue());
+  },
+  _CodeHorrorInit: Ember.observer('value', function() {
+    var value = Ember.get(this, 'value'),
+        $el = this.$(),
+        $editor = $el.data('editor');
+    if (!$editor) {
+      $editor = CodeMirror.fromTextArea($el.get(0), {
+        lineNumbers: true,
+        indentWithTabs: false,
+        tabSize: 2,
+        lineWrapping: true
+      });
+      $editor._view = this;
+      $editor.on('change', this._CodeMirrorDidChange);
+      $el.data('editor', $editor);
+    }
+    if ($editor && value !== $editor.getValue()) {
+      $editor.setValue(value || (this.get('placeholder') || ''));
+    }
+  }),
+  init: function() {
+    this._super();
+    this.on("didInsertElement", this, this._CodeHorrorInit);
+  }
+});
+
+App.MergeView = Ember.View.extend({
+  _CodeMirrorDidChange: function(editor) {
+    Ember.set(editor._view, 'value', editor.getValue());
+  },
+  _CodeHorrorInitCommon: function() {
+    var value = Ember.get(this, 'value') || '',
+        orig = Ember.get(this, 'orig') || '',
+        $el = this.$(),
+        $editor = $el.data('editor');
+    // CodeMirror does not allow changing content of orig
+    // so it needs to be re-initialized.
+    if (!$editor || orig !== $editor.right.orig.getValue()) {
+      $el.empty();
+      $editor = CodeMirror.MergeView($el.get(0), {
+        value: value,
+        origLeft: null,
+        orig: orig,
+        lineNumbers: true,
+        highlightDifferences: true
+      });
+      $editor.edit._view = this;
+      $editor.edit.on('change', this._CodeMirrorDidChange);
+      $el.data('editor', $editor);
+    }
+    if ($editor && value !== $editor.edit.getValue()) {
+      $editor.edit.setValue(value);
+    }
+  },
+  _CodeHorrorInit: Ember.observer('value', function() {
+    this._CodeHorrorInitCommon.call(this);
+  }),
+  _CodeHorrorInit2: Ember.observer('orig', function() {
+    this._CodeHorrorInitCommon.call(this);
+  }),
+  init: function() {
+    this._super();
+    this.on("didInsertElement", this, this._CodeHorrorInit);
+    this.on("didInsertElement", this, this._CodeHorrorInit2);
+  }
+});
+
+App.RevisionSelect = Ember.Select.extend({
+  _prevent_do_this_on_start: false,
+  _change: function() {
+    this._super();
+    if (this.get('selection')) {
+      this.get('controller').send('compare_revision', this.get('selection._id'));
+    } else {
+      if (this.get('_prevent_do_this_on_start')) {
+        this.get('controller').send('close_revisions');
+      }
+    }
+    this.set('_prevent_do_this_on_start', true);
+  },
+  _selectionDidChangeSingle: function() {
+    this._super();
+    if (this.get('_prevent_do_this_on_start')) {
+      this._change();
+    }
   }
 });
