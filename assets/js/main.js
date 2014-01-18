@@ -223,7 +223,7 @@ App.JobController = Ember.Controller.extend({
       }).then(function() {
         self.set('job._published', $.extend(true, {}, job.published));
         self.set('job._content_to_compare', job.published.content);
-
+        self.incrementProperty('job.revision_count');
         // if we are in revisions page, reload the page:
         if (self.get('job.showingRevisions')) {
           self.transitionToRoute('job_revisions', job._id);
@@ -271,7 +271,7 @@ App.JobController = Ember.Controller.extend({
     toggle_view: function() {
       this.set('job.useMergeView', !this.get('job.useMergeView'));
     },
-    open_terminal: function() {
+    run_script: function() {
       new TerminalWindow(null, {
         job: this.get('job._id')
       });

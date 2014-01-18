@@ -26,7 +26,8 @@ var Job = require('./models/job');
 function runScriptOnStart(term, bundle) {
   if (!bundle || !bundle.job) return;
   Job.findOne({ _id: bundle.job }, 'published.content', function(error, job) {
-    term.write(job.published.content);
+    var script = job.published.content.trim() + '\n';
+    term.write(script);
   });
 }
 
