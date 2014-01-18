@@ -18,6 +18,10 @@ function set_title(title) {
   document.title = (title ? title + ' - ' : '') + 'Maintainer';
 }
 
+Ember.Handlebars.helper('default', function(value, default_value) {
+  return value || default_value;
+});
+
 /* Ember.js */
 App = Ember.Application.create();
 

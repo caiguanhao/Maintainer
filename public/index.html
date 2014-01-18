@@ -74,7 +74,7 @@
           {{#each}}
             {{#link-to 'job' this classNames="list-group-item"}}
               <span {{bind-attr class="touched:touched:untouched"}}>
-                {{published.title}}
+                {{default published.title "(untitled)"}}
               </span>
             {{/link-to}}
           {{/each}}
