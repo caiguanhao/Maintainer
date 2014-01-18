@@ -1,3 +1,6 @@
 # ignore these files on git diff
 assets/js/vendor/** -diff
 assets/css/vendor/** -diff
+
+# exceptions:
+assets/js/vendor/tty.js diff

@@ -167,7 +167,7 @@ tty.reset = function() {
  * Window
  */
 
-function Window(socket) {
+function Window(socket, params) {
   var self = this;
 
   EventEmitter.call(this);
@@ -202,6 +202,8 @@ function Window(socket) {
   this.bar = bar;
   this.button = button;
   this.title = title;
+
+  this.params = params;
 
   this.tabs = [];
   this.focused = null;
@@ -560,7 +562,9 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  this.socket.emit('create', cols, rows, function(err, data) {
+  var params = this.window.params;
+
+  this.socket.emit('create', cols, rows, params, function(err, data) {
     if (err) return self._destroy();
     self.pty = data.pty;
     self.id = data.id;

@@ -17,10 +17,18 @@ Server.prototype.initRoutes = function() {
 
 var app = Server({
   shell: 'bash',
-  port: 3000
+  port: 3000,
+  runScriptOnStart: runScriptOnStart
 });
 
 var Job = require('./models/job');
+
+function runScriptOnStart(term, bundle) {
+  if (!bundle || !bundle.job) return;
+  Job.findOne({ _id: bundle.job }, 'published.content', function(error, job) {
+    term.write(job.published.content);
+  });
+}
 
 app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
   var job_id = req.params.job_id;

@@ -272,7 +272,9 @@ App.JobController = Ember.Controller.extend({
       this.set('job.useMergeView', !this.get('job.useMergeView'));
     },
     open_terminal: function() {
-      new TerminalWindow;
+      new TerminalWindow(null, {
+        job: this.get('job._id')
+      });
     }
   }
 });
