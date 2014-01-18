@@ -1,11 +1,17 @@
-var express = require('express');
+var express = require('tty.js');
 var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/maintainer');
 
-var app = express();
+var port = 3000;
 
-app.set('port', 3000);
+var app = express.createServer({
+  shell: 'bash',
+  port: port,
+  static: 'public'
+});
+
+app.set('port', port);
 app.use(express.bodyParser());
 
 var Job = require('./models/job');
