@@ -74,6 +74,18 @@
   <script type="text/x-handlebars" id="jobs">
     <div class="row">
       <div class="col-sm-4">
+        <div class="job-filter">
+          <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              Show <strong>{{ternary filter "trashed" "Trashed" "Current"}}</strong>
+            </button>
+            <ul class="dropdown-menu">
+              <li>{{#link-to 'jobs' (query-params filter=null)}}Current{{/link-to}}</li>
+              <li>{{#link-to 'jobs' (query-params filter="trashed")}}Trashed{{/link-to}}</li>
+            </ul>
+          </div>
+        </div>
         <div class="list-group">
           {{#each}}
             {{#link-to 'job' this classNames="list-group-item"}}
@@ -82,24 +94,16 @@
               </span>
             {{/link-to}}
           {{/each}}
-          {{#link-to 'jobs.new' classNames="list-group-item"}}
-            Create New
-          {{/link-to}}
+          {{#unless filter}}
+            {{#link-to 'jobs.new' classNames="list-group-item"}}
+              Create New
+            {{/link-to}}
+          {{/unless}}
         </div>
         <div class="btn-group">
           <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
             <span class="glyphicon glyphicon-new-window"></span> Open Terminal
           </button>
-          <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              Show {{ternary filter "trashed" "Trashed" "Current"}}
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-              <li>{{#link-to 'jobs' (query-params filter=null)}}Current{{/link-to}}</li>
-              <li>{{#link-to 'jobs' (query-params filter="trashed")}}Trashed{{/link-to}}</li>
-            </ul>
-          </div>
         </div>
       </div>
       <div class="col-sm-8">

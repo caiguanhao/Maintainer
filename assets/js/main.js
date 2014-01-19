@@ -85,7 +85,13 @@ App.IndexRoute = Ember.Route.extend({
 });
 
 App.JobsNewRoute = Ember.Route.extend({
-  title: 'Create New Job'
+  title: 'Create New Job',
+  beforeModel: function() {
+    // don't create job in trash page.
+    if (jobs.currentFilter) {
+      throw 'Page Not Found.';
+    }
+  }
 });
 
 App.JobsNewController = Ember.Controller.extend({
@@ -179,7 +185,7 @@ App.JobsController = Ember.ArrayController.extend({
   // when you are in job route viewing a job details page
   // if you change the job filter, it will not trigger the query params change.
   temporary_fix: function() {
-    if (this.get('controllers.application.currentPath') === 'jobs.index') {
+    if (this.get('controllers.application.currentPath').indexOf('jobs') !== -1) {
       this.send('queryParamsDidChange');
     }
   }.observes('controllers.application.currentPath')
@@ -310,10 +316,14 @@ App.JobController = Ember.Controller.extend({
         url: '/jobs/' + job._id,
         type: 'DELETE'
       }).then(function() {
-        jobs.loadJobs().then(function(jobs) {
-          jobs.removeObject(job);
-          self.transitionToRoute('jobs');
-        });
+        if (job.available) {
+          self.transitionToRoute('job', job._id, { queryParams: { filter: 'trashed' } });
+        } else {
+          jobs.loadJobs().then(function(jobs) {
+            jobs.removeObject(job);
+            self.transitionToRoute('jobs');
+          });
+        }
       }, function(response) {
         var error = $.parseJSON(response.responseText);
         alert(error.error);
@@ -326,10 +336,7 @@ App.JobController = Ember.Controller.extend({
         url: '/jobs/' + job._id,
         type: 'POST'
       }).then(function() {
-        jobs.loadJobs().then(function(jobs) {
-          jobs.removeObject(job);
-          self.transitionToRoute('jobs');
-        });
+        self.transitionToRoute('job', job._id, { queryParams: { filter: null } });
       }, function(response) {
         var error = $.parseJSON(response.responseText);
         alert(error.error);

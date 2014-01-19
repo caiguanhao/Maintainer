@@ -37,6 +37,9 @@
 .active .touched {
   color: #FFF;
 }
+.job-filter {
+  margin: 0 0 10px 0;
+}
 
 /* Terminal */
 
