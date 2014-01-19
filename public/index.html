@@ -119,7 +119,12 @@
     {{outlet}}
     <div class="row">
       <div class="col-sm-9">
-        <div class="btn-group">
+        {{#unless job.available}}
+          <button type="button" class="btn btn-success" {{action "put_back"}} title="Put back">
+            <span class="glyphicon glyphicon-share"></span> Put Back
+          </button>
+        {{/unless}}
+        <div {{bind-attr class=":btn-group job.available:btn-show:hide"}}>
           <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}} title="Save this job">
             <span class="glyphicon glyphicon-floppy-disk"></span> Save
           </button>

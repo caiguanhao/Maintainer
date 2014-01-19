@@ -72,6 +72,7 @@ app.post('/jobs', function(req, res, next) {
     created_at: new Date()
   };
   var new_job = new Job({
+    available: true,
     published: job,
     revisions: [ job ],
     revision_count: 1,
@@ -87,13 +88,14 @@ app.post('/jobs', function(req, res, next) {
 app.put('/jobs/:job_id', function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
-  Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
-    if (error) return next(error);
+  Job.findOne({ _id: req.params.job_id, available: true }).exec(function(error, job) {
+    if (error || !job) return next(error);
     var updated_job = {
       title: title,
       content: content,
       created_at: new Date()
     }
+    job.available = true;
     job.published = updated_job;
     job.revisions.push(updated_job);
     job.revision_count += 1;
@@ -105,10 +107,37 @@ app.put('/jobs/:job_id', function(req, res, next) {
   });
 });
 
+// put back
+app.post('/jobs/:job_id', function(req, res, next) {
+  Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
+    if (error || !job) return next(error);
+    job.available = true;
+    job.save(function(error) {
+      if (error) return next(error);
+      res.send({ status: 'OK' });
+    });
+  });
+});
+
 app.delete('/jobs/:job_id', function(req, res, next) {
-  Job.findOneAndRemove({ _id: req.params.job_id }).exec(function(error) {
-    if (error) return next(error);
+  Job.findOne({ _id: req.params.job_id }).exec().then(function(job) {
+    if (job === null) throw null;
+    var promise = new mongoose.Promise;
+    if (job.available === true) {
+      job.available = false;
+      job.save(function(error, job) {
+        promise.resolve(error, job);
+      });
+    } else {
+      job.remove(function(error, job) {
+        promise.resolve(error, job);
+      });
+    }
+    return promise;
+  }).then(function() {
     res.send({ status: 'OK' });
+  }, function(error) {
+    next(error);
   });
 });
 

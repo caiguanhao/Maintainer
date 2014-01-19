@@ -243,6 +243,7 @@ App.JobController = Ember.Controller.extend({
   touch: function() {
     var self = this;
     var job = self.get('job');
+    if (!job.available) return;
     self.set('job.touched', false);
     $.each(job._published, function(key, val) {
       if (val !== job.published[key]) {
@@ -301,9 +302,29 @@ App.JobController = Ember.Controller.extend({
     remove_job: function() {
       var self = this;
       var job = self.get('job');
+      if (job.available !== true) {
+        if (!confirm('Are you sure you want to permanently remove this job? ' +
+          'All data of this job will be deleted and cannot be recovered.')) return;
+      }
       $.ajax({
         url: '/jobs/' + job._id,
         type: 'DELETE'
+      }).then(function() {
+        jobs.loadJobs().then(function(jobs) {
+          jobs.removeObject(job);
+          self.transitionToRoute('jobs');
+        });
+      }, function(response) {
+        var error = $.parseJSON(response.responseText);
+        alert(error.error);
+      });
+    },
+    put_back: function() {
+      var self = this;
+      var job = self.get('job');
+      $.ajax({
+        url: '/jobs/' + job._id,
+        type: 'POST'
       }).then(function() {
         jobs.loadJobs().then(function(jobs) {
           jobs.removeObject(job);
