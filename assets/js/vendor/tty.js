@@ -80,7 +80,19 @@ tty.open = function() {
 
   tty.socket.on('data', function(id, data) {
     if (!tty.terms[id]) return;
-    tty.terms[id].write(data);
+    var term = tty.terms[id];
+    if (term._hideBundleOutput === undefined) {
+      term._hideBundleOutput = !!(term.window.params.hideBundleOutput);
+    }
+    if (term._hideBundleOutput) {
+      // if exception occurs, use indexOf
+      if (data.substr(0, 8) === '\x1b[?1034h') {
+        term._hideBundleOutput = false;
+      } else {
+        return;
+      }
+    }
+    term.write(data);
   });
 
   tty.socket.on('kill', function(id) {
@@ -562,18 +574,13 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  var params = self.window.params;
-  var params_options = params ? params.options : null;
-  var bundle;
-  if (params_options && params_options.send) {
-    bundle = params[params_options.send];
-  } else {
-    bundle = params;
-  }
+  var params = self.window.params || {};
+  var bundle = params.bundle;
 
   this.socket.emit('create', cols, rows, bundle, function(err, data) {
-    if (!params_options || params_options.keepOnAllTabs !== true) {
-      self.window.params = null;
+    if (params.keepSendingBundleOnStartOfAllTabs !== true) {
+      self.window.params = self.window.params || {};
+      self.window.params.bundle = null;
     }
     if (err) return self._destroy();
     self.pty = data.pty;

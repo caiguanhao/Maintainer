@@ -280,10 +280,8 @@ App.JobController = Ember.Controller.extend({
         bundle: {
           job: this.get('job._id')
         },
-        options: {
-          send: 'bundle',
-          keepOnAllTabs: false
-        }
+        hideBundleOutput: true,
+        keepSendingBundleOnStartOfAllTabs: false
       });
     }
   }
