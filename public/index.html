@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/vendor/jquery-2.0.3.min.js"></script>
   <script src="/js/vendor/handlebars-v1.3.0.js"></script>
+  <script src="/js/ember_env.js"></script>
   <script src="/js/vendor/ember.js"></script>
   <script src="/js/vendor/bootstrap.min.js"></script>
   <script src="/js/vendor/diff_match_patch.js"></script>
@@ -89,6 +90,16 @@
           <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
             <span class="glyphicon glyphicon-new-window"></span> Open Terminal
           </button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              Show {{ternary filter "trashed" "Trashed" "Current"}}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>{{#link-to 'jobs' (query-params filter=null)}}Current{{/link-to}}</li>
+              <li>{{#link-to 'jobs' (query-params filter="trashed")}}Trashed{{/link-to}}</li>
+            </ul>
+          </div>
         </div>
       </div>
       <div class="col-sm-8">

@@ -34,17 +34,19 @@ function runScriptOnStart(term, bundle) {
 app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
-  var query;
+  var query, find = {};
   if (job_id) {
+    find._id = job_id
     if (revision_id) {
-      query = Job.findOne({ _id: job_id }, 'revisions').exec().then(function(content) {
+      query = Job.findOne(find, 'revisions').exec().then(function(content) {
         return content.revisions.id(revision_id)
       });
     } else {
-      query = Job.findOne({ _id: job_id }, '-revisions.content').exec();
+      query = Job.findOne(find, '-revisions.content').exec();
     }
   } else {
-    query = Job.find({}, '-revisions').sort('created_at').exec();
+    find.available = req.query.show_unavailable === 'true' ? { $ne: true } : true;
+    query = Job.find(find, '-revisions').sort('created_at').exec();
   }
   query.then(function(content) {
     if (content === null) return next();

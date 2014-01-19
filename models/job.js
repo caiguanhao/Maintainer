@@ -7,6 +7,7 @@ var job_model = {
 };
 
 module.exports = mongoose.model('Job', new Schema({
+  available: { type: Boolean, default: true },
   published: job_model,
   revisions: [ job_model ],
   revision_count: { type: Number, default: 1 },

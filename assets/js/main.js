@@ -22,6 +22,10 @@ Ember.Handlebars.helper('default', function(value, default_value) {
   return value || default_value;
 });
 
+Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
+  return variable === check ? yes : no;
+});
+
 /* Ember.js */
 App = Ember.Application.create();
 
@@ -40,6 +44,8 @@ Ember.Route.reopen({
   }
 });
 
+App.ApplicationController = Ember.Controller.extend({});
+
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
     error: function(error, transition, originRoute) {
@@ -47,6 +53,9 @@ App.ApplicationRoute = Ember.Route.extend({
         alert(error.responseJSON.error);
       } else if (error.status) {
         alert('Got a ' + error.status + ' status from server.');
+      } else if (error.message && error.stack) {
+        alert(error.message);
+        console.error(error.stack);
       } else if (typeof(error) === 'object') {
         alert('Unknown error.');
       } else {
@@ -114,14 +123,35 @@ App.JobsNewController = Ember.Controller.extend({
 });
 
 App.Jobs = Ember.Object.extend({
+
   loadedJobs: false,
-  loadJobs: function() {
+
+  jobs: [],
+
+  currentFilter: null,
+
+  loadJobs: function(params) {
+    var query = null;
+    var filter = null;
+    if (params) {
+      filter = params.filter;
+    } else {
+      filter = this.get('currentFilter');
+    }
+    if (filter !== this.get('currentFilter')) {
+      this.set('loadedJobs', false);
+      this.set('currentFilter', filter);
+    }
+    if (filter === 'trashed') {
+      query = { show_unavailable: true };
+    }
+
     var self = this;
     return Ember.Deferred.promise(function(promise) {
       if (self.get('loadedJobs')) {
         promise.resolve(self.get('jobs'));
       } else {
-        promise.resolve($.getJSON('/jobs').then(function(jobs) {
+        promise.resolve($.getJSON('/jobs', query).then(function(jobs) {
           self.setProperties({
             jobs: jobs,
             loadedJobs: true
@@ -139,13 +169,33 @@ App.JobIndexRoute = Ember.Route.extend({
   title: false
 });
 
+App.JobsController = Ember.ArrayController.extend({
+  needs: 'application',
+
+  queryParams: [ 'filter' ],
+  filter: null,
+
+  // this may be a ember bug, so use a temporary fix
+  // when you are in job route viewing a job details page
+  // if you change the job filter, it will not trigger the query params change.
+  temporary_fix: function() {
+    if (this.get('controllers.application.currentPath') === 'jobs.index') {
+      this.send('queryParamsDidChange');
+    }
+  }.observes('controllers.application.currentPath')
+
+});
+
 App.JobsRoute = Ember.Route.extend({
-  model: function() {
-    return jobs.loadJobs();
+  model: function(params) {
+    return jobs.loadJobs(params);
   },
   actions: {
     open_terminal: function() {
       new TerminalWindow();
+    },
+    queryParamsDidChange: function() {
+      this.refresh();
     }
   }
 });
@@ -208,6 +258,7 @@ App.JobController = Ember.Controller.extend({
   }.observes('job.touched'),
 
   is_showing_revisions: function() {
+    if (!this.get('job')) return;
     var currentPath = this.get('controllers.application.currentPath');
     if (currentPath && currentPath.indexOf('job_revisions') >= 0) {
       this.set('job.showingRevisions', true);
