@@ -562,9 +562,19 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  var params = this.window.params;
+  var params = self.window.params;
+  var params_options = params ? params.options : null;
+  var bundle;
+  if (params_options && params_options.send) {
+    bundle = params[params_options.send];
+  } else {
+    bundle = params;
+  }
 
-  this.socket.emit('create', cols, rows, params, function(err, data) {
+  this.socket.emit('create', cols, rows, bundle, function(err, data) {
+    if (!params_options || params_options.keepOnAllTabs !== true) {
+      self.window.params = null;
+    }
     if (err) return self._destroy();
     self.pty = data.pty;
     self.id = data.id;

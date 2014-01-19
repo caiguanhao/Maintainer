@@ -45,6 +45,10 @@ App.ApplicationRoute = Ember.Route.extend({
     error: function(error, transition, originRoute) {
       if (error.responseJSON && error.responseJSON.error) {
         alert(error.responseJSON.error);
+      } else if (error.status) {
+        alert('Got a ' + error.status + ' status from server.');
+      } else if (typeof(error) === 'object') {
+        alert('Unknown error.');
       } else {
         alert(error);
       }
@@ -273,7 +277,13 @@ App.JobController = Ember.Controller.extend({
     },
     run_script: function() {
       new TerminalWindow(null, {
-        job: this.get('job._id')
+        bundle: {
+          job: this.get('job._id')
+        },
+        options: {
+          send: 'bundle',
+          keepOnAllTabs: false
+        }
       });
     }
   }
