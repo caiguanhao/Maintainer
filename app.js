@@ -25,8 +25,15 @@ var Job = require('./models/job');
 
 function runScriptOnStart(term, bundle) {
   if (!bundle || !bundle.job) return;
-  Job.findOne({ _id: bundle.job }, 'published.content', function(error, job) {
-    var script = job.published.content.trim() + '\n';
+  Job.findOne({ _id: bundle.job, available: true }, 'published.content', function(error, job) {
+    var script;
+    if (error || job === null) {
+      script = '# There is no script to run. Possible causes:\n' +
+               '# * the job has been moved to trash or does not exist;\n' +
+               '# * you don\'t have permissions to run the script;\n';
+    } else {
+      script = job.published.content.trim() + '\n';
+    }
     term.write(script);
   });
 }
