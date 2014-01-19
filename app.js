@@ -33,31 +33,25 @@ function runScriptOnStart(term, bundle) {
 
 app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
   var job_id = req.params.job_id;
+  var revision_id = req.params.revision_id;
+  var query;
   if (job_id) {
-    var revision_id = req.params.revision_id;
     if (revision_id) {
-      Job.findOne({ _id: job_id }, 'revisions').exec(function(error, job) {
-        if (error) return next(error);
-        for (var i = 0; i < job.revisions.length; i++) {
-          if (job.revisions[i]._id == revision_id) {
-            return res.send(job.revisions[i]);
-          }
-        }
-        return next();
+      query = Job.findOne({ _id: job_id }, 'revisions').exec().then(function(content) {
+        return content.revisions.id(revision_id)
       });
     } else {
-      Job.findOne({ _id: job_id }, '-revisions.content').exec(function(error, job) {
-        if (error) return next(error);
-        res.send(job);
-      });
+      query = Job.findOne({ _id: job_id }, '-revisions.content').exec();
     }
   } else {
-    Job.find({}, '_id published revision_count created_at updated_at').sort('created_at')
-      .exec(function(error, jobs) {
-      if (error) return next(error);
-      res.send(jobs);
-    });
+    query = Job.find({}, '-revisions').sort('created_at').exec();
   }
+  query.then(function(content) {
+    if (content === null) return next();
+    res.send(content);
+  }, function(error) {
+    next(error);
+  });
 });
 
 app.post('/jobs', function(req, res, next) {
