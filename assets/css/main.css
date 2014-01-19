@@ -8,6 +8,9 @@
 .code-content {
   margin: 10px 0;
 }
+.revision-content {
+  margin: 20px 0;
+}
 .CodeMirror {
   border: 1px solid #E2E2E2;
 }

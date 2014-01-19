@@ -142,6 +142,11 @@ App.JobIndexRoute = Ember.Route.extend({
 App.JobsRoute = Ember.Route.extend({
   model: function() {
     return jobs.loadJobs();
+  },
+  actions: {
+    open_terminal: function() {
+      new TerminalWindow();
+    }
   }
 });
 
@@ -295,6 +300,9 @@ App.JobRevisionsController = Ember.Controller.extend({
   }.observes('selection'),
 
   actions: {
+    return_to_job: function() {
+      this.transitionToRoute('job', this.get('job._id'));
+    },
     close_revisions: function() {
       this.transitionToRoute('job_revisions', this.get('job._id'));
     },
