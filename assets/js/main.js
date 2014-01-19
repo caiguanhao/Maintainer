@@ -352,6 +352,8 @@ App.JobRevisionsController = Ember.Controller.extend({
 
   actions: {
     return_to_job: function() {
+      this.set('controllers.job.job._content_to_compare',
+        this.get('controllers.job.job._published.content'));
       this.transitionToRoute('job', this.get('job._id'));
     },
     close_revisions: function() {
