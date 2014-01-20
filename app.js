@@ -69,7 +69,34 @@ function runScriptOnStart(term, bundle) {
   });
 }
 
-app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
+app.use(function(req, res, next) {
+  req._user_id = null;
+  req._user_token = null;
+  if (req.headers) {
+    req._user_id = req.headers['x-user-id'];
+    req._user_token = req.headers['x-user-token'];
+  }
+  next();
+});
+
+function permission_denied(res) {
+  res.status(403);
+  res.send({ error: 'Permission denied.' });
+}
+
+function authorize(callback) {
+  return function(req, res, next) {
+    var user = User.findOne({
+      _id: req.headers['x-user-id'],
+      token: req.headers['x-user-token']
+    }).exec(function(error, user) {
+      if (error || !user) return permission_denied(res);
+      callback(req, res ,next);
+    });
+  };
+}
+
+app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
   var query, find = {};
@@ -92,7 +119,7 @@ app.get('/jobs/:job_id?/:revision_id?', function(req, res, next) {
   }, function(error) {
     next(error);
   });
-});
+}));
 
 app.post('/jobs', function(req, res, next) {
   var title = req.body.title;

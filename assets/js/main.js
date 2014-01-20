@@ -14,6 +14,13 @@ jQuery.extend({
   }
 });
 
+jQuery.ajaxPrefilter(function(options, originalOptions, xhr) {
+  if (window.localStorage) {
+    xhr.setRequestHeader('X-USER-ID', window.localStorage.user_id || '');
+    xhr.setRequestHeader('X-USER-TOKEN', window.localStorage.token || '');
+  }
+});
+
 function set_title(title) {
   document.title = (title ? title + ' - ' : '') + 'Maintainer';
 }
@@ -29,6 +36,8 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
 /* Ember.js */
 App = Ember.Application.create();
 
+App._history = [];
+
 // setting title to false in route to skip using title
 Ember.Route.reopen({
   activate: function() {
@@ -41,6 +50,8 @@ Ember.Route.reopen({
       }
       set_title(title);
     }
+    App._history.unshift(this.routeName);
+    App._history.splice(3);
   }
 });
 
@@ -49,20 +60,18 @@ App.ApplicationController = Ember.Controller.extend({});
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
     error: function(error, transition, originRoute) {
-      if (error.responseJSON && error.responseJSON.error) {
-        alert(error.responseJSON.error);
-      } else if (error.status) {
-        alert('Got a ' + error.status + ' status from server.');
-      } else if (error.message && error.stack) {
-        alert(error.message);
-        console.error(error.stack);
-      } else if (typeof(error) === 'object') {
-        alert('Unknown error.');
-      } else {
-        alert(error);
+      switch (error.status) {
+      case 403:
+        App._history.unshift(originRoute.routeName);
+        this.transitionTo('login');
+        break;
+      default:
+        if (error.responseJSON) {
+          alert(error.responseJSON.error);
+        } else {
+          alert('Unknown error.');
+        }
       }
-      this.transitionTo('index');
-      // or: originRoute.router.transitionTo('index');
     }
   }
 });
@@ -479,6 +488,7 @@ App.JobRevisionRoute = Ember.Route.extend({
 App.LoginController = Ember.Controller.extend({
   actions: {
     log_in: function() {
+      var self = this;
       $.post('/login', this.getProperties('username', 'password'))
        .then(function(token) {
         $.each(token, function(key, val) {
@@ -486,6 +496,13 @@ App.LoginController = Ember.Controller.extend({
             window.localStorage[key] = val;
           }
         });
+        try {
+          var previous = App._history[0];
+          if (previous === 'login') previous = App._history[1];
+          self.transitionToRoute(previous);
+        } catch(error) {
+          self.transitionToRoute('index');
+        }
       }, function(response) {
         var error = response.responseJSON
         alert(error.error);
