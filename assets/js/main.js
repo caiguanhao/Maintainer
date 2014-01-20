@@ -77,6 +77,7 @@ App.Router.map(function() {
       });
     });
   });
+  this.route('login');
   this.resource('not_found', { path: '/*path' });
 });
 
@@ -472,6 +473,24 @@ App.JobRevisionRoute = Ember.Route.extend({
   },
   setupController: function(controller, revision) {
     controller.send('compare_revision_content', revision);
+  }
+});
+
+App.LoginController = Ember.Controller.extend({
+  actions: {
+    log_in: function() {
+      $.post('/login', this.getProperties('username', 'password'))
+       .then(function(token) {
+        $.each(token, function(key, val) {
+          if (typeof(val) === 'string') {
+            window.localStorage[key] = val;
+          }
+        });
+      }, function(response) {
+        var error = response.responseJSON
+        alert(error.error);
+      });
+    }
   }
 });
 

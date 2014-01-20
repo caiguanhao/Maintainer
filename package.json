@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "mongoose": "~3.8.4",
-    "tty.js": "git://github.com/caiguanhao/tty.js.git"
+    "tty.js": "git://github.com/caiguanhao/tty.js.git",
+    "bcrypt": "~0.7.7"
   }
 }

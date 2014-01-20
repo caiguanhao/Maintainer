@@ -1,5 +1,6 @@
 var tty = require('tty.js');
 var Server = tty.Server;
+var Session = tty.Session;
 var express = tty.express;
 
 var mongoose = require('mongoose');
@@ -15,6 +16,8 @@ Server.prototype.initMiddleware = function() {
 Server.prototype.initRoutes = function() {
 };
 
+Session.prototype._handleData = Session.prototype.handleData;
+
 var app = Server({
   shell: 'bash',
   port: 3000,
@@ -22,6 +25,34 @@ var app = Server({
 });
 
 var Job = require('./models/job');
+var User = require('./models/user');
+
+app.post('/login', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+  var forbid = function() {
+    res.status(403);
+    res.send({ error: 'Invalid username or password.' });
+  };
+  User.findOne({ username: username }, function(error, user) {
+    if (error || !user) return forbid();
+    var bcrypt = require('bcrypt');
+    if (!bcrypt.compareSync(password, user.password)) return forbid();
+    var new_token = generate_new_token();
+    user.token = new_token;
+    user.save(function(error, user) {
+      if (error) return forbid();
+      res.send({
+        user_id: user._id,
+        token: new_token
+      });
+    });
+  });
+});
+
+function generate_new_token() {
+  return require('crypto').randomBytes(32).toString('hex');
+}
 
 function runScriptOnStart(term, bundle) {
   if (!bundle || !bundle.job) return;
@@ -82,7 +113,7 @@ app.post('/jobs', function(req, res, next) {
   new_job.save(function(error) {
     if (error) return next(error);
     res.send(new_job);
-  })
+  });
 });
 
 app.put('/jobs/:job_id', function(req, res, next) {
@@ -138,6 +169,30 @@ app.delete('/jobs/:job_id', function(req, res, next) {
     res.send({ status: 'OK' });
   }, function(error) {
     next(error);
+  });
+});
+
+app.post('/users', function(req, res, next) {
+  var bcrypt = require('bcrypt');
+  var username = req.body.username;
+  var password = req.body.password;
+  password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+  var now = new Date;
+  var new_user = new User({
+    username: username,
+    password: password,
+    banned: false,
+    force_log_out: false,
+    token: '',
+    token_updated_at: now,
+    created_at: now,
+    updated_at: now,
+    last_logged_in_at: [ now ],
+    password_updated_at: now
+  });
+  new_user.save(function(error) {
+    if (error) return next(error);
+    res.send(new_user);
   });
 });
 
