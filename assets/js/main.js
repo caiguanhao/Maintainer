@@ -73,23 +73,32 @@ App.ApplicationController = Ember.Controller.extend({
   }
 });
 
+function handle_error(error, transition, originRoute) {
+  switch (error.status) {
+  case 403:
+    if (window.localStorage) {
+      window.localStorage.clear();
+    }
+    if (originRoute && originRoute.routeName) {
+      App._history.unshift(originRoute.routeName);
+    }
+    var trans = this.transitionToRoute || this.transitionTo;
+    if (trans) {
+      trans.call(this, 'login', { queryParams: { needed: true } });
+    }
+    break;
+  default:
+    if (error.responseJSON) {
+      alert(error.responseJSON.error);
+    } else {
+      alert('Unknown error.');
+    }
+  }
+}
+
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
-    error: function(error, transition, originRoute) {
-      switch (error.status) {
-      case 403:
-        window.localStorage.clear();
-        App._history.unshift(originRoute.routeName);
-        this.transitionTo('login', { queryParams: { needed: true } });
-        break;
-      default:
-        if (error.responseJSON) {
-          alert(error.responseJSON.error);
-        } else {
-          alert('Unknown error.');
-        }
-      }
-    }
+    error: handle_error
   }
 });
 
@@ -146,10 +155,9 @@ App.JobsNewController = Ember.Controller.extend({
           jobs.addObject(new_job);
           self.transitionToRoute('job', new_job);
         });
-      }, function(response) {
+      }, function(error) {
         self.set('touched', true);
-        var error = $.parseJSON(response.responseText);
-        alert(error.error);
+        handle_error.call(self, error);
       });
     }
   }

@@ -19,7 +19,7 @@ Server.prototype.initRoutes = function() {
 Session.prototype._handleData = Session.prototype.handleData;
 
 var app = Server({
-  shell: 'bash',
+  shell: process.env.SHELL || 'bash',
   port: 3000,
   runScriptOnStart: runScriptOnStart
 });
@@ -84,6 +84,12 @@ function permission_denied(res) {
   res.send({ error: 'Permission denied.' });
 }
 
+function unblock(callback) {
+  return function(req, res, next) {
+    callback(req, res ,next);
+  };
+}
+
 function authorize(callback) {
   return function(req, res, next) {
     var user = User.findOne({
@@ -96,7 +102,7 @@ function authorize(callback) {
   };
 }
 
-app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
+app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
   var query, find = {};
@@ -121,7 +127,7 @@ app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   });
 }));
 
-app.post('/jobs', function(req, res, next) {
+app.post('/jobs', authorize(function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
   var job = {
@@ -141,7 +147,7 @@ app.post('/jobs', function(req, res, next) {
     if (error) return next(error);
     res.send(new_job);
   });
-});
+}));
 
 app.put('/jobs/:job_id', function(req, res, next) {
   var title = req.body.title;
