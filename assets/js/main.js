@@ -55,13 +55,25 @@ Ember.Route.reopen({
   }
 });
 
-App.ApplicationController = Ember.Controller.extend({});
+App.ApplicationController = Ember.Controller.extend({
+  logged_in: Ember.computed(function() {
+    return !!(window.localStorage.user_id && window.localStorage.token);
+  }),
+  actions: {
+    log_out: function() {
+      window.localStorage.clear();
+      this.set('logged_in', false);
+      window.location.reload();
+    }
+  }
+});
 
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
     error: function(error, transition, originRoute) {
       switch (error.status) {
       case 403:
+        window.localStorage.clear();
         App._history.unshift(originRoute.routeName);
         this.transitionTo('login');
         break;
@@ -485,12 +497,33 @@ App.JobRevisionRoute = Ember.Route.extend({
   }
 });
 
+App.LoginRoute = Ember.Route.extend({
+  setupController: function(controller) {
+    controller.setProperties({
+      username: '',
+      password: ''
+    });
+  }
+});
+
 App.LoginController = Ember.Controller.extend({
+  needs: 'application',
+  untouched: true,
+  touch: function() {
+    if (this.get('username') && this.get('password')) {
+      this.set('untouched', false);
+      this.set('error_message', null)
+    } else {
+      this.set('untouched', true);
+    }
+  }.observes('username', 'password'),
+  error_message: null,
   actions: {
     log_in: function() {
       var self = this;
       $.post('/login', this.getProperties('username', 'password'))
        .then(function(token) {
+        self.set('controllers.application.logged_in', true);
         $.each(token, function(key, val) {
           if (typeof(val) === 'string') {
             window.localStorage[key] = val;
@@ -503,10 +536,13 @@ App.LoginController = Ember.Controller.extend({
         } catch(error) {
           self.transitionToRoute('index');
         }
-      }, function(response) {
-        var error = response.responseJSON
-        alert(error.error);
+      }, function(error) {
+        self.set('error_message', error.responseJSON.error);
+        self.set('password', null);
       });
+    },
+    dismiss: function() {
+      this.set('error_message', null);
     }
   }
 });
