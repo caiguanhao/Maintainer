@@ -75,7 +75,7 @@ App.ApplicationRoute = Ember.Route.extend({
       case 403:
         window.localStorage.clear();
         App._history.unshift(originRoute.routeName);
-        this.transitionTo('login');
+        this.transitionTo('login', { queryParams: { needed: true } });
         break;
       default:
         if (error.responseJSON) {
@@ -498,7 +498,12 @@ App.JobRevisionRoute = Ember.Route.extend({
 });
 
 App.LoginRoute = Ember.Route.extend({
-  setupController: function(controller) {
+  setupController: function(controller, params) {
+    if (params && params.needed) {
+      controller.set('error_message', 'You need to log in first.');
+    } else {
+      controller.set('error_message', null);
+    }
     controller.setProperties({
       username: '',
       password: ''
@@ -507,16 +512,21 @@ App.LoginRoute = Ember.Route.extend({
 });
 
 App.LoginController = Ember.Controller.extend({
+  queryParams: [ 'needed' ],
+  needed: false,
   needs: 'application',
   untouched: true,
   touch: function() {
     if (this.get('username') && this.get('password')) {
       this.set('untouched', false);
-      this.set('error_message', null)
+      this.set('error_message', null);
     } else {
       this.set('untouched', true);
     }
   }.observes('username', 'password'),
+  login_needed: function() {
+    this.set('needed', false);
+  }.observes('needed'),
   error_message: null,
   actions: {
     log_in: function() {
