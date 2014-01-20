@@ -25,6 +25,11 @@ function set_title(title) {
   document.title = (title ? title + ' - ' : '') + 'Maintainer';
 }
 
+// adding autofocus option to {{input}}
+Ember.TextField.reopen({
+  attributeBindings: ['autofocus']
+});
+
 Ember.Handlebars.helper('default', function(value, default_value) {
   return value || default_value;
 });
