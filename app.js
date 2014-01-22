@@ -50,6 +50,10 @@ app.post('/login', function(req, res, next) {
   });
 });
 
+function regex_escape(str) {
+  return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
 function generate_new_token() {
   return require('crypto').randomBytes(32).toString('hex');
 }
@@ -251,6 +255,15 @@ app.delete('/jobs/:job_id', function(req, res, next) {
     next(error);
   });
 });
+
+// search username
+app.get('/search/users/:query', should_be_root(function(req, res, next) {
+  var query = req.params.query;
+  User.find({ username: new RegExp(regex_escape(query), 'i') }, 'username').limit(10)
+    .exec(function(error, users) {
+    res.send((error || !users) ? [] : users);
+  });
+}));
 
 app.post('/users', function(req, res, next) {
   var bcrypt = require('bcrypt');

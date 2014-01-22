@@ -561,26 +561,34 @@ var job_perms = App.JobPerms.create();
 
 App.JobPermissionsController = Ember.Controller.extend({
   needs: 'job',
+  untouched: true,
+  touch: function() {
+    this.set('untouched', true);
+    this.set('user_id', '');
+  }.observes('username'),
   actions: {
     grant_permissions: function(bits) {
       var self = this;
-      var user = this.get('user');
-      if (!user) return alert('Please enter the ID of the user.')
+      var user_id = this.get('user_id');
+      if (!user_id) return;
       $.ajax({
         url: '/jobs/' + this.get('controllers.job.job._id') + '/permissions',
         type: 'PUT',
         data: {
-          user: user,
+          user: user_id,
           bits: bits
         }
       }).then(function() {
         job_perms.reload(function() {
-          self.set('user', '');
+          self.set('user_id', '');
+          self.set('username', '');
         });
       }, handle_error);
     },
-    edit_user: function(id) {
-      this.set('user', id);
+    edit_user: function(user) {
+      this.set('username', user.username);
+      this.set('user_id', user._id);
+      this.set('untouched', false);
     }
   }
 });
@@ -770,5 +778,19 @@ App.RevisionSelect = Ember.Select.extend({
     if (this.get('_prevent_do_this_on_start')) {
       this._change();
     }
+  }
+});
+
+App.FindUserInputView = Ember.TextField.extend({
+  didInsertElement: function() {
+    var self = this;
+    this.$().typeahead({
+      name: 'user',
+      remote: '/search/users/%QUERY',
+      valueKey: 'username'
+    });
+    this.$().on('typeahead:selected typeahead:autocompleted', function(e, user, datum) {
+      self.get('targetObject').send('edit_user', user);
+    });
   }
 });

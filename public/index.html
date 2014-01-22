@@ -21,6 +21,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/vendor/term.js"></script>
   <script src="/js/vendor/tty.js"></script>
+  <script src="/js/vendor/typeahead.js"></script>
   <script src="/js/main.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 </head>
@@ -175,10 +176,10 @@
   </script>
   <script type="text/x-handlebars" id="job/permissions">
     <div class="permission-content">
-      <div class="input-group">
-        {{input classNames="form-control" placeholder="Type username here" value=user}}
+      <div class="input-group search-user">
+        {{view App.FindUserInputView classNames="form-control" placeholder="Type username here" value=username}}
         <div class="input-group-btn">
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" {{bind-attr disabled="untouched"}}>
             Grant Permissions <span class="caret"></span>
           </button>
           <ul class="dropdown-menu pull-right">
@@ -198,7 +199,7 @@
             <div class="pull-right">
               {{match bits 4 "Read Only" 5 "Read and Execute" 7 "Read, Edit and Execute" "Unknown"}}
             </div>
-            <a href="#" {{action "edit_user" user._id}}>{{user.username}}</a>
+            <a href="#" {{action "edit_user" user}}>{{user.username}}</a>
           </div>
         {{/each}}
       </div>
