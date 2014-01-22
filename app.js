@@ -19,7 +19,7 @@ Server.prototype.initRoutes = function() {
 Session.prototype._handleData = Session.prototype.handleData;
 
 var app = Server({
-  shell: process.env.SHELL || 'bash',
+  shell: 'bash',
   port: 3000,
   runScriptOnStart: runScriptOnStart
 });
