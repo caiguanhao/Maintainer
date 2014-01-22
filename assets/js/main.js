@@ -565,6 +565,9 @@ App.JobPermissionsController = Ember.Controller.extend({
   touch: function() {
     this.set('untouched', true);
     this.set('user_id', '');
+    if (!this.get('username')) {
+      this.get('_find_user_input_view').$().typeahead('setQuery', '');
+    }
   }.observes('username'),
   actions: {
     grant_permissions: function(bits) {
@@ -589,6 +592,7 @@ App.JobPermissionsController = Ember.Controller.extend({
       this.set('username', user.username);
       this.set('user_id', user._id);
       this.set('untouched', false);
+      this.get('_find_user_input_view').send('trigger_dropdown');
     }
   }
 });
@@ -784,6 +788,7 @@ App.RevisionSelect = Ember.Select.extend({
 App.FindUserInputView = Ember.TextField.extend({
   didInsertElement: function() {
     var self = this;
+    this.set('targetObject._find_user_input_view', this);
     this.$().typeahead({
       name: 'user',
       remote: '/search/users/%QUERY',
@@ -791,6 +796,17 @@ App.FindUserInputView = Ember.TextField.extend({
     });
     this.$().on('typeahead:selected typeahead:autocompleted', function(e, user, datum) {
       self.get('targetObject').send('edit_user', user);
+      self.$().trigger('blur');
+      self.send('trigger_dropdown');
     });
+  },
+  actions: {
+    trigger_dropdown: function() {
+      var self = this;
+      setTimeout(function() {
+        // don't use dropdown('toggle') cause it will break ember's bindings
+        self.$().closest('.search-user').find('.input-group-btn').addClass('open');
+      }, 100);
+    }
   }
 });
