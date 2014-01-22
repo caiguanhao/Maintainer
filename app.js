@@ -209,7 +209,10 @@ app.put('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
 
 // get list of permissions
 app.post('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
-  Job.findOne({ _id: req.params.job_id }, 'permissions').exec(function(error, job) {
+  Job.findOne({ _id: req.params.job_id }, 'permissions').populate({
+    path: 'permissions.user',
+    select: 'username'
+  }).exec(function(error, job) {
     if (error || !job) return next(error);
     res.send(job);
   });

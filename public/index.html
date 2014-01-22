@@ -198,7 +198,7 @@
             <div class="pull-right">
               {{match bits 4 "Read Only" 5 "Read and Execute" 7 "Read, Edit and Execute" "Unknown"}}
             </div>
-            {{user}}
+            <a href="#" {{action "edit_user" user._id}}>{{user.username}}</a>
           </div>
         {{/each}}
       </div>

@@ -548,10 +548,11 @@ App.JobPerms = Ember.Object.extend(Ember.ActionHandler, {
     var job_id = this.get('job_id');
     return $.post('/jobs/' + job_id + '/permissions');
   },
-  reload: function() {
+  reload: function(cb) {
     var self = this;
     this.get('load').call(this).then(function(data) {
       self.set('_controller.permissions', data.permissions);
+      if (cb) cb();
     }, handle_error);
   }
 });
@@ -573,8 +574,13 @@ App.JobPermissionsController = Ember.Controller.extend({
           bits: bits
         }
       }).then(function() {
-        job_perms.reload();
+        job_perms.reload(function() {
+          self.set('user', '');
+        });
       }, handle_error);
+    },
+    edit_user: function(id) {
+      this.set('user', id);
     }
   }
 });
