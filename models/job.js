@@ -11,6 +11,10 @@ module.exports = mongoose.model('Job', new Schema({
   published: job_model,
   revisions: [ job_model ],
   revision_count: { type: Number, default: 1 },
+  permissions: [{
+    user: { type: Schema.ObjectId, ref: 'User' },
+    bits: Number
+  }],
   created_at: { type: Date },
   updated_at: { type: Date }
 }));

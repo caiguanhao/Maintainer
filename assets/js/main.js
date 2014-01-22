@@ -38,6 +38,21 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
   return variable === check ? yes : no;
 });
 
+Ember.Handlebars.helper('match', function() {
+  var variable = arguments[0];
+  var length = arguments.length;
+  arguments = Array.prototype.slice.call(arguments, 0, length - 1);
+  var last = length - length % 2 - 1;
+  var args = arguments.slice(1, last);
+  var _else = arguments.slice(last)[0];
+  for (var i = 0; i < args.length; i += 2) {
+    if (variable == args[i]) {
+      return args[i + 1];
+    }
+  }
+  return _else;
+});
+
 /* Ember.js */
 App = Ember.Application.create();
 
@@ -91,6 +106,7 @@ function handle_error(error, transition, originRoute) {
     if (error.responseJSON) {
       alert(error.responseJSON.error);
     } else {
+      console.error(error.stack);
       alert('Unknown error.');
     }
   }
@@ -110,6 +126,7 @@ App.Router.map(function() {
       this.resource('job_revisions', { path: 'revisions' }, function() {
         this.resource('job_revision', { path: ':revision_id' });
       });
+      this.route('permissions');
     });
   });
   this.route('login');
@@ -307,6 +324,11 @@ App.JobController = Ember.Controller.extend({
     } else {
       this.set('job.showingRevisions', false);
     }
+    if (currentPath && currentPath.indexOf('permissions') >= 0) {
+      this.set('job.showingPermissions', true);
+    } else {
+      this.set('job.showingPermissions', false);
+    }
   }.observes('controllers.application.currentPath', 'job'),
   // observe: path changes, same path but different job
 
@@ -402,6 +424,13 @@ App.JobController = Ember.Controller.extend({
         hideBundleOutput: true,
         keepSendingBundleOnStartOfAllTabs: false
       });
+    },
+    edit_permissions: function() {
+      if (this.get('job.showingPermissions')) {
+        this.transitionToRoute('job', this.get('job._id'));
+      } else {
+        this.transitionToRoute('job.permissions', this.get('job._id'));
+      }
     }
   }
 });
@@ -483,6 +512,9 @@ App.JobRevisionsRoute = Ember.Route.extend({
     controller.set('job', job);
     var parentController = controller.get('controllers.job');
     parentController.set('job._content_to_compare', parentController.get('job._published.content'));
+  },
+  renderTemplate: function() {
+    this.render({ outlet: 'for_revisions' });
   }
 });
 
@@ -507,6 +539,58 @@ App.JobRevisionRoute = Ember.Route.extend({
   },
   setupController: function(controller, revision) {
     controller.send('compare_revision_content', revision);
+  }
+});
+
+App.JobPerms = Ember.Object.extend(Ember.ActionHandler, {
+  job_id: null,
+  load: function() {
+    var job_id = this.get('job_id');
+    return $.post('/jobs/' + job_id + '/permissions');
+  },
+  reload: function() {
+    var self = this;
+    this.get('load').call(this).then(function(data) {
+      self.set('_controller.permissions', data.permissions);
+    }, handle_error);
+  }
+});
+
+var job_perms = App.JobPerms.create();
+
+App.JobPermissionsController = Ember.Controller.extend({
+  needs: 'job',
+  actions: {
+    grant_permissions: function(bits) {
+      var self = this;
+      var user = this.get('user');
+      if (!user) return alert('Please enter the ID of the user.')
+      $.ajax({
+        url: '/jobs/' + this.get('controllers.job.job._id') + '/permissions',
+        type: 'PUT',
+        data: {
+          user: user,
+          bits: bits
+        }
+      }).then(function() {
+        job_perms.reload();
+      }, handle_error);
+    }
+  }
+});
+
+App.JobPermissionsRoute = Ember.Route.extend({
+  title: false,
+  model: function() {
+    job_perms.set('job_id', this.modelFor('job')._id);
+    return job_perms.load();
+  },
+  setupController: function(controller, job) {
+    controller.set('permissions', job.permissions);
+    job_perms.set('_controller', controller);
+  },
+  renderTemplate: function() {
+    this.render({ outlet: 'for_permissions' });
   }
 });
 

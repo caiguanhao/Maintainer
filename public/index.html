@@ -123,7 +123,7 @@
         {{view App.CodeView value=job.published.content placeholder="# Job content"}}
       {{/if}}
     </div>
-    {{outlet}}
+    {{outlet "for_revisions"}}
     <div class="row">
       <div class="col-sm-9">
         {{#unless job.available}}
@@ -159,6 +159,48 @@
             <span class="glyphicon glyphicon-trash"></span>
           </button>
         </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="btn-group">
+          <button type="button" {{bind-attr class=":btn :btn-default job.showingPermissions:active"}} {{action "edit_permissions"}} title="Edit permissions of this job">
+            <span class="glyphicon glyphicon-eye-close"></span> Edit Permissions
+          </button>
+        </div>
+      </div>
+    </div>
+    {{outlet "for_permissions"}}
+  </script>
+  <script type="text/x-handlebars" id="job/permissions">
+    <div class="permission-content">
+      <div class="input-group">
+        {{input classNames="form-control" placeholder="Type username here" value=user}}
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Grant Permissions <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu pull-right">
+            <li><a href="#" {{action "grant_permissions" 0}}>Forbidden</a></li>
+            <li class="divider"></li>
+            <li><a href="#" {{action "grant_permissions" 4}}>Read Only</a></li>
+            <li><a href="#" {{action "grant_permissions" 5}}>Read and Execute</a></li>
+            <li class="divider"></li>
+            <li><a href="#" {{action "grant_permissions" 7}}>Read, Edit and Execute</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr>
+      <div class="list-group">
+        {{#each permissions}}
+          <div class="list-group-item">
+            <div class="pull-right">
+              {{match bits 4 "Read Only" 5 "Read and Execute" 7 "Read, Edit and Execute" "Unknown"}}
+            </div>
+            {{user}}
+          </div>
+        {{/each}}
       </div>
     </div>
   </script>

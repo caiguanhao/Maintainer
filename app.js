@@ -102,6 +102,10 @@ function authorize(callback) {
   };
 }
 
+function should_be_root(callback) {
+  return unblock(callback);
+}
+
 app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
@@ -109,15 +113,15 @@ app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
   if (job_id) {
     find._id = job_id
     if (revision_id) {
-      query = Job.findOne(find, 'revisions').exec().then(function(content) {
+      query = Job.findOne(find, 'revisions -permissions').exec().then(function(content) {
         return content.revisions.id(revision_id)
       });
     } else {
-      query = Job.findOne(find, '-revisions.content').exec();
+      query = Job.findOne(find, '-revisions.content -permissions').exec();
     }
   } else {
     find.available = req.query.show_unavailable === 'true' ? { $ne: true } : true;
-    query = Job.find(find, '-revisions').sort('created_at').exec();
+    query = Job.find(find, '-revisions -permissions').sort('created_at').exec();
   }
   query.then(function(content) {
     if (content === null) return next();
@@ -170,6 +174,46 @@ app.put('/jobs/:job_id', function(req, res, next) {
     });
   });
 });
+
+// update permissions
+app.put('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
+  var user = req.body.user;
+  var bits = req.body.bits;
+  Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
+    if (error || !job) return next(error);
+    User.findOne({ _id: user }).exec(function(error, user) {
+      if (error || !user) return next(error);
+      var changed = false;
+      job.permissions.forEach(function(item) {
+        if (item.user.toString() === user._id.toString()) {
+          item.bits = bits;
+          changed = true;
+        }
+      });
+      if (!changed) {
+        job.permissions.push({
+          user: user._id,
+          bits: bits
+        });
+      }
+      job.permissions = job.permissions.filter(function(item) {
+        return item.bits > 0;
+      });
+      job.save(function(error) {
+        if (error) return next(error);
+        res.send({ status: 'OK' });
+      });
+    });
+  });
+}));
+
+// get list of permissions
+app.post('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
+  Job.findOne({ _id: req.params.job_id }, 'permissions').exec(function(error, job) {
+    if (error || !job) return next(error);
+    res.send(job);
+  });
+}));
 
 // put back
 app.post('/jobs/:job_id', function(req, res, next) {
