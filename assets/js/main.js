@@ -672,13 +672,28 @@ App.UserRoute = Ember.Route.extend({
 
 App.UserController = Ember.ObjectController.extend({
   needs: 'users',
+  untouched_pwd: true,
+  touch_pwd: function() {
+    this.set('untouched_pwd', !this.get('password'));
+  }.observes('password'),
   actions: {
+    generate_password: function() {
+      var random_password = Math.random().toString(36).slice(-8); // from stackoverflow
+      this.set('password', random_password);
+    },
+    change_password: function() {
+      this.send('change_user', 'password', this.getProperties('password'));
+    },
     refresh_token: function() {
+      this.send('change_user', 'token', null);
+    },
+    change_user: function(change_what, data) {
       var self = this;
       var user_id = this.get('content._id');
       $.ajax({
-        url: '/users/' + this.get('content._id') + '/token',
-        type: 'PUT'
+        url: '/users/' + this.get('content._id') + '/' + change_what,
+        type: 'PUT',
+        data: data
       }).then(function(user) {
         // update parent controller data:
         var users = self.get('controllers.users.content');

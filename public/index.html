@@ -318,7 +318,7 @@
             </span>
             {{input viewName="password" value=password classNames="form-control" type="text" placeholder="Password"}}
             <span class="input-group-btn">
-              <button class="btn btn-default" type="button" {{action "change_password"}}>Change</button>
+              <button class="btn btn-default" {{bind-attr disabled="untouched_pwd"}} type="button" {{action "change_password"}}>Change</button>
             </span>
           </div>
         </div>

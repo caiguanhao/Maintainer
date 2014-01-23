@@ -318,7 +318,16 @@ app.post('/users', function(req, res, next) {
   });
 });
 
-app.put('/users/:user_id/:action(token)', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+function sanitize_document(document, fields) {
+  Object.keys(document).forEach(function(key) {
+    if (key[0] === '_') return;
+    if (fields.indexOf(key) === -1) {
+      delete document[key];
+    }
+  });
+}
+
+app.put('/users/:user_id/:action(token|password)', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var user_id = req.params.user_id;
   var action = req.params.action;
   User.findOne({ _id: user_id }, User.public_fields).exec(function(error, user) {
@@ -328,9 +337,18 @@ app.put('/users/:user_id/:action(token)', authorize(SHOULD_BE_ROOT, function(req
       user.token = generate_new_token();
       user.token_updated_at = new Date;
       break;
+    case 'password':
+      var bcrypt = require('bcrypt');
+      var password = req.body.password;
+      password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+      user.password = password;
+      user.password_updated_at = new Date;
+      break;
     }
     user.save(function(error) {
       if (error) return next(error);
+      user = user.toObject();
+      sanitize_document(user, User._public_fields);
       res.send(user);
     });
   });
