@@ -266,42 +266,86 @@
   <script type="text/x-handlebars" id="user">
     <h3>Edit User</h3>
     <hr>
-    <form class="form-horizontal" role="form">
+    <div class="form-horizontal">
       <div class="form-group">
         <label class="col-sm-4 control-label">ID</label>
-        <div class="col-sm-6 text-only">{{default _id "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default _id "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label {{bind-attr for="view.username.elementId"}} class="col-sm-4 control-label">Username</label>
-        <div class="col-sm-6">
-          {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
+        <div class="col-sm-8">
+          <div class="input-group">
+            {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" {{action "change_username"}}>Change</button>
+            </span>
+          </div>
         </div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Token</label>
-        <div class="col-sm-6 text-only">{{default token "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default token "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Token Updated At</label>
-        <div class="col-sm-6 text-only">{{default token_updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default token_updated_at "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Created At</label>
-        <div class="col-sm-6 text-only">{{default created_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default created_at "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Updated At</label>
-        <div class="col-sm-6 text-only">{{default updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default updated_at "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Password Updated At</label>
-        <div class="col-sm-6 text-only">{{default password_updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default password_updated_at "Unknown"}}</div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Last Logged In At</label>
-        <div class="col-sm-6 text-only">{{default last_logged_in_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">{{default last_logged_in_at "Unknown"}}</div>
       </div>
-    </form>
+      <hr>
+      <div class="form-group">
+        <label {{bind-attr for="view.password.elementId"}} class="col-sm-4 control-label">Password</label>
+        <div class="col-sm-8">
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" {{action "generate_password"}}>
+                <span class="glyphicon glyphicon-repeat"></span>
+              </button>
+            </span>
+            {{input viewName="password" value=password classNames="form-control" type="text" placeholder="Password"}}
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" {{action "change_password"}}>Change</button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="form-group">
+        <div class="col-sm-8 col-sm-offset-4">
+        <button type="button" class="btn btn-default" {{action "refresh_token"}} title="Regenerate the token of this user">
+          <span class="glyphicon glyphicon-repeat"></span> Regenerate User Token
+        </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-8 col-sm-offset-4">
+        <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Ban this user">
+          <span class="glyphicon glyphicon-ban-circle"></span> Ban User
+        </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-8 col-sm-offset-4">
+        <button type="button" class="btn btn-danger" {{action "remove_user"}} title="Remove this user">
+          <span class="glyphicon glyphicon-trash"></span> Remove User
+        </button>
+        </div>
+      </div>
+    </div>
   </script>
   <script type="text/x-handlebars" id="users/new">
     <h3>Create New User</h3>
