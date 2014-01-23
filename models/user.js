@@ -16,3 +16,14 @@ module.exports = mongoose.model('User', new Schema({
   last_logged_in_at: [ Date ],
   password_updated_at: Date
 }));
+
+module.exports.public_fields = [
+  'username',
+  'banned',
+  'token',
+  'token_updated_at',
+  'created_at',
+  'updated_at',
+  'last_logged_in_at',
+  'password_updated_at'
+].join(' ');

@@ -670,6 +670,27 @@ App.UserRoute = Ember.Route.extend({
   }
 });
 
+App.UserController = Ember.ObjectController.extend({
+  needs: 'users',
+  actions: {
+    refresh_token: function() {
+      var self = this;
+      var user_id = this.get('content._id');
+      $.ajax({
+        url: '/users/' + this.get('content._id') + '/token',
+        type: 'PUT'
+      }).then(function(user) {
+        // update parent controller data:
+        var users = self.get('controllers.users.content');
+        var user_index = users.indexOf(users.findBy('_id', user_id));
+        users.replace(user_index, 1, [user]);
+        // update self controller data:
+        self.set('content', user);
+      }, handle_error);
+    }
+  }
+});
+
 App.UsersNewController = Ember.Controller.extend({
   needs: 'users',
   untouched: true,

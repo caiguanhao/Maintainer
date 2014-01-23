@@ -288,8 +288,7 @@ app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, nex
 }));
 
 app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
-  User.find({}, 'username created_at updated_at last_logged_in_at ' +
-    'banned token token_updated_at').sort('created_at').exec(function(error, content) {
+  User.find({}, User.public_fields).sort('created_at').exec(function(error, content) {
     if (error || !content) return next(error);
     res.send(content);
   });
@@ -318,6 +317,24 @@ app.post('/users', function(req, res, next) {
     res.send(new_user);
   });
 });
+
+app.put('/users/:user_id/:action(token)', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+  var user_id = req.params.user_id;
+  var action = req.params.action;
+  User.findOne({ _id: user_id }, User.public_fields).exec(function(error, user) {
+    if (error || !user) return next(error);
+    switch (action) {
+    case 'token':
+      user.token = generate_new_token();
+      user.token_updated_at = new Date;
+      break;
+    }
+    user.save(function(error) {
+      if (error) return next(error);
+      res.send(user);
+    });
+  });
+}));
 
 app.use(function(err, req, res, next) {
   res.status(err.status || 400);
