@@ -365,6 +365,14 @@ app.put('/users/:user_id/:action(token|password|username|ban)',
   });
 }));
 
+app.delete('/users/:user_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+  var user_id = req.params.user_id;
+  User.findOneAndRemove({ _id: user_id }).exec(function(error) {
+    if (error) return next(error);
+    res.send({ status: 'OK' });
+  });
+}));
+
 app.use(function(err, req, res, next) {
   res.status(err.status || 400);
   res.send({ error: err.toString() });

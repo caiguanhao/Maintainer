@@ -109,8 +109,13 @@ function handle_error(error, transition, originRoute) {
     if (error.responseJSON) {
       alert(error.responseJSON.error);
     } else {
-      console.error(error.stack);
-      alert('Unknown error.');
+      if (error.stack) {
+        console.error(error.stack);
+      } else if (typeof(error) === 'string') {
+        alert(error);
+      } else {
+        alert('Unknown error.');
+      }
     }
   }
 }
@@ -708,7 +713,7 @@ App.UserController = Ember.ObjectController.extend({
       var self = this;
       var user_id = this.get('content._id');
       $.ajax({
-        url: '/users/' + this.get('content._id') + '/' + change_what,
+        url: '/users/' + user_id + '/' + change_what,
         type: 'PUT',
         data: data
       }).then(function(user) {
@@ -719,6 +724,20 @@ App.UserController = Ember.ObjectController.extend({
         // update self controller data:
         self.set('content', user);
         self.set('_username', user.username);
+      }, handle_error);
+    },
+    remove_user: function() {
+      var self = this;
+      var user_id = this.get('content._id');
+      if (!confirm('Are you sure you want to permanently remove this user? ' +
+          'All data of this user will be deleted and cannot be recovered.')) return;
+      $.ajax({
+        url: '/users/' + user_id,
+        type: 'DELETE'
+      }).then(function(user) {
+        var users = self.get('controllers.users.content');
+        users.removeObject(users.findBy('_id', user_id));
+        self.transitionToRoute('users');
       }, handle_error);
     }
   }
