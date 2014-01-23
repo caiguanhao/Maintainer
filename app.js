@@ -327,7 +327,7 @@ function sanitize_document(document, fields) {
   });
 }
 
-app.put('/users/:user_id/:action(token|password|username)',
+app.put('/users/:user_id/:action(token|password|username|ban)',
   authorize(SHOULD_BE_ROOT, function(req, res, next) {
 
   var user_id = req.params.user_id;
@@ -351,8 +351,11 @@ app.put('/users/:user_id/:action(token|password|username)',
       var username = req.body.username;
       user.username = username;
       break;
+    case 'ban':
+      user.banned = !user.banned;
+      break;
     }
-    user.updated_at = new_date
+    user.updated_at = new_date;
     user.save(function(error) {
       if (error) return next(error);
       user = user.toObject();

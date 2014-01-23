@@ -250,6 +250,9 @@
         <div class="list-group">
           {{#each}}
             {{#link-to 'user' this classNames="list-group-item"}}
+              {{#if banned}}
+                <span class="glyphicon glyphicon-minus-sign pull-right"></span>
+              {{/if}}
               {{default username "(unnamed)"}}
             {{/link-to}}
           {{/each}}
@@ -280,6 +283,16 @@
               <button class="btn btn-default" {{bind-attr disabled="untouched_uname"}} type="button" {{action "change_username"}}>Change</button>
             </span>
           </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Status</label>
+        <div class="col-sm-8 text-only">
+          {{#if banned}}
+            <span class="text-danger"><span class="glyphicon glyphicon-minus-sign"></span> Banned</span>
+          {{else}}
+            <span class="text-success"><span class="glyphicon glyphicon-ok-sign"></span> OK</span>
+          {{/if}}
         </div>
       </div>
       <div class="form-group">
@@ -333,9 +346,15 @@
       </div>
       <div class="form-group">
         <div class="col-sm-8 col-sm-offset-4">
-        <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Ban this user">
-          <span class="glyphicon glyphicon-ban-circle"></span> Ban User
-        </button>
+        {{#if banned}}
+          <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Unban this user">
+            <span class="glyphicon glyphicon-exclamation-sign"></span> Unban User
+          </button>
+        {{else}}
+          <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Ban this user">
+            <span class="glyphicon glyphicon-ban-circle"></span> Ban User
+          </button>
+        {{/if}}
         </div>
       </div>
       <div class="form-group">

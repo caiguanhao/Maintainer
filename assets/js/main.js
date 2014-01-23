@@ -701,6 +701,9 @@ App.UserController = Ember.ObjectController.extend({
     change_username: function() {
       this.send('change_user', 'username', this.getProperties('username'));
     },
+    ban_user: function() {
+      this.send('change_user', 'ban', null);
+    },
     change_user: function(change_what, data) {
       var self = this;
       var user_id = this.get('content._id');
