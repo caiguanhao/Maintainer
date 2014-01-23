@@ -44,6 +44,7 @@
             <ul class="nav navbar-nav">
               {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
               {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+              {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
               {{#view App.NavView}}{{#link-to "about"}}About{{/link-to}}{{/view}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -240,6 +241,65 @@
         <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">
           <span class="glyphicon glyphicon-floppy-disk"></span> Create
         </button>
+      </div>
+    </form>
+  </script>
+  <script type="text/x-handlebars" id="users">
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="list-group">
+          {{#each}}
+            {{#link-to 'user' this classNames="list-group-item"}}
+              {{username}}
+            {{/link-to}}
+          {{/each}}
+          {{#link-to 'users.new' classNames="list-group-item"}}
+            Create New
+          {{/link-to}}
+        </div>
+      </div>
+      <div class="col-sm-8">
+        {{outlet}}
+      </div>
+    </div>
+  </script>
+  <script type="text/x-handlebars" id="user">
+    <h3>Edit User</h3>
+    <hr>
+    <form class="form-horizontal" role="form" {{action "log_in" on="submit"}}>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">ID</label>
+        <div class="col-sm-6 text-only">{{default _id "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label {{bind-attr for="view.username.elementId"}} class="col-sm-4 control-label">Username</label>
+        <div class="col-sm-6">
+          {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Token</label>
+        <div class="col-sm-6 text-only">{{default token "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Token Updated At</label>
+        <div class="col-sm-6 text-only">{{default token_updated_at "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Created At</label>
+        <div class="col-sm-6 text-only">{{default created_at "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Updated At</label>
+        <div class="col-sm-6 text-only">{{default updated_at "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Password Updated At</label>
+        <div class="col-sm-6 text-only">{{default password_updated_at "Unknown"}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label">Last Logged In At</label>
+        <div class="col-sm-6 text-only">{{default last_logged_in_at "Unknown"}}</div>
       </div>
     </form>
   </script>

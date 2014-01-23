@@ -7,7 +7,6 @@ module.exports = mongoose.model('User', new Schema({
   is_root: { type: Boolean, default: false },
 
   banned: { type: Boolean, default: false },
-  force_log_out: { type: Boolean, default: false },
 
   token: String,
   token_updated_at: Date,

@@ -43,6 +43,10 @@
 .permission-content {
   margin: 10px 0;
 }
+.form-group .text-only {
+  padding-top: 7px;
+  word-break: break-all;
+}
 
 /* Terminal */
 

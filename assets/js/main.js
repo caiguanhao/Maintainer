@@ -132,6 +132,10 @@ App.Router.map(function() {
       this.route('permissions');
     });
   });
+  this.resource('users', function() {
+    this.route('new');
+    this.resource('user', { path: ':user_id' });
+  });
   this.route('login');
   this.resource('not_found', { path: '/*path' });
 });
@@ -612,6 +616,48 @@ App.JobPermissionsRoute = Ember.Route.extend({
   },
   renderTemplate: function() {
     this.render({ outlet: 'for_permissions' });
+  }
+});
+
+App.User = Ember.Object.extend({
+  load_users: function() {
+    var self = this;
+    return Ember.Deferred.promise(function(promise) {
+      if (self.get('users')) {
+        promise.resolve(self.get('users'));
+      } else {
+        promise.resolve($.getJSON('/users').then(function(users) {
+          self.setProperties({
+            users: users
+          });
+          return users;
+        }));
+      }
+    });
+  }
+});
+
+var users = App.User.create();
+
+App.UsersRoute = Ember.Route.extend({
+  model: function() {
+    return users.load_users();
+  }
+});
+
+App.UserRoute = Ember.Route.extend({
+  model: function(params) {
+    return users.load_users().then(function(users) {
+      var user = users.findBy('_id', params.user_id);
+      if (user) {
+        return user;
+      } else {
+        throw 'User does not exist.';
+      }
+    });
+  },
+  serialize: function(user, params) {
+    return { user_id: user._id };
   }
 });
 

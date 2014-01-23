@@ -287,6 +287,14 @@ app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, nex
   });
 }));
 
+app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+  User.find({}, 'username created_at updated_at last_logged_in_at ' +
+    'banned token token_updated_at').sort('created_at').exec(function(error, content) {
+    if (error || !content) return next(error);
+    res.send(content);
+  });
+}));
+
 app.post('/users', function(req, res, next) {
   var bcrypt = require('bcrypt');
   var username = req.body.username;
