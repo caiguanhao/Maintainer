@@ -102,6 +102,9 @@ function handle_error(error, transition, originRoute) {
       trans.call(this, 'login', { queryParams: { needed: true } });
     }
     break;
+  case 430:
+    alert('You must be a root user before you can proceed.');
+    break;
   default:
     if (error.responseJSON) {
       alert(error.responseJSON.error);

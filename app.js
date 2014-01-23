@@ -88,26 +88,48 @@ function permission_denied(res) {
   res.send({ error: 'Permission denied.' });
 }
 
+function should_be_root(res) {
+  res.writeHead(430, 'Should Be Root');
+  res.end(JSON.stringify({ error: 'Permission denied.' }));
+}
+
 function unblock(callback) {
   return function(req, res, next) {
-    callback(req, res ,next);
+    callback(req, res, next);
   };
 }
 
-function authorize(callback) {
+var SHOULD_BE_ROOT = 0x1;
+
+function authorize() {
+  var _arguments = arguments;
   return function(req, res, next) {
     var user = User.findOne({
       _id: req.headers['x-user-id'],
       token: req.headers['x-user-token']
     }).exec(function(error, user) {
       if (error || !user) return permission_denied(res);
-      callback(req, res ,next);
+
+      var callback, options, l = _arguments.length;
+      if (l <= 1) {
+        callback = _arguments[0];
+        options = [];
+      } else {
+        callback = _arguments[l - 1];
+        options = Array.prototype.slice.call(_arguments, 0, l - 1);
+      }
+
+      for (var i = 0; i < options.length; i++) {
+        switch (options[i]) {
+        case SHOULD_BE_ROOT:
+          if (user.is_root !== true) return should_be_root(res);
+          break;
+        }
+      }
+
+      callback(req, res, next);
     });
   };
-}
-
-function should_be_root(callback) {
-  return unblock(callback);
 }
 
 app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
@@ -180,7 +202,7 @@ app.put('/jobs/:job_id', function(req, res, next) {
 });
 
 // update permissions
-app.put('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
+app.put('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var user = req.body.user;
   var bits = req.body.bits;
   Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
@@ -212,7 +234,7 @@ app.put('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
 }));
 
 // get list of permissions
-app.post('/jobs/:job_id/permissions', should_be_root(function(req, res, next) {
+app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }, 'permissions').populate({
     path: 'permissions.user',
     select: 'username'
@@ -257,7 +279,7 @@ app.delete('/jobs/:job_id', function(req, res, next) {
 });
 
 // search username
-app.get('/search/users/:query', should_be_root(function(req, res, next) {
+app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var query = req.params.query;
   User.find({ username: new RegExp(regex_escape(query), 'i') }, 'username').limit(10)
     .exec(function(error, users) {
