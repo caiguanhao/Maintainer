@@ -327,24 +327,32 @@ function sanitize_document(document, fields) {
   });
 }
 
-app.put('/users/:user_id/:action(token|password)', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+app.put('/users/:user_id/:action(token|password|username)',
+  authorize(SHOULD_BE_ROOT, function(req, res, next) {
+
   var user_id = req.params.user_id;
   var action = req.params.action;
   User.findOne({ _id: user_id }, User.public_fields).exec(function(error, user) {
     if (error || !user) return next(error);
+    var new_date = new Date;
     switch (action) {
     case 'token':
       user.token = generate_new_token();
-      user.token_updated_at = new Date;
+      user.token_updated_at = new_date;
       break;
     case 'password':
       var bcrypt = require('bcrypt');
       var password = req.body.password;
       password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
       user.password = password;
-      user.password_updated_at = new Date;
+      user.password_updated_at = new_date;
+      break;
+    case 'username':
+      var username = req.body.username;
+      user.username = username;
       break;
     }
+    user.updated_at = new_date
     user.save(function(error) {
       if (error) return next(error);
       user = user.toObject();

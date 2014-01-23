@@ -672,10 +672,21 @@ App.UserRoute = Ember.Route.extend({
 
 App.UserController = Ember.ObjectController.extend({
   needs: 'users',
+
   untouched_pwd: true,
   touch_pwd: function() {
     this.set('untouched_pwd', !this.get('password'));
   }.observes('password'),
+
+  // don't do this: _username: null,
+  untouched_uname: true,
+  touch_uname: function() {
+    if (!this.get('_username')) {
+      this.set('_username', this.get('username'));
+    }
+    this.set('untouched_uname', !(this.get('username') && this.get('_username') !== this.get('username')));
+  }.observes('username'),
+
   actions: {
     generate_password: function() {
       var random_password = Math.random().toString(36).slice(-8); // from stackoverflow
@@ -686,6 +697,9 @@ App.UserController = Ember.ObjectController.extend({
     },
     refresh_token: function() {
       this.send('change_user', 'token', null);
+    },
+    change_username: function() {
+      this.send('change_user', 'username', this.getProperties('username'));
     },
     change_user: function(change_what, data) {
       var self = this;
@@ -701,6 +715,7 @@ App.UserController = Ember.ObjectController.extend({
         users.replace(user_index, 1, [user]);
         // update self controller data:
         self.set('content', user);
+        self.set('_username', user.username);
       }, handle_error);
     }
   }

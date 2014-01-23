@@ -250,7 +250,7 @@
         <div class="list-group">
           {{#each}}
             {{#link-to 'user' this classNames="list-group-item"}}
-              {{username}}
+              {{default username "(unnamed)"}}
             {{/link-to}}
           {{/each}}
           {{#link-to 'users.new' classNames="list-group-item"}}
@@ -277,7 +277,7 @@
           <div class="input-group">
             {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
             <span class="input-group-btn">
-              <button class="btn btn-default" type="button" {{action "change_username"}}>Change</button>
+              <button class="btn btn-default" {{bind-attr disabled="untouched_uname"}} type="button" {{action "change_username"}}>Change</button>
             </span>
           </div>
         </div>
