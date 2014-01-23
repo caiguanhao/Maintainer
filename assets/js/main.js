@@ -619,7 +619,7 @@ App.JobPermissionsRoute = Ember.Route.extend({
   }
 });
 
-App.User = Ember.Object.extend({
+App.User = Ember.Object.extend(Ember.ActionHandler, {
   load_users: function() {
     var self = this;
     return Ember.Deferred.promise(function(promise) {
@@ -631,8 +631,15 @@ App.User = Ember.Object.extend({
             users: users
           });
           return users;
-        }));
+        }, handle_error));
       }
+    });
+  },
+  reload: function(controller, callback) {
+    this.set('users', null);
+    this.get('load_users').call(this).then(function(users) {
+      controller.set('content', users);
+      if (callback) callback();
     });
   }
 });
@@ -644,6 +651,8 @@ App.UsersRoute = Ember.Route.extend({
     return users.load_users();
   }
 });
+
+App.UsersController = Ember.ArrayController.extend({});
 
 App.UserRoute = Ember.Route.extend({
   model: function(params) {
@@ -658,6 +667,32 @@ App.UserRoute = Ember.Route.extend({
   },
   serialize: function(user, params) {
     return { user_id: user._id };
+  }
+});
+
+App.UsersNewController = Ember.Controller.extend({
+  needs: 'users',
+  untouched: true,
+  touch: function() {
+    this.set('untouched', !(this.get('username') && this.get('password')));
+  }.observes('username', 'password'),
+  actions: {
+    generate_password: function(view) {
+      var random_password = Math.random().toString(36).slice(-8); // from stackoverflow
+      this.set('password', random_password);
+    },
+    create_user: function() {
+      var self = this;
+      $.post('/users', this.getProperties('username', 'password')).then(function(user) {
+        users.reload(self.get('controllers.users'), function() {
+          self.setProperties({
+            username: '',
+            password: '',
+          });
+          self.transitionToRoute('user', user._id);
+        });
+      }, handle_error);
+    }
   }
 });
 
