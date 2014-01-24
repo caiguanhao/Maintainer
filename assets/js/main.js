@@ -96,10 +96,17 @@ function handle_error(error, transition, originRoute) {
     }
     if (originRoute && originRoute.routeName) {
       App._history.unshift(originRoute.routeName);
+    } else if (this.url) {
+      App._history.unshift(this.url);
     }
+
     var trans = this.transitionToRoute || this.transitionTo;
+    var to = [ 'login', { queryParams: { needed: true } } ];
     if (trans) {
-      trans.call(this, 'login', { queryParams: { needed: true } });
+      trans.apply(this, to);
+    } else {
+      var app_controller = App.__container__.lookup('controller:application');
+      app_controller.transitionToRoute.apply(app_controller, to);
     }
     break;
   case 430:
