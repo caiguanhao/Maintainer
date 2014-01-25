@@ -88,6 +88,12 @@ App.ObjectsNeedToReloadDueToCurrentUserChanges = Ember.Object.create({
   }
 });
 
+App.ObjectNeedsAuthentication = Ember.Object.extend(Ember.ActionHandler, {
+  init: function() {
+    App.ObjectsNeedToReloadDueToCurrentUserChanges.Add(this);
+  }
+});
+
 App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
   init: function() {
     var users = [];
@@ -191,8 +197,7 @@ function handle_error(error, transition, originRoute) {
     transitionTo('login', { queryParams: { needed: true } });
     break;
   case 430:
-    alert('You must be a root user before you can proceed.');
-    transitionTo('login', { queryParams: { needed: true } });
+    transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
     break;
   default:
     if (error.responseJSON) {
@@ -233,6 +238,11 @@ App.Router.map(function() {
   this.route('login');
   this.resource('not_found', { path: '/*path' });
 });
+
+function in_route_of(route) {
+  var currentPath = App.__container__.lookup('controller:application').currentRouteName;
+  return currentPath.replace(/\..*$/, '') === route;
+}
 
 App.IndexRoute = Ember.Route.extend({
   title: 'Home'
@@ -713,7 +723,10 @@ App.JobPermissionsRoute = Ember.Route.extend({
   }
 });
 
-App.User = Ember.Object.extend(Ember.ActionHandler, {
+App.User = App.ObjectNeedsAuthentication.extend({
+  init: function() {
+    this._super();
+  },
   load_users: function() {
     var self = this;
     return Ember.Deferred.promise(function(promise) {
@@ -737,13 +750,14 @@ App.User = Ember.Object.extend(Ember.ActionHandler, {
     });
   },
   reload: function() {
-    this.get('reload_users').call(this);
+    this.set('users', null);
+    if (in_route_of('users')) {
+      this.get('load_users').call(this);
+    }
   }
 });
 
 var Users = App.User.create();
-
-App.ObjectsNeedToReloadDueToCurrentUserChanges.Add(Users);
 
 App.UsersRoute = Ember.Route.extend({
   model: function() {
@@ -866,7 +880,11 @@ App.UsersNewController = Ember.Controller.extend({
 App.LoginRoute = Ember.Route.extend({
   setupController: function(controller, params) {
     if (params && params.needed) {
-      controller.set('error_message', 'You need to log in first.');
+      if (params.needed === true) {
+        controller.set('error_message', 'You need to log in first.');
+      } else {
+        controller.set('error_message', params.needed);
+      }
     } else {
       controller.set('error_message', null);
     }
