@@ -57,7 +57,7 @@
                     {{#each LoggedInUsers.users}}
                       <li>
                         <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}><span class="glyphicon glyphicon-log-out"></span></a>
-                        <a class="pull-left" href="#">{{name}}</a>
+                        <a class="pull-left" href="#" {{action "switch_user" id}}>{{name}}</a>
                         <div class="clearfix"></div>
                       </li>
                       <li class="divider"></li>

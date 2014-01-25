@@ -75,6 +75,19 @@ Ember.Route.reopen({
   }
 });
 
+App.ObjectsNeedToReloadDueToCurrentUserChanges = Ember.Object.create({
+  Add: function(what) {
+    if (this.get('objects') === undefined) this.set('objects', []);
+    this.get('objects').addObject(what);
+  },
+  ReloadAll: function() {
+    if (this.get('objects') === undefined) return;
+    this.get('objects').forEach(function(object) {
+      object.get('reload').call(object);
+    });
+  }
+});
+
 App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
   init: function() {
     var users = [];
@@ -103,6 +116,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
     if (window.localStorage) {
       window.localStorage.current_user = JSON.stringify(this.get('current_user'));
     }
+    App.ObjectsNeedToReloadDueToCurrentUserChanges.ReloadAll();
   }.observes('current_user.token'),
   users_did_changed: function() {
     if (window.localStorage) {
@@ -143,6 +157,9 @@ App.ApplicationController = Ember.Controller.extend({
   LoggedInUsers: LoggedInUsers,
 
   actions: {
+    switch_user: function(id) {
+      LoggedInUsers.select_user_by_id(id);
+    },
     log_out: function(id) {
       if (id) {
         LoggedInUsers.remove_user_by_id(id);
@@ -712,20 +729,25 @@ App.User = Ember.Object.extend(Ember.ActionHandler, {
       }
     });
   },
-  reload: function(controller, callback) {
+  reload_users: function(controller, callback) {
     this.set('users', null);
     this.get('load_users').call(this).then(function(users) {
-      controller.set('content', users);
+      if (controller) controller.set('content', users);
       if (callback) callback();
     });
+  },
+  reload: function() {
+    this.get('reload_users').call(this);
   }
 });
 
-var users = App.User.create();
+var Users = App.User.create();
+
+App.ObjectsNeedToReloadDueToCurrentUserChanges.Add(Users);
 
 App.UsersRoute = Ember.Route.extend({
   model: function() {
-    return users.load_users();
+    return Users.load_users();
   }
 });
 
@@ -733,7 +755,7 @@ App.UsersController = Ember.ArrayController.extend({});
 
 App.UserRoute = Ember.Route.extend({
   model: function(params) {
-    return users.load_users().then(function(users) {
+    return Users.load_users().then(function(users) {
       var user = users.findBy('_id', params.user_id);
       if (user) {
         return user;
@@ -829,7 +851,7 @@ App.UsersNewController = Ember.Controller.extend({
     create_user: function() {
       var self = this;
       $.post('/users', this.getProperties('username', 'password')).then(function(user) {
-        users.reload(self.get('controllers.users'), function() {
+        Users.reload_users(self.get('controllers.users'), function() {
           self.setProperties({
             username: '',
             password: '',
