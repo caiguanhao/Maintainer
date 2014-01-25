@@ -259,7 +259,7 @@ App.Router.map(function() {
 });
 
 function in_route_of(route) {
-  var currentPath = App.__container__.lookup('controller:application').currentRouteName;
+  var currentPath = App.__container__.lookup('controller:application').currentPath;
   return !!(currentPath && currentPath.replace(/\..*$/, '') === route);
 }
 
