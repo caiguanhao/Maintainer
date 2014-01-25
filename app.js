@@ -143,10 +143,26 @@ function authorize() {
         }
       }
 
+      req.user = user;
+
       callback(req, res, next);
     });
   };
 }
+
+app.delete('/login', authorize(function(req, res, next) {
+  var new_token = generate_new_token();
+  req.user.token = new_token;
+  req.user.token_updated_at = new Date;
+
+  req.user.save(function(error, user) {
+    if (error) {
+      next(error);
+    } else {
+      res.send({ status: 'OK' });
+    }
+  });
+}));
 
 app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   var job_id = req.params.job_id;

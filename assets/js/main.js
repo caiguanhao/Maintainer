@@ -19,6 +19,9 @@ jQuery.ajaxPrefilter(function(options, originalOptions, xhr) {
     xhr.setRequestHeader('X-USER-ID', LoggedInUsers.current_user.id || '');
     xhr.setRequestHeader('X-USER-TOKEN', LoggedInUsers.current_user.token || '');
   }
+  if (options.prefilter) {
+    options.prefilter(options, originalOptions, xhr);
+  }
 });
 
 function set_title(title) {
@@ -132,7 +135,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
   add_user: function(id, name, token) {
     var users = this.get('users');
     users.removeObject(users.findBy('id', id));
-    users.addObject({
+    users.unshiftObject({
       id: id,
       name: name,
       token: token
@@ -141,18 +144,31 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
   },
   remove_user_by_id: function(id) {
     var users = this.get('users');
-    users.removeObject(users.findBy('id', id));
+    var user = users.findBy('id', id);
+    users.removeObject(user);
     if (this.get('current_user.id') === id) {
-      this.set('current_user', null);
+      this.set('current_user', users[0]);
     }
+    this.reset_user_token(user);
   },
   remove_all_users: function() {
+    this.get('users').forEach(this.reset_user_token);
     this.set('users', []);
     this.set('current_user', null);
   },
   select_user_by_id: function(id) {
     var users = this.get('users');
     this.set('current_user', users.findBy('id', id));
+  },
+  reset_user_token: function(user) {
+    $.ajax({
+      url: '/login',
+      type: 'DELETE',
+      prefilter: function(options, originalOptions, xhr) {
+        xhr.setRequestHeader('X-USER-ID', user.id);
+        xhr.setRequestHeader('X-USER-TOKEN', user.token);
+      }
+    });
   }
 });
 
