@@ -76,7 +76,7 @@ Ember.Route.reopen({
 });
 
 App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
-  users: Ember.computed(function() {
+  init: function() {
     var users = [];
     if (window.localStorage && window.localStorage.users) {
       try {
@@ -86,9 +86,8 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
         users = [];
       }
     }
-    return users;
-  }),
-  current_user: Ember.computed(function() {
+    this.set('users', users);
+
     var current_user = null;
     if (window.localStorage && window.localStorage.current_user) {
       try {
@@ -98,8 +97,8 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
         current_user = null;
       }
     }
-    return current_user;
-  }),
+    this.set('current_user', current_user);
+  },
   current_users_did_changed: function() {
     if (window.localStorage) {
       window.localStorage.current_user = JSON.stringify(this.get('current_user'));
@@ -155,6 +154,16 @@ App.ApplicationController = Ember.Controller.extend({
 });
 
 function handle_error(error, transition, originRoute) {
+  var self = this;
+  function transitionTo() {
+    var trans = self.transitionToRoute || self.transitionTo;
+    if (trans) {
+      trans.apply(self, arguments);
+    } else {
+      var app_controller = App.__container__.lookup('controller:application');
+      app_controller.transitionToRoute.apply(app_controller, arguments);
+    }
+  }
   switch (error.status) {
   case 403:
     if (originRoute && originRoute.routeName) {
@@ -162,18 +171,11 @@ function handle_error(error, transition, originRoute) {
     } else if (this.url) {
       App._history.unshift(this.url);
     }
-
-    var trans = this.transitionToRoute || this.transitionTo;
-    var to = [ 'login', { queryParams: { needed: true } } ];
-    if (trans) {
-      trans.apply(this, to);
-    } else {
-      var app_controller = App.__container__.lookup('controller:application');
-      app_controller.transitionToRoute.apply(app_controller, to);
-    }
+    transitionTo('login', { queryParams: { needed: true } });
     break;
   case 430:
     alert('You must be a root user before you can proceed.');
+    transitionTo('login', { queryParams: { needed: true } });
     break;
   default:
     if (error.responseJSON) {
@@ -878,7 +880,7 @@ App.LoginController = Ember.Controller.extend({
         LoggedInUsers.add_user(user._id, user.username, user.token);
         try {
           var previous = App._history[0];
-          if (previous === 'login') previous = App._history[1];
+          if (previous.indexOf('login') > -1) previous = App._history[1];
           self.transitionToRoute(previous);
         } catch(error) {
           self.transitionToRoute('index');
