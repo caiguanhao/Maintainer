@@ -155,7 +155,7 @@ app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
   if (job_id) {
     find._id = job_id
     if (revision_id) {
-      query = Job.findOne(find, 'revisions -permissions').exec().then(function(content) {
+      query = Job.findOne(find, 'revisions').exec().then(function(content) {
         return content.revisions.id(revision_id)
       });
     } else {

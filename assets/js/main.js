@@ -252,7 +252,7 @@ App.JobsNewRoute = Ember.Route.extend({
   title: 'Create New Job',
   beforeModel: function() {
     // don't create job in trash page.
-    if (jobs.currentFilter) {
+    if (Jobs.currentFilter) {
       throw 'Page Not Found.';
     }
   }
@@ -279,7 +279,7 @@ App.JobsNewController = Ember.Controller.extend({
           title: '',
           content: ''
         });
-        jobs.loadJobs().then(function(jobs) {
+        Jobs.loadJobs().then(function(jobs) {
           jobs.addObject(new_job);
           self.transitionToRoute('job', new_job);
         });
@@ -332,7 +332,7 @@ App.Jobs = Ember.Object.extend({
   }
 });
 
-var jobs = App.Jobs.create();
+var Jobs = App.Jobs.create();
 
 App.JobIndexRoute = Ember.Route.extend({
   title: false
@@ -357,7 +357,7 @@ App.JobsController = Ember.ArrayController.extend({
 
 App.JobsRoute = Ember.Route.extend({
   model: function(params) {
-    return jobs.loadJobs(params);
+    return Jobs.loadJobs(params);
   },
   actions: {
     open_terminal: function() {
@@ -371,7 +371,7 @@ App.JobsRoute = Ember.Route.extend({
 
 App.JobRoute = Ember.Route.extend({
   model: function(params) {
-    return jobs.loadJobs().then(function(jobs) {
+    return Jobs.loadJobs().then(function(jobs) {
       var job = jobs.findBy('_id', params.job_id);
       if (job) {
         return job;
@@ -487,7 +487,7 @@ App.JobController = Ember.Controller.extend({
         if (job.available) {
           self.transitionToRoute('job', job._id, { queryParams: { filter: 'trashed' } });
         } else {
-          jobs.loadJobs().then(function(jobs) {
+          Jobs.loadJobs().then(function(jobs) {
             jobs.removeObject(job);
             self.transitionToRoute('jobs');
           });
