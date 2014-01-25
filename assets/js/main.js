@@ -15,9 +15,9 @@ jQuery.extend({
 });
 
 jQuery.ajaxPrefilter(function(options, originalOptions, xhr) {
-  if (window.localStorage) {
-    xhr.setRequestHeader('X-USER-ID', window.localStorage.user_id || '');
-    xhr.setRequestHeader('X-USER-TOKEN', window.localStorage.token || '');
+  if (LoggedInUsers && LoggedInUsers.current_user) {
+    xhr.setRequestHeader('X-USER-ID', LoggedInUsers.current_user.id || '');
+    xhr.setRequestHeader('X-USER-TOKEN', LoggedInUsers.current_user.token || '');
   }
 });
 
@@ -75,15 +75,81 @@ Ember.Route.reopen({
   }
 });
 
-App.ApplicationController = Ember.Controller.extend({
-  logged_in: Ember.computed(function() {
-    return !!(window.localStorage.user_id && window.localStorage.token);
+App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
+  users: Ember.computed(function() {
+    var users = [];
+    if (window.localStorage && window.localStorage.users) {
+      try {
+        users = JSON.parse(window.localStorage.users);
+        if (!(users instanceof Array)) users = [];
+      } catch(e) {
+        users = [];
+      }
+    }
+    return users;
   }),
+  current_user: Ember.computed(function() {
+    var current_user = null;
+    if (window.localStorage && window.localStorage.current_user) {
+      try {
+        current_user = JSON.parse(window.localStorage.current_user);
+        if (typeof(current_user) !== 'object') current_user = null;
+      } catch(e) {
+        current_user = null;
+      }
+    }
+    return current_user;
+  }),
+  current_users_did_changed: function() {
+    if (window.localStorage) {
+      window.localStorage.current_user = JSON.stringify(this.get('current_user'));
+    }
+  }.observes('current_user.token'),
+  users_did_changed: function() {
+    if (window.localStorage) {
+      window.localStorage.users = JSON.stringify(this.get('users'));
+    }
+  }.observes('users.length'),
+  add_user: function(id, name, token) {
+    var users = this.get('users');
+    users.removeObject(users.findBy('id', id));
+    users.addObject({
+      id: id,
+      name: name,
+      token: token
+    });
+    this.select_user_by_id(id);
+  },
+  remove_user_by_id: function(id) {
+    var users = this.get('users');
+    users.removeObject(users.findBy('id', id));
+    if (this.get('current_user.id') === id) {
+      this.set('current_user', null);
+    }
+  },
+  remove_all_users: function() {
+    this.set('users', []);
+    this.set('current_user', null);
+  },
+  select_user_by_id: function(id) {
+    var users = this.get('users');
+    this.set('current_user', users.findBy('id', id));
+  }
+});
+
+var LoggedInUsers = App.LoggedInUsers.create();
+
+App.ApplicationController = Ember.Controller.extend({
+
+  LoggedInUsers: LoggedInUsers,
+
   actions: {
-    log_out: function() {
-      window.localStorage.clear();
-      this.set('logged_in', false);
-      window.location.reload();
+    log_out: function(id) {
+      if (id) {
+        LoggedInUsers.remove_user_by_id(id);
+      } else {
+        LoggedInUsers.remove_all_users();
+      }
     }
   }
 });
@@ -91,9 +157,6 @@ App.ApplicationController = Ember.Controller.extend({
 function handle_error(error, transition, originRoute) {
   switch (error.status) {
   case 403:
-    if (window.localStorage) {
-      window.localStorage.clear();
-    }
     if (originRoute && originRoute.routeName) {
       App._history.unshift(originRoute.routeName);
     } else if (this.url) {
@@ -811,13 +874,8 @@ App.LoginController = Ember.Controller.extend({
     log_in: function() {
       var self = this;
       $.post('/login', this.getProperties('username', 'password'))
-       .then(function(token) {
-        self.set('controllers.application.logged_in', true);
-        $.each(token, function(key, val) {
-          if (typeof(val) === 'string') {
-            window.localStorage[key] = val;
-          }
-        });
+       .then(function(user) {
+        LoggedInUsers.add_user(user._id, user.username, user.token);
         try {
           var previous = App._history[0];
           if (previous === 'login') previous = App._history[1];
@@ -826,7 +884,7 @@ App.LoginController = Ember.Controller.extend({
           self.transitionToRoute('index');
         }
       }, function(error) {
-        self.set('error_message', error.responseJSON.error);
+        handle_error(error);
         self.set('password', null);
       });
     },

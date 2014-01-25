@@ -47,6 +47,20 @@
   padding-top: 7px;
   word-break: break-all;
 }
+.user-menu {
+  width: 200px;
+}
+.user-menu .pull-left {
+  clear: none;
+  width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-menu .pull-right {
+  clear: none;
+  padding: 3px 10px;
+}
 
 /* Terminal */
 

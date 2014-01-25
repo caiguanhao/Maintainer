@@ -31,21 +31,37 @@ app.post('/login', function(req, res, next) {
   var username = req.body.username;
   var password = req.body.password;
   var forbid = function() {
-    res.status(403);
+    res.status(401);
     res.send({ error: 'Invalid username or password.' });
   };
   User.findOne({ username: username }, function(error, user) {
     if (error || !user) return forbid();
     var bcrypt = require('bcrypt');
     if (!bcrypt.compareSync(password, user.password)) return forbid();
+
+    if (user.banned) {
+      res.writeHead(466, 'User Is Banned');
+      res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
+      return;
+    }
+
+    var new_date = new Date;
+    if (user.last_logged_in_at instanceof Array) {
+      user.last_logged_in_at.unshift(new_date);
+      user.last_logged_in_at.splice(3);
+    } else {
+      user.last_logged_in_at = [ new_date ];
+    }
+
     var new_token = generate_new_token();
     user.token = new_token;
+    user.token_updated_at = new_date;
+
     user.save(function(error, user) {
       if (error) return forbid();
-      res.send({
-        user_id: user._id,
-        token: new_token
-      });
+      user = user.toObject();
+      sanitize_document(user, User._public_fields);
+      res.send(user);
     });
   });
 });
