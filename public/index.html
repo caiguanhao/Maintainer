@@ -108,11 +108,9 @@
               </span>
             {{/link-to}}
           {{/each}}
-          {{#unless filter}}
-            {{#link-to 'jobs.new' classNames="list-group-item"}}
-              Create New
-            {{/link-to}}
-          {{/unless}}
+          {{#link-to 'jobs.new' classNames="list-group-item"}}
+            Create New
+          {{/link-to}}
         </div>
         <div class="btn-group">
           <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">

@@ -148,7 +148,7 @@ function authorize() {
   };
 }
 
-app.get('/jobs/:job_id?/:revision_id?', unblock(function(req, res, next) {
+app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
   var query, find = {};

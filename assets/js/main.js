@@ -200,7 +200,10 @@ function handle_error(error, transition, originRoute) {
     transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
     break;
   default:
-    if (error.responseJSON) {
+    if (error.message && error.transitionTo) {
+      // alert(error.message);
+      transitionTo.apply(this, error.transitionTo);
+    } else if (error.responseJSON) {
       alert(error.responseJSON.error);
     } else {
       if (error.stack) {
@@ -241,7 +244,7 @@ App.Router.map(function() {
 
 function in_route_of(route) {
   var currentPath = App.__container__.lookup('controller:application').currentRouteName;
-  return currentPath.replace(/\..*$/, '') === route;
+  return !!(currentPath && currentPath.replace(/\..*$/, '') === route);
 }
 
 App.IndexRoute = Ember.Route.extend({
@@ -249,16 +252,11 @@ App.IndexRoute = Ember.Route.extend({
 });
 
 App.JobsNewRoute = Ember.Route.extend({
-  title: 'Create New Job',
-  beforeModel: function() {
-    // don't create job in trash page.
-    if (Jobs.currentFilter) {
-      throw 'Page Not Found.';
-    }
-  }
+  title: 'Create New Job'
 });
 
 App.JobsNewController = Ember.Controller.extend({
+  needs: 'jobs',
   touched: false,
 
   touch: function() {
@@ -275,12 +273,13 @@ App.JobsNewController = Ember.Controller.extend({
       self.set('touched', false);
       $.post('/jobs', this.getProperties('title', 'content'))
        .then(function(new_job) {
-        self.setProperties({
-          title: '',
-          content: ''
-        });
-        Jobs.loadJobs().then(function(jobs) {
-          jobs.addObject(new_job);
+        Jobs.set('filter', null);
+        self.set('controllers.jobs.filter', null);
+        Jobs.reload_jobs(self.get('controllers.jobs'), function() {
+          self.setProperties({
+            title: '',
+            content: ''
+          });
           self.transitionToRoute('job', new_job);
         });
       }, function(error) {
@@ -291,44 +290,39 @@ App.JobsNewController = Ember.Controller.extend({
   }
 });
 
-App.Jobs = Ember.Object.extend({
+App.Jobs = App.ObjectNeedsAuthentication.extend({
 
-  loadedJobs: false,
-
-  jobs: [],
-
-  currentFilter: null,
-
-  loadJobs: function(params) {
+  load_jobs: function() {
     var query = null;
-    var filter = null;
-    if (params) {
-      filter = params.filter;
-    } else {
-      filter = this.get('currentFilter');
-    }
-    if (filter !== this.get('currentFilter')) {
-      this.set('loadedJobs', false);
-      this.set('currentFilter', filter);
-    }
-    if (filter === 'trashed') {
+    if (this.get('filter') === 'trashed') {
       query = { show_unavailable: true };
     }
-
     var self = this;
     return Ember.Deferred.promise(function(promise) {
-      if (self.get('loadedJobs')) {
+      if (self.get('jobs')) {
         promise.resolve(self.get('jobs'));
       } else {
         promise.resolve($.getJSON('/jobs', query).then(function(jobs) {
           self.setProperties({
-            jobs: jobs,
-            loadedJobs: true
+            jobs: jobs
           });
           return jobs;
-        }));
+        }, handle_error));
       }
     });
+  },
+  reload_jobs: function(controller, callback) {
+    this.set('jobs', null);
+    this.get('load_jobs').call(this).then(function(jobs) {
+      if (controller) controller.set('content', jobs);
+      if (callback) callback();
+    });
+  },
+  reload: function() {
+    this.set('jobs', null);
+    if (in_route_of('jobs')) {
+      this.get('load_jobs').call(this);
+    }
   }
 });
 
@@ -349,7 +343,7 @@ App.JobsController = Ember.ArrayController.extend({
   // if you change the job filter, it will not trigger the query params change.
   temporary_fix: function() {
     if (this.get('controllers.application.currentPath').indexOf('jobs') !== -1) {
-      this.send('queryParamsDidChange');
+      this.send('queryParamsDidChange', { 'jobs[filter]': this.get('filter') });
     }
   }.observes('controllers.application.currentPath')
 
@@ -357,26 +351,41 @@ App.JobsController = Ember.ArrayController.extend({
 
 App.JobsRoute = Ember.Route.extend({
   model: function(params) {
-    return Jobs.loadJobs(params);
+    params = params || {};
+    Jobs.set('filter', params.filter);
+    return Jobs.load_jobs();
   },
   actions: {
     open_terminal: function() {
       new TerminalWindow();
     },
-    queryParamsDidChange: function() {
-      this.refresh();
+    queryParamsDidChange: function(params_changed) {
+      var self = this;
+      if (params_changed && params_changed.hasOwnProperty('jobs[filter]')) {
+        Jobs.set('filter', params_changed['jobs[filter]']);
+        Jobs.reload_jobs(null, function() {
+          self.refresh();
+        });
+      }
     }
   }
 });
 
 App.JobRoute = Ember.Route.extend({
   model: function(params) {
-    return Jobs.loadJobs().then(function(jobs) {
+    return Jobs.load_jobs().then(function(jobs) {
       var job = jobs.findBy('_id', params.job_id);
       if (job) {
         return job;
       } else {
-        throw 'Job does not exist.';
+        Jobs.setProperties({
+          jobs: null,
+          filter: null
+        });
+        throw {
+          message: 'Job does not exist.',
+          transitionTo: [ 'index' ]
+        };
       }
     });
   },
@@ -408,7 +417,7 @@ App.JobRoute = Ember.Route.extend({
 });
 
 App.JobController = Ember.Controller.extend({
-  needs: 'application',
+  needs: [ 'application', 'jobs' ],
   touch: function() {
     var self = this;
     var job = self.get('job');
@@ -487,8 +496,7 @@ App.JobController = Ember.Controller.extend({
         if (job.available) {
           self.transitionToRoute('job', job._id, { queryParams: { filter: 'trashed' } });
         } else {
-          Jobs.loadJobs().then(function(jobs) {
-            jobs.removeObject(job);
+          Jobs.reload_jobs(self.get('controllers.jobs'), function() {
             self.transitionToRoute('jobs');
           });
         }
