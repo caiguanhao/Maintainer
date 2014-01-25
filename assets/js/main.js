@@ -337,7 +337,10 @@ App.Jobs = App.ObjectNeedsAuthentication.extend({
   reload: function() {
     this.set('jobs', null);
     if (in_route_of('jobs')) {
-      this.get('load_jobs').call(this);
+      this.get('load_jobs').call(this).then(function(jobs) {
+        App.__container__.lookup('controller:jobs').set('content', jobs);
+        App.__container__.lookup('controller:jobs').transitionToRoute('jobs');
+      });
     }
   }
 });

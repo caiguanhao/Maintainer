@@ -164,10 +164,17 @@ app.delete('/login', authorize(function(req, res, next) {
   });
 }));
 
+function job_permissions_for(user) {
+  if (user.is_root) return {};
+  return {
+    'permissions.user': user._id
+  };
+}
+
 app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   var job_id = req.params.job_id;
   var revision_id = req.params.revision_id;
-  var query, find = {};
+  var query, find = job_permissions_for(req.user);
   if (job_id) {
     find._id = job_id
     if (revision_id) {
