@@ -196,7 +196,7 @@ app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
   });
 }));
 
-app.post('/jobs', authorize(function(req, res, next) {
+app.post('/jobs', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
   var job = {
@@ -218,7 +218,7 @@ app.post('/jobs', authorize(function(req, res, next) {
   });
 }));
 
-app.put('/jobs/:job_id', function(req, res, next) {
+app.put('/jobs/:job_id', authorize(function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
   Job.findOne({ _id: req.params.job_id, available: true }).exec(function(error, job) {
@@ -238,7 +238,7 @@ app.put('/jobs/:job_id', function(req, res, next) {
       res.send({ status: 'OK' });
     });
   });
-});
+}));
 
 // update permissions
 app.put('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res, next) {
@@ -284,7 +284,7 @@ app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, re
 }));
 
 // put back
-app.post('/jobs/:job_id', function(req, res, next) {
+app.post('/jobs/:job_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
     if (error || !job) return next(error);
     job.available = true;
@@ -293,9 +293,9 @@ app.post('/jobs/:job_id', function(req, res, next) {
       res.send({ status: 'OK' });
     });
   });
-});
+}));
 
-app.delete('/jobs/:job_id', function(req, res, next) {
+app.delete('/jobs/:job_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }).exec().then(function(job) {
     if (job === null) throw null;
     var promise = new mongoose.Promise;
@@ -315,7 +315,7 @@ app.delete('/jobs/:job_id', function(req, res, next) {
   }, function(error) {
     next(error);
   });
-});
+}));
 
 // search username
 app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, next) {
@@ -333,7 +333,7 @@ app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   });
 }));
 
-app.post('/users', function(req, res, next) {
+app.post('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var bcrypt = require('bcrypt');
   var username = req.body.username;
   var password = req.body.password;
@@ -355,7 +355,7 @@ app.post('/users', function(req, res, next) {
     if (error) return next(error);
     res.send(new_user);
   });
-});
+}));
 
 function sanitize_document(document, fields) {
   Object.keys(document).forEach(function(key) {
@@ -366,8 +366,8 @@ function sanitize_document(document, fields) {
   });
 }
 
-app.put('/users/:user_id/:action(token|password|username|ban)',
-  authorize(SHOULD_BE_ROOT, function(req, res, next) {
+app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD_BE_ROOT,
+  function(req, res, next) {
 
   var user_id = req.params.user_id;
   var action = req.params.action;
