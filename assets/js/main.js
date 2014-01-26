@@ -597,7 +597,7 @@ App.JobController = Ember.Controller.extend({
           job: this.get('job._id')
         },
         hideBundleOutput: true,
-        keepSendingBundleOnStartOfAllTabs: false
+        removeBundleKeysForOtherTabs: [ 'job' ]
       });
     },
     edit_permissions: function() {

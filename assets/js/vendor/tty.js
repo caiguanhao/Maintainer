@@ -591,9 +591,12 @@ function Tab(win, socket) {
   var bundle = params.bundle;
 
   this.socket.emit('create', cols, rows, bundle, function(err, data) {
-    if (params.keepSendingBundleOnStartOfAllTabs !== true) {
+    if (params.removeBundleKeysForOtherTabs instanceof Array) {
       self.window.params = self.window.params || {};
-      self.window.params.bundle = null;
+      self.window.params.bundle = self.window.params.bundle || {};
+      params.removeBundleKeysForOtherTabs.forEach(function(key) {
+        delete self.window.params.bundle[key];
+      });
     }
     if (err) return self._destroy();
     self.pty = data.pty;
