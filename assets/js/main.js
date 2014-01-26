@@ -389,7 +389,13 @@ App.JobsRoute = Ember.Route.extend({
   },
   actions: {
     open_terminal: function() {
-      new TerminalWindow();
+      new TerminalWindow(null, {
+        bundle: {
+          user_id: LoggedInUsers.current_user.id,
+          user_token: LoggedInUsers.current_user.token
+        },
+        hideBundleOutput: true
+      });
     },
     queryParamsDidChange: function(params_changed) {
       var self = this;
@@ -570,6 +576,8 @@ App.JobController = Ember.Controller.extend({
     run_script: function() {
       new TerminalWindow(null, {
         bundle: {
+          user_id: LoggedInUsers.current_user.id,
+          user_token: LoggedInUsers.current_user.token,
           job: this.get('job._id')
         },
         hideBundleOutput: true,

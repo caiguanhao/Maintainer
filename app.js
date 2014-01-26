@@ -16,7 +16,12 @@ Server.prototype.initMiddleware = function() {
 Server.prototype.initRoutes = function() {
 };
 
-Session.prototype._handleData = Session.prototype.handleData;
+Session.prototype.handleData = function(id, data) {
+  var terms = this.terms;
+  if (!terms[id]) return;
+  if (!terms[id].allow) return;
+  terms[id].write(data);
+};
 
 var app = Server({
   shell: 'bash',
@@ -75,17 +80,55 @@ function generate_new_token() {
 }
 
 function runScriptOnStart(term, bundle) {
-  if (!bundle || !bundle.job) return;
-  Job.findOne({ _id: bundle.job, available: true }, 'published.content', function(error, job) {
-    var script;
-    if (error || job === null) {
-      script = '# There is no script to run. Possible causes:\n' +
-               '# * the job has been moved to trash or does not exist;\n' +
-               '# * you don\'t have permissions to run the script;\n';
+  if (!bundle || !bundle.user_id || !bundle.user_token) return;
+  User.findOne({ _id: bundle.user_id, token: bundle.user_token }, function(error, user) {
+    if (error || !user) return;
+    var find;
+    if (user.is_root) {
+      term.allow = true;
+      if (bundle.job) {
+        find = { _id: bundle.job, available: true };
+      } else {
+        return;
+      }
     } else {
-      script = job.published.content.trim() + '\n';
+      if (bundle.job) {
+        find = { _id: bundle.job, available: true, 'permissions.user': user._id };
+      } else {
+        term.write('# Permission denied. You are not allowed to use ther terminal.\n');
+        term.allow = false;
+        return;
+      }
     }
-    term.write(script);
+    Job.findOne(find, 'published.content permissions', function(error, job) {
+      var script;
+      var allow = false;
+      if (!error && job && job.permissions) {
+        job.permissions.forEach(function(permission) {
+          if (permission.user.toString() === user._id.toString()) {
+            if (permission.bits === 7 || permission.bits === 5) {
+              allow = true;
+            }
+          }
+        });
+      }
+      if (user.is_root) {
+        allow = true;
+      }
+      if (allow) {
+        script = job.published.content.trim() + '\n';
+      } else {
+        script = '# There is no script to run. Possible causes:\n' +
+                 '# * the job has been moved to trash or does not exist;\n' +
+                 '# * you don\'t have permissions to run the script;\n';
+      }
+      term.write(script);
+      if (user.is_root) {
+        term.allow = true;
+      } else {
+        term.allow = false;
+      }
+    });
   });
 }
 
