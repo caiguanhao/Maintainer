@@ -53,23 +53,45 @@
               {{#if LoggedInUsers.current_user}}
                 <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    Logged in as: <strong>{{LoggedInUsers.current_user.name}}</strong> <b class="caret"></b>
+                    <span class="glyphicon glyphicon-user"></span>
+                    <strong>{{LoggedInUsers.current_user.name}}</strong>
+                    <b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu user-menu">
                     {{#each LoggedInUsers.users}}
                       <li>
-                        <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}><span class="glyphicon glyphicon-log-out"></span></a>
-                        <a class="pull-left" href="#" {{action "switch_user" id}}>{{name}}</a>
+                        <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}>
+                          <span class="glyphicon glyphicon-log-out"></span>
+                        </a>
+                        <a class="pull-left" href="#" {{action "switch_user" id}}>
+                          <span {{bind-attr class=":glyphicon is_root:glyphicon-certificate:glyphicon-user"}}></span>
+                          {{name}}
+                        </a>
                         <div class="clearfix"></div>
                       </li>
                       <li class="divider"></li>
                     {{/each}}
-                    <li>{{#link-to "login"}}Add User{{/link-to}}</li>
-                    <li><a href="#" {{action "log_out"}}>Log Out All</a></li>
+                    <li>
+                      {{#link-to "login"}}
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Add User
+                      {{/link-to}}
+                    </li>
+                    <li>
+                      <a href="#" {{action "log_out"}}>
+                        <span class="glyphicon glyphicon-log-out"></span>
+                        Log Out All
+                      </a>
+                    </li>
                   </ul>
                 </li>
               {{else}}
-                {{#view App.NavView}}{{#link-to "login"}}Log In{{/link-to}}{{/view}}
+                {{#view App.NavView}}
+                  {{#link-to "login"}}
+                    <span class="glyphicon glyphicon-user"></span>
+                    Log In
+                  {{/link-to}}
+                {{/view}}
               {{/if}}
             </ul>
           </div>
@@ -456,7 +478,10 @@
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">Sign in</button>
+            <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">
+              <span class="glyphicon glyphicon-log-in"></span>
+              Sign in
+            </button>
           </div>
         </div>
       </form>
