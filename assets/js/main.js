@@ -33,8 +33,9 @@ Ember.TextField.reopen({
   attributeBindings: ['autofocus']
 });
 
-Ember.Handlebars.helper('default', function(value, default_value) {
-  return value || default_value;
+Ember.Handlebars.helper('default', function(value, default_value, delimiter) {
+  if (value instanceof Array) value = value.join(delimiter);
+  return new Handlebars.SafeString(value || default_value);
 });
 
 Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
@@ -173,7 +174,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       window.localStorage.users = JSON.stringify(this.get('users'));
     }
   }.observes('users.length'),
-  add_user: function(user) {
+  add_user_only: function(user) {
     var id = user._id;
     var users = this.get('users');
     users.removeObject(users.findBy('id', id));
@@ -183,6 +184,10 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       token: user.token,
       is_root: user.is_root
     });
+  },
+  add_user: function(user) {
+    var id = user._id;
+    this.add_user_only(user);
     this.select_user_by_id(id);
   },
   remove_user_by_id: function(id) {
@@ -884,6 +889,11 @@ App.UserController = Ember.ObjectController.extend({
     },
     change_password: function() {
       this.send('change_user', 'password', this.getProperties('password'));
+    },
+    log_in_with_user: function() {
+      LoggedInUsers.add_user_only(this.get('content'));
+      window.scrollTo(0, 0);
+      alert('User is logged in and is added the list.');
     },
     refresh_token: function() {
       this.send('change_user', 'token', null);
