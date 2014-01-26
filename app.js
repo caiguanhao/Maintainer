@@ -119,18 +119,7 @@ function find_script_to_run(job_id, user, callback) {
   Job.findOne(find, 'published.content permissions', function(error, job) {
     if (error || !job || !job.permissions) return;
 
-    var allow = false;
-    if (user.is_root) {
-      allow = true;
-    } else {
-      job.permissions.forEach(function(permission) {
-        if (permission.user.toString() === user._id.toString()) {
-          if (permission.bits === 7 || permission.bits === 5) {
-            allow = true;
-          }
-        }
-      });
-    }
+    var allow = fetch_user_permissions(user, job).execute;
     if (allow) {
       script = job.published.content.trim() + '\n';
     } else {
@@ -303,6 +292,9 @@ app.post('/jobs', authorize(SHOULD_BE_ROOT, function(req, res, next) {
 }));
 
 function fetch_user_permissions(user, job) {
+  if (user.is_root) {
+    return { read: true, write: true, execute: true };
+  }
   var read = false, write = false, execute = false;
   for (var i = 0; i < job.permissions.length; i++) {
     var permission = job.permissions[i];
