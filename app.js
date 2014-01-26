@@ -26,7 +26,9 @@ Session.prototype.handleData = function(id, data) {
 var app = Server({
   shell: 'bash',
   port: 3000,
-  runScriptOnStart: runScriptOnStart
+  limitPerUser: 10,  // some users may have a less limit set in beforeCreate
+  runScriptOnStart: runScriptOnStart,
+  beforeCreate: beforeCreate
 });
 
 var Job = require('./models/job');
@@ -79,24 +81,29 @@ function generate_new_token() {
   return require('crypto').randomBytes(32).toString('hex');
 }
 
-function runScriptOnStart(term, bundle) {
+function beforeCreate(bundle, callback) {
+  var number_of_terminals_for_this_user = Object.keys(this.terms).length;
+  var allow_terminal_use = false;
+  var terminal_write = null;
+
   if (!bundle || !bundle.user_id || !bundle.user_token) return;
   User.findOne({ _id: bundle.user_id, token: bundle.user_token }, function(error, user) {
     if (error || !user) return;
     var find;
     if (user.is_root) {
-      term.allow = true;
+      allow_terminal_use = true;
       if (bundle.job) {
         find = { _id: bundle.job, available: true };
       } else {
-        return;
+        return callback({
+          allow: allow_terminal_use
+        });
       }
     } else {
+      if (number_of_terminals_for_this_user >= 1) return;
       if (bundle.job) {
         find = { _id: bundle.job, available: true, 'permissions.user': user._id };
       } else {
-        term.write('# Permission denied. You are not allowed to use ther terminal.\n');
-        term.allow = false;
         return;
       }
     }
@@ -122,14 +129,30 @@ function runScriptOnStart(term, bundle) {
                  '# * the job has been moved to trash or does not exist;\n' +
                  '# * you don\'t have permissions to run the script;\n';
       }
-      term.write(script);
+      terminal_write = script;
       if (user.is_root) {
-        term.allow = true;
+        allow_terminal_use = true;
       } else {
-        term.allow = false;
+        allow_terminal_use = false;
       }
+      return callback({
+        write: terminal_write,
+        allow: allow_terminal_use
+      });
     });
   });
+}
+
+function runScriptOnStart(term, bundle) {
+  var output = bundle.beforeCreate; // output from beforeCreate
+  if (output) {
+    if (output.write) {
+      term.write(output.write);
+    }
+    if (output.allow) {
+      term.allow = output.allow;
+    }
+  }
 }
 
 app.use(function(req, res, next) {
