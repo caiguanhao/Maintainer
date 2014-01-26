@@ -150,14 +150,16 @@
             <span class="glyphicon glyphicon-share"></span> Put Back
           </button>
         {{/unless}}
-        <div {{bind-attr class=":btn-group job.available:btn-show:hide"}}>
-          <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}} title="Save this job">
-            <span class="glyphicon glyphicon-floppy-disk"></span> Save
-          </button>
-          <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}} title="Undo changes made">
-            <span class="glyphicon glyphicon-repeat"></span>
-          </button>
-        </div>
+        {{#if job.permissions.write}}
+          <div {{bind-attr class=":btn-group job.available:btn-show:hide"}}>
+            <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}} title="Save this job">
+              <span class="glyphicon glyphicon-floppy-disk"></span> Save
+            </button>
+            <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}} title="Undo changes made">
+              <span class="glyphicon glyphicon-repeat"></span>
+            </button>
+          </div>
+        {{/if}}
         <div class="btn-group">
           <button type="button" {{bind-attr class=":btn :btn-default job.useMergeView:active"}} {{action "toggle_view"}} title="Show or hide right view">
             <span class="glyphicon glyphicon-resize-horizontal"></span>
@@ -166,11 +168,13 @@
             <span class="glyphicon glyphicon-time"></span> {{job.revision_count}}
           </button>
         </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-default" {{action "run_script"}} title="Open a terminal window and run the script">
-            <span class="glyphicon glyphicon-play"></span> Run Script
-          </button>
-        </div>
+        {{#if job.permissions.execute}}
+          <div class="btn-group">
+            <button type="button" class="btn btn-default" {{action "run_script"}} title="Open a terminal window and run the script">
+              <span class="glyphicon glyphicon-play"></span> Run Script
+            </button>
+          </div>
+        {{/if}}
       </div>
       <div class="col-sm-3 text-right">
         <div class="btn-group">

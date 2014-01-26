@@ -253,17 +253,27 @@ app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
     find._id = job_id
     if (revision_id) {
       query = Job.findOne(find, 'revisions').exec().then(function(content) {
-        return content.revisions.id(revision_id)
+        return content.revisions.id(revision_id);
       });
     } else {
-      query = Job.findOne(find, '-revisions.content -permissions').exec();
+      query = Job.findOne(find, '-revisions.content -permissions').lean().exec();
     }
   } else {
     find.available = req.query.show_unavailable === 'true' ? { $ne: true } : true;
-    query = Job.find(find, '-revisions -permissions').sort('created_at').exec();
+    query = Job.find(find, '-revisions').sort('created_at').lean().exec();
   }
   query.then(function(content) {
     if (content === null) return next();
+    if (content instanceof Array) {
+      if (content[0] instanceof mongoose.Document) {
+        content = content.map(function(obj) {
+          return obj.toObject();
+        });
+      }
+      for (var i = 0; i < content.length; i++) {
+        content[i].permissions = fetch_user_permissions(req.user, content[i]);
+      }
+    }
     res.send(content);
   }, function(error) {
     next(error);
