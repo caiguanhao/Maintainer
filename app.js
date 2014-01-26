@@ -168,6 +168,11 @@ app.use(function(req, res, next) {
   next();
 });
 
+function not_enough_permissions(res) {
+  res.writeHead(488, 'Not Enough Permissions');
+  res.end(JSON.stringify({ error: 'Not Enough Permissions.' }));
+}
+
 function permission_denied(res) {
   res.status(403);
   res.send({ error: 'Permission denied.' });
@@ -287,11 +292,45 @@ app.post('/jobs', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   });
 }));
 
+function fetch_user_permissions(user, job) {
+  var read = false, write = false, execute = false;
+  for (var i = 0; i < job.permissions.length; i++) {
+    var permission = job.permissions[i];
+    if (permission.user.toString() === user._id.toString()) {
+      switch (permission.bits) {
+      case 4:
+        read = true;
+        write = false;
+        execute = false;
+        break;
+      case 5:
+        read = true;
+        write = false;
+        execute = true;
+        break;
+      case 7:
+        read = true;
+        write = true;
+        execute = true;
+        break;
+      }
+      break;
+    }
+  }
+  return { read: read, write: write, execute: execute };
+}
+
 app.put('/jobs/:job_id', authorize(function(req, res, next) {
   var title = req.body.title;
   var content = req.body.content;
-  Job.findOne({ _id: req.params.job_id, available: true }).exec(function(error, job) {
+  var find = job_permissions_for(req.user);
+  find._id = req.params.job_id;
+  find.available = true;
+  Job.findOne(find).exec(function(error, job) {
     if (error || !job) return next(error);
+    if (fetch_user_permissions(req.user, job).write !== true) {
+      return not_enough_permissions(res);
+    }
     var updated_job = {
       title: title,
       content: content,

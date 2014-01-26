@@ -258,6 +258,9 @@ function handle_error(error, transition, originRoute) {
   case 430:
     transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
     break;
+  case 488:
+    alert('You don\'t have enough permissions to make this request.');
+    break;
   default:
     if (error.message && error.transitionTo) {
       // alert(error.message);
@@ -540,10 +543,9 @@ App.JobController = Ember.Controller.extend({
         if (self.get('job.showingRevisions')) {
           self.transitionToRoute('job_revisions', job._id);
         }
-      }, function(response) {
+      }, function(error) {
         self.set('job.touched', true);
-        var error = $.parseJSON(response.responseText);
-        alert(error.error);
+        handle_error.call(self, error);
       });
     },
     reset_job: function() {
