@@ -134,12 +134,21 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
-    {{view App.TitleView value=job.published.title placeholder="Job title"}}
+    {{view App.TitleView
+      value=job.published.title
+      placeholder="Job title"
+      contenteditable=job.permissions.write}}
     <div class="code-content">
       {{#if job.useMergeView}}
-        {{view App.MergeView value=job.published.content orig=job._content_to_compare}}
+        {{view App.MergeView
+          value=job.published.content
+          orig=job._content_to_compare
+          is_writable=job.permissions.write}}
       {{else}}
-        {{view App.CodeView value=job.published.content placeholder="# Job content"}}
+        {{view App.CodeView
+          value=job.published.content
+          placeholder="# Job content"
+          is_writable=job.permissions.write}}
       {{/if}}
     </div>
     {{outlet "for_revisions"}}

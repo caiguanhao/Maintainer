@@ -1053,6 +1053,9 @@ App.CodeView = Ember.TextArea.extend({
       $editor.on('change', this._CodeMirrorDidChange);
       $el.data('editor', $editor);
     }
+    if ($editor) {
+      $editor.options.readOnly = !Ember.get(this, 'is_writable');
+    }
     if ($editor && value !== $editor.getValue()) {
       $editor.setValue(value || (this.get('placeholder') || ''));
     }
@@ -1086,6 +1089,9 @@ App.MergeView = Ember.View.extend({
       $editor.edit._view = this;
       $editor.edit.on('change', this._CodeMirrorDidChange);
       $el.data('editor', $editor);
+    }
+    if ($editor && $editor.edit) {
+      $editor.edit.options.readOnly = !Ember.get(this, 'is_writable');
     }
     if ($editor && value !== $editor.edit.getValue()) {
       $editor.edit.setValue(value);
