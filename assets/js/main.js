@@ -87,6 +87,19 @@ App.History = Ember.Object.create({
   }
 });
 
+App.Terminals = Ember.Object.create({
+  Windows: [],
+  Create: function(options) {
+    var new_window = new TerminalWindow(null, options);
+    this.get('Windows').addObject(new_window);
+  },
+  DestroyAll: function() {
+    this.get('Windows').forEach(function(Window) {
+      Window.destroy();
+    });
+  }
+});
+
 // setting title to false in route to skip using title
 Ember.Route.reopen({
   activate: function() {
@@ -153,6 +166,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
     }
     App.SetVisibiltyForUser(this.get('current_user'));
     App.ObjectsNeedToReloadDueToCurrentUserChanges.ReloadAll();
+    App.Terminals.DestroyAll();
   }.observes('current_user.token'),
   users_did_changed: function() {
     if (window.localStorage) {
@@ -405,7 +419,7 @@ App.JobsRoute = Ember.Route.extend({
   },
   actions: {
     open_terminal: function() {
-      new TerminalWindow(null, {
+      App.Terminals.Create({
         bundle: {
           user_id: LoggedInUsers.current_user.id,
           user_token: LoggedInUsers.current_user.token
@@ -590,7 +604,7 @@ App.JobController = Ember.Controller.extend({
       this.set('job.useMergeView', !this.get('job.useMergeView'));
     },
     run_script: function() {
-      new TerminalWindow(null, {
+      App.Terminals.Create({
         bundle: {
           user_id: LoggedInUsers.current_user.id,
           user_token: LoggedInUsers.current_user.token,
