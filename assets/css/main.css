@@ -89,8 +89,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 13px;
-  padding: 1px 0;
+  height: 22px;
+  padding: 4px 0;
   font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
   color: #fafafa;
 }
@@ -101,9 +101,9 @@
 
 .title {
   position: absolute;
-  right: 5px;
-  top: 2px;
-  font-size: 11px;
+  right: 8px;
+  top: 3px;
+  font-size: 12px;
   cursor: default;
 }
 
@@ -139,6 +139,7 @@
   font-size: 11px;
   color: #f0f0f0;
   background: #000;
+  margin-top: 7px;
 }
 
 .reverse-video {

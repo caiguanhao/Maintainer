@@ -200,9 +200,14 @@ function Window(socket, params) {
   bar.className = 'bar';
 
   button = document.createElement('div');
-  button.innerHTML = '~';
-  button.title = 'new/close';
+  button.innerHTML = '<span class="glyphicon glyphicon-plus-sign"></span>';
+  button.title = 'Create New Tab';
   button.className = 'tab';
+
+  close_button = document.createElement('div');
+  close_button.innerHTML = '<span class="glyphicon glyphicon-remove-circle"></span>';
+  close_button.title = 'Close Window';
+  close_button.className = 'tab';
 
   title = document.createElement('div');
   title.className = 'title';
@@ -213,6 +218,7 @@ function Window(socket, params) {
   this.grip = grip;
   this.bar = bar;
   this.button = button;
+  this.close_button = close_button;
   this.title = title;
 
   this.params = params;
@@ -226,6 +232,7 @@ function Window(socket, params) {
   el.appendChild(grip);
   el.appendChild(bar);
   bar.appendChild(button);
+  bar.appendChild(close_button);
   bar.appendChild(title);
   body.appendChild(el);
 
@@ -249,6 +256,7 @@ Window.prototype.bind = function() {
     , bar = this.bar
     , grip = this.grip
     , button = this.button
+    , close_button = this.close_button
     , last = 0;
 
   on(button, 'click', function(ev) {
@@ -257,6 +265,11 @@ Window.prototype.bind = function() {
     } else {
       self.createTab();
     }
+    return cancel(ev);
+  });
+
+  on(close_button, 'click', function(ev) {
+    self.destroy();
     return cancel(ev);
   });
 
@@ -551,7 +564,7 @@ function Tab(win, socket) {
 
   var button = document.createElement('div');
   button.className = 'tab';
-  button.innerHTML = '\u2022';
+  button.innerHTML = '<span class="glyphicon glyphicon-bookmark"></span>';
   win.bar.appendChild(button);
 
   on(button, 'click', function(ev) {
