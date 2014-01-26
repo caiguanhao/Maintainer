@@ -59,7 +59,21 @@ Ember.Handlebars.helper('match', function() {
 /* Ember.js */
 App = Ember.Application.create();
 
-App._history = [];
+App.History = Ember.Object.create({
+  Add: function(route_name) {
+    if (!this.get('history')) this.set('history', []);
+
+    if (route_name.indexOf('login') > -1) return;
+    if (/^job/.test(route_name)) route_name = 'jobs';
+    if (/^user/.test(route_name)) route_name = 'users';
+
+    this.get('history').unshiftObject(route_name);
+    this.get('history').splice(3);
+  },
+  GetPrevious: function() {
+    return this.get('history')[0];
+  }
+});
 
 // setting title to false in route to skip using title
 Ember.Route.reopen({
@@ -73,8 +87,7 @@ Ember.Route.reopen({
       }
       set_title(title);
     }
-    App._history.unshift(this.routeName);
-    App._history.splice(3);
+    App.History.Add(this.routeName);
   }
 });
 
@@ -206,9 +219,9 @@ function handle_error(error, transition, originRoute) {
   switch (error.status) {
   case 403:
     if (originRoute && originRoute.routeName) {
-      App._history.unshift(originRoute.routeName);
+      App.History.Add(originRoute.routeName);
     } else if (this.url) {
-      App._history.unshift(this.url);
+      App.History.Add(this.url);
     }
     transitionTo('login', { queryParams: { needed: true } });
     break;
@@ -946,8 +959,7 @@ App.LoginController = Ember.Controller.extend({
        .then(function(user) {
         LoggedInUsers.add_user(user._id, user.username, user.token);
         try {
-          var previous = App._history[0];
-          if (previous.indexOf('login') > -1) previous = App._history[1];
+          var previous = App.History.GetPrevious();
           self.transitionToRoute(previous);
         } catch(error) {
           self.transitionToRoute('index');
