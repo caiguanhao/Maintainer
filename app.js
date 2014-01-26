@@ -82,64 +82,67 @@ function generate_new_token() {
 }
 
 function beforeCreate(bundle, callback) {
-  var number_of_terminals_for_this_user = Object.keys(this.terms).length;
-  var allow_terminal_use = false;
-  var terminal_write = null;
-
   if (!bundle || !bundle.user_id || !bundle.user_token) return;
-  User.findOne({ _id: bundle.user_id, token: bundle.user_token }, function(error, user) {
+
+  var number_of_terminals_for_this_user = Object.keys(this.terms).length;
+
+  User.findOne({ _id: bundle.user_id, token: bundle.user_token }, 
+    function(error, user) {
     if (error || !user) return;
-    var find;
+
     if (user.is_root) {
-      allow_terminal_use = true;
       if (bundle.job) {
-        find = { _id: bundle.job, available: true };
+        return find_script_to_run(bundle.job, user, callback);
       } else {
         return callback({
-          allow: allow_terminal_use
+          allow: true
         });
       }
     } else {
       if (number_of_terminals_for_this_user >= 1) return;
       if (bundle.job) {
-        find = { _id: bundle.job, available: true, 'permissions.user': user._id };
+        return find_script_to_run(bundle.job, user, callback);
       } else {
         return;
       }
     }
-    Job.findOne(find, 'published.content permissions', function(error, job) {
-      var script;
-      var allow = false;
-      if (!error && job && job.permissions) {
-        job.permissions.forEach(function(permission) {
-          if (permission.user.toString() === user._id.toString()) {
-            if (permission.bits === 7 || permission.bits === 5) {
-              allow = true;
-            }
+
+  });
+}
+
+function find_script_to_run(job_id, user, callback) {
+  var find = { _id: job_id, available: true };
+  if (!user.is_root) {
+    find['permissions.user'] = user._id;
+  }
+
+  Job.findOne(find, 'published.content permissions', function(error, job) {
+    if (error || !job || !job.permissions) return;
+
+    var allow = false;
+    if (user.is_root) {
+      allow = true;
+    } else {
+      job.permissions.forEach(function(permission) {
+        if (permission.user.toString() === user._id.toString()) {
+          if (permission.bits === 7 || permission.bits === 5) {
+            allow = true;
           }
-        });
-      }
-      if (user.is_root) {
-        allow = true;
-      }
-      if (allow) {
-        script = job.published.content.trim() + '\n';
-      } else {
-        script = '# There is no script to run. Possible causes:\n' +
-                 '# * the job has been moved to trash or does not exist;\n' +
-                 '# * you don\'t have permissions to run the script;\n';
-      }
-      terminal_write = script;
-      if (user.is_root) {
-        allow_terminal_use = true;
-      } else {
-        allow_terminal_use = false;
-      }
-      return callback({
-        write: terminal_write,
-        allow: allow_terminal_use
+        }
       });
+    }
+    if (allow) {
+      script = job.published.content.trim() + '\n';
+    } else {
+      script = '# There is no script to run. Possible causes:\n' +
+               '# * the job has been moved to trash or does not exist;\n' +
+               '# * you don\'t have permissions to run the script;\n';
+    }
+    return callback({
+      write: script,
+      allow: allow
     });
+
   });
 }
 
