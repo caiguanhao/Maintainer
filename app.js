@@ -402,9 +402,12 @@ app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, re
 }));
 
 // put back
-app.post('/jobs/:job_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+app.post('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
     if (error || !job) return next(error);
+    if (fetch_user_permissions(req.user, job).write !== true) {
+      return not_enough_permissions(res);
+    }
     job.available = true;
     job.save(function(error) {
       if (error) return next(error);
@@ -413,9 +416,12 @@ app.post('/jobs/:job_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   });
 }));
 
-app.delete('/jobs/:job_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+app.delete('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }).exec().then(function(job) {
     if (job === null) throw null;
+    if (fetch_user_permissions(req.user, job).write !== true) {
+      return not_enough_permissions(res);
+    }
     var promise = new mongoose.Promise;
     if (job.available === true) {
       job.available = false;

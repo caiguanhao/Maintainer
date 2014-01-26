@@ -570,10 +570,7 @@ App.JobController = Ember.Controller.extend({
             self.transitionToRoute('jobs');
           });
         }
-      }, function(response) {
-        var error = $.parseJSON(response.responseText);
-        alert(error.error);
-      });
+      }, handle_error);
     },
     put_back: function() {
       var self = this;
