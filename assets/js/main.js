@@ -57,7 +57,18 @@ Ember.Handlebars.helper('match', function() {
 });
 
 /* Ember.js */
-App = Ember.Application.create();
+App = Ember.Application.create({
+  Visibility: {},
+  SetVisibiltyForUser: function(user) {
+    var is_root = false;
+    if (user) {
+      is_root = user.is_root;
+    }
+    this.set('Visibility.JobsCreate', is_root);
+    this.set('Visibility.JobsOpenTerminal', is_root);
+    this.set('Visibility.JobsPermissions', is_root);
+  }
+});
 
 App.History = Ember.Object.create({
   Add: function(route_name) {
@@ -133,11 +144,13 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       }
     }
     this.set('current_user', current_user);
+    App.SetVisibiltyForUser(current_user);
   },
   current_users_did_changed: function() {
     if (window.localStorage) {
       window.localStorage.current_user = JSON.stringify(this.get('current_user'));
     }
+    App.SetVisibiltyForUser(this.get('current_user'));
     App.ObjectsNeedToReloadDueToCurrentUserChanges.ReloadAll();
   }.observes('current_user.token'),
   users_did_changed: function() {
@@ -145,13 +158,15 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       window.localStorage.users = JSON.stringify(this.get('users'));
     }
   }.observes('users.length'),
-  add_user: function(id, name, token) {
+  add_user: function(user) {
+    var id = user._id;
     var users = this.get('users');
     users.removeObject(users.findBy('id', id));
     users.unshiftObject({
       id: id,
-      name: name,
-      token: token
+      name: user.username,
+      token: user.token,
+      is_root: user.is_root
     });
     this.select_user_by_id(id);
   },
@@ -965,7 +980,7 @@ App.LoginController = Ember.Controller.extend({
       var self = this;
       $.post('/login', this.getProperties('username', 'password'))
        .then(function(user) {
-        LoggedInUsers.add_user(user._id, user.username, user.token);
+        LoggedInUsers.add_user(user);
         try {
           var previous = App.History.GetPrevious();
           self.transitionToRoute(previous);

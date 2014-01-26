@@ -19,6 +19,7 @@ module.exports = mongoose.model('User', new Schema({
 
 var _public_fields = [
   'username',
+  'is_root',
   'banned',
   'token',
   'token_updated_at',

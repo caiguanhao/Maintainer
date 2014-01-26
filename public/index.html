@@ -108,15 +108,19 @@
               </span>
             {{/link-to}}
           {{/each}}
-          {{#link-to 'jobs.new' classNames="list-group-item"}}
-            Create New
-          {{/link-to}}
+          {{#if App.Visibility.JobsCreate}}
+            {{#link-to 'jobs.new' classNames="list-group-item"}}
+              Create New
+            {{/link-to}}
+          {{/if}}
         </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
-            <span class="glyphicon glyphicon-new-window"></span> Open Terminal
-          </button>
-        </div>
+        {{#if App.Visibility.JobsOpenTerminal}}
+          <div class="btn-group">
+            <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
+              <span class="glyphicon glyphicon-new-window"></span> Open Terminal
+            </button>
+          </div>
+        {{/if}}
       </div>
       <div class="col-sm-8">
         {{outlet}}
@@ -170,17 +174,19 @@
         </div>
       </div>
     </div>
-    <hr>
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="btn-group">
-          <button type="button" {{bind-attr class=":btn :btn-default job.showingPermissions:active"}} {{action "edit_permissions"}} title="Edit permissions of this job">
-            <span class="glyphicon glyphicon-eye-close"></span> Edit Permissions
-          </button>
+    {{#if App.Visibility.JobsPermissions}}
+      <hr>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="btn-group">
+            <button type="button" {{bind-attr class=":btn :btn-default job.showingPermissions:active"}} {{action "edit_permissions"}} title="Edit permissions of this job">
+              <span class="glyphicon glyphicon-eye-close"></span> Edit Permissions
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    {{outlet "for_permissions"}}
+      {{outlet "for_permissions"}}
+    {{/if}}
   </script>
   <script type="text/x-handlebars" id="job/permissions">
     <div class="permission-content">
