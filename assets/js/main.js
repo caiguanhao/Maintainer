@@ -67,6 +67,7 @@ App = Ember.Application.create({
     this.set('Visibility.JobsCreate', is_root);
     this.set('Visibility.JobsOpenTerminal', is_root);
     this.set('Visibility.JobsPermissions', is_root);
+    this.set('Visibility.UsersNavBarLink', is_root);
   }
 });
 

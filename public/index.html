@@ -44,7 +44,9 @@
             <ul class="nav navbar-nav">
               {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
               {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
-              {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
+              {{#if App.Visibility.UsersNavBarLink}}
+                {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
+              {{/if}}
               {{#view App.NavView}}{{#link-to "about"}}About{{/link-to}}{{/view}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -107,6 +109,10 @@
                 {{default published.title "(untitled)"}}
               </span>
             {{/link-to}}
+          {{else}}
+            <div class="list-group-item">
+              <span class="glyphicon glyphicon-exclamation-sign"></span> No items.
+            </div>
           {{/each}}
           {{#if App.Visibility.JobsCreate}}
             {{#link-to 'jobs.new' classNames="list-group-item"}}
