@@ -35,47 +35,29 @@ var Job = require('./models/job');
 var User = require('./models/user');
 
 app.post('/login', function(req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
-  var forbid = function() {
-    res.status(401);
-    res.send({ error: 'Invalid username or password.' });
-  };
-  User.findOne({ username: username }, '+password', function(error, user) {
-    if (error || !user) return forbid();
-    if (!user.compare_password(password)) return forbid();
-
-    if (user.banned) {
+  User.authenticate(req.body.username, req.body.password, {
+    success: function() {
+      res.send(this.sanitize());
+    },
+    invalid: function() {
+      res.status(401);
+      res.send({ error: 'Invalid username or password.',
+        attempts_left: User.MAX_ATTEMPTS - this.login_attempts - 1 });
+    },
+    banned: function() {
       res.writeHead(466, 'User Is Banned');
       res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
-      return;
+    },
+    exceed_max_attempts: function() {
+      res.writeHead(429, 'Too Many Attempts');
+      res.end(JSON.stringify({ error: 'The account is temporarily locked due ' +
+        'to too many failed login attempts.', until: new Date(this.lock_until) }));
     }
-
-    var new_date = new Date;
-    if (user.last_logged_in_at instanceof Array) {
-      user.last_logged_in_at.unshift(new_date);
-      user.last_logged_in_at.splice(3);
-    } else {
-      user.last_logged_in_at = [ new_date ];
-    }
-
-    var new_token = generate_new_token();
-    user.token = new_token;
-    user.token_updated_at = new_date;
-
-    user.save(function(error, user) {
-      if (error) return forbid();
-      res.send(user.sanitize());
-    });
   });
 });
 
 function regex_escape(str) {
   return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-}
-
-function generate_new_token() {
-  return require('crypto').randomBytes(32).toString('hex');
 }
 
 function beforeCreate(bundle, callback) {
@@ -216,10 +198,7 @@ function authorize() {
 }
 
 app.delete('/login', authorize(function(req, res, next) {
-  var new_token = generate_new_token();
-  req.user.token = new_token;
-  req.user.token_updated_at = new Date;
-
+  req.user.generate_new_token();
   req.user.save(function(error, user) {
     if (error) {
       next(error);
@@ -497,8 +476,7 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
     var new_date = new Date;
     switch (action) {
     case 'token':
-      user.token = generate_new_token();
-      user.token_updated_at = new_date;
+      user.generate_new_token(new_date);
       break;
     case 'password':
       var password = req.body.password;

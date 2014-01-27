@@ -2,6 +2,9 @@ var mongoose = require('mongoose'), Schema = mongoose.Schema;
 var common_methods = require('./__common__');
 var bcrypt = require('bcrypt');
 
+var MAX_ATTEMPTS = 5;
+var LOCK_TIME = 2 * 60 * 60 * 1000;
+
 var user_schema = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
@@ -13,10 +16,17 @@ var user_schema = new Schema({
   token: String,
   token_updated_at: Date,
 
+  login_attempts: { type: Number, default: 0 },
+  lock_until: Number,
+
   created_at: Date,
   updated_at: Date,
   last_logged_in_at: [ Date ],
   password_updated_at: Date
+});
+
+user_schema.virtual('locked').get(function() {
+  return !!(this.lock_until && this.lock_until > Date.now());
 });
 
 (new common_methods)
@@ -49,4 +59,68 @@ user_schema.method('compare_password', function(password) {
   return bcrypt.compareSync(password, this.password);
 });
 
+user_schema.method('generate_new_token', function(new_date) {
+  this.token = require('crypto').randomBytes(32).toString('hex');
+  this.token_updated_at = new_date || new Date;
+});
+
+user_schema.static('authenticate', function(username, password, callbacks) {
+  callbacks = callbacks || {};
+  callback_types = [ 'success', 'invalid', 'banned', 'exceed_max_attempts' ];
+
+  for (var i = 1; i < callback_types.length; i++) {
+    callbacks[callback_types[i]] = callbacks[callback_types[i]] || new Function;
+  }
+
+  this.findOne({ username: username }, '+password', function(error, user) {
+    if (error || !user) return callbacks.invalid.call(user);
+
+    if (user.locked) {
+      return callbacks.exceed_max_attempts.call(user);
+    }
+
+    if (user.compare_password(password)) {
+      user.lock_until = undefined;
+      user.login_attempts = 0;
+    } else {
+      if (user.lock_until && user.lock_until < Date.now()) {
+        // clearing previous expired attempts
+        user.update({
+          $set: { login_attempts: 1 },
+          $unset: { lock_until: 1 }
+        }, function(error) {
+          callbacks.invalid.call(user);
+        });
+      } else {
+        var update = { $inc: { login_attempts: 1 } };
+        if (user.login_attempts + 1 >= MAX_ATTEMPTS && !user.locked) {
+          update.$set = { lock_until: Date.now() + LOCK_TIME };
+        }
+        user.update(update, function(error) {
+          callbacks.invalid.call(user);
+        });
+      }
+      return;
+    }
+
+    if (user.banned) return callbacks.banned.call(user);
+
+    var new_date = new Date;
+    if (user.last_logged_in_at instanceof Array) {
+      user.last_logged_in_at.unshift(new_date);
+      user.last_logged_in_at.splice(3);
+    } else {
+      user.last_logged_in_at = [ new_date ];
+    }
+
+    user.generate_new_token(new_date);
+
+    user.save(function(error, user) {
+      if (error) return callbacks.invalid.call(user);
+      callbacks.success.call(user);
+    });
+  });
+});
+
 module.exports = mongoose.model('User', user_schema);
+module.exports.MAX_ATTEMPTS = MAX_ATTEMPTS;

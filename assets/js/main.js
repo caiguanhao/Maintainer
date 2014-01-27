@@ -255,7 +255,19 @@ function handle_error(error, transition, originRoute) {
       app_controller.transitionToRoute.apply(app_controller, arguments);
     }
   }
+  var error_obj = {};
+  try { error_obj = JSON.parse(error.responseText); } catch(e) {}
   switch (error.status) {
+  case 401:
+    var err_msg = 'Invalid username or password.';
+    if (error_obj.attempts_left > 0) {
+      err_msg += ' You have ' + error_obj.attempts_left +
+        ' more attempts before your account is locked.';
+    } else {
+      err_msg += ' Sorry, your account has been locked temporarily.';
+    }
+    alert(err_msg);
+    break;
   case 403:
     if (originRoute && originRoute.routeName) {
       App.History.Add(originRoute.routeName);
@@ -263,6 +275,10 @@ function handle_error(error, transition, originRoute) {
       App.History.Add(this.url);
     }
     transitionTo('login', { queryParams: { needed: true } });
+    break;
+  case 429:
+    alert('The account is temporarily locked until ' + error_obj.until +
+      ' due to too many failed login attempts.');
     break;
   case 430:
     transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
