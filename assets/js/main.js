@@ -270,6 +270,9 @@ function handle_error(error, transition, originRoute) {
   case 488:
     alert('You don\'t have enough permissions to make this request.');
     break;
+  case 499:
+    alert('You can\'t change a root user.');
+    break;
   default:
     if (error.message && error.transitionTo) {
       // alert(error.message);
@@ -860,7 +863,10 @@ App.UserRoute = Ember.Route.extend({
       if (user) {
         return user;
       } else {
-        throw 'User does not exist.';
+        throw {
+          message: 'User does not exist.',
+          transitionTo: [ 'index' ]
+        };
       }
     });
   },
@@ -885,6 +891,10 @@ App.UserController = Ember.ObjectController.extend({
     }
     this.set('untouched_uname', !(this.get('username') && this.get('_username') !== this.get('username')));
   }.observes('username'),
+
+  user_alterable: function() {
+    return !this.get('is_root');
+  }.property('is_root'),
 
   actions: {
     generate_password: function() {
@@ -1045,7 +1055,9 @@ App.NavView = Ember.View.extend({
 App.TitleView = Ember.TextArea.extend({
   tagName: 'h1',
   contenteditable: function() {
-    return this.get('is_writable').toString();
+    var is_writable = this.get('is_writable');
+    if (is_writable === undefined) is_writable = false;
+    return is_writable.toString();
   }.property('is_writable'),
   attributeBindings: [ 'contenteditable' ]
 });

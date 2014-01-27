@@ -172,6 +172,11 @@ function should_be_root(res) {
   res.end(JSON.stringify({ error: 'Permission denied.' }));
 }
 
+function root_cant_be_changed(res) {
+  res.writeHead(499, 'Root Can\'t Be Changed');
+  res.end(JSON.stringify({ error: 'Changing a root user is not allowed.' }));
+}
+
 function unblock(callback) {
   return function(req, res, next) {
     callback(req, res, next);
@@ -436,14 +441,15 @@ app.delete('/jobs/:job_id', authorize(function(req, res, next) {
 // search username
 app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var query = req.params.query;
-  User.find({ username: new RegExp(regex_escape(query), 'i') }, 'username').limit(10)
-    .exec(function(error, users) {
+  User.find({ username: new RegExp(regex_escape(query), 'i'),
+    is_root: { $ne: true } }, 'username').limit(10).exec(function(error, users) {
     res.send((error || !users) ? [] : users);
   });
 }));
 
 app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
-  User.find({}, User.public_fields).sort('created_at').exec(function(error, content) {
+  User.find({ is_root: { $ne: true } }, User.public_fields)
+    .sort('created_at').exec(function(error, content) {
     if (error || !content) return next(error);
     res.send(content);
   });
@@ -458,6 +464,7 @@ app.post('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var new_user = new User({
     username: username,
     password: password,
+    is_root: false,
     banned: false,
     force_log_out: false,
     token: '',
@@ -489,6 +496,7 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
   var action = req.params.action;
   User.findOne({ _id: user_id }, User.public_fields).exec(function(error, user) {
     if (error || !user) return next(error);
+    if (user.is_root) return root_cant_be_changed(res);
     var new_date = new Date;
     switch (action) {
     case 'token':
@@ -522,9 +530,13 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
 
 app.delete('/users/:user_id', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   var user_id = req.params.user_id;
-  User.findOneAndRemove({ _id: user_id }).exec(function(error) {
-    if (error) return next(error);
-    res.send({ status: 'OK' });
+  User.findOne({ _id: user_id }).exec(function(error, user) {
+    if (error || !user) return next(error);
+    if (user.is_root) return root_cant_be_changed(res);
+    user.remove(function(error) {
+      if (error) return next(error);
+      res.send({ status: 'OK' });
+    });
   });
 }));
 
