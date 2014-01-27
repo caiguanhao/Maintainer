@@ -159,7 +159,7 @@
     {{view App.TitleView
       value=job.published.title
       placeholder="Job title"
-      contenteditable=job.permissions.write}}
+      is_writable=job.permissions.write}}
     <div class="code-content">
       {{#if job.useMergeView}}
         {{view App.MergeView

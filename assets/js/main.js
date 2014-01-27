@@ -1044,7 +1044,9 @@ App.NavView = Ember.View.extend({
 
 App.TitleView = Ember.TextArea.extend({
   tagName: 'h1',
-  contenteditable: 'true',
+  contenteditable: function() {
+    return this.get('is_writable').toString();
+  }.property('is_writable'),
   attributeBindings: [ 'contenteditable' ]
 });
 
