@@ -41,7 +41,7 @@ app.post('/login', function(req, res, next) {
     res.status(401);
     res.send({ error: 'Invalid username or password.' });
   };
-  User.findOne({ username: username }, function(error, user) {
+  User.findOne({ username: username }, '+password', function(error, user) {
     if (error || !user) return forbid();
     if (!user.compare_password(password)) return forbid();
 
@@ -65,9 +65,7 @@ app.post('/login', function(req, res, next) {
 
     user.save(function(error, user) {
       if (error) return forbid();
-      user = user.toObject();
-      sanitize_document(user, User._public_fields);
-      res.send(user);
+      res.send(user.sanitize());
     });
   });
 });
@@ -447,7 +445,7 @@ app.get('/search/users/:query', authorize(SHOULD_BE_ROOT, function(req, res, nex
 }));
 
 app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
-  User.find({ is_root: { $ne: true } }, User.public_fields)
+  User.find({ is_root: { $ne: true } })
     .sort('created_at').exec(function(error, content) {
     if (error || !content) return next(error);
     res.send(content);
@@ -477,21 +475,12 @@ app.post('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   });
 }));
 
-function sanitize_document(document, fields) {
-  Object.keys(document).forEach(function(key) {
-    if (key[0] === '_') return;
-    if (fields.indexOf(key) === -1) {
-      delete document[key];
-    }
-  });
-}
-
 app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD_BE_ROOT,
   function(req, res, next) {
 
   var user_id = req.params.user_id;
   var action = req.params.action;
-  User.findOne({ _id: user_id }, User.public_fields).exec(function(error, user) {
+  User.findOne({ _id: user_id }).exec(function(error, user) {
     if (error || !user) return next(error);
     if (user.is_root) return root_cant_be_changed(res);
     var new_date = new Date;
@@ -516,9 +505,7 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
     user.updated_at = new_date;
     user.save(function(error) {
       if (error) return next(error);
-      user = user.toObject();
-      sanitize_document(user, User._public_fields);
-      res.send(user);
+      res.send(user.sanitize());
     });
   });
 }));

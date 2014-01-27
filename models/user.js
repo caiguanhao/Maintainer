@@ -1,9 +1,10 @@
 var mongoose = require('mongoose'), Schema = mongoose.Schema;
+var common_methods = require('./__common__');
 var bcrypt = require('bcrypt');
 
 var user_schema = new Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true, select: false },
 
   is_root: { type: Boolean, default: false },
 
@@ -17,6 +18,11 @@ var user_schema = new Schema({
   last_logged_in_at: [ Date ],
   password_updated_at: Date
 });
+
+(new common_methods)
+  .of('schema_methods')
+  .including('sanitize')
+  .give_to(user_schema);
 
 user_schema.path('username').validate(function(value) {
   return /^[A-Za-z0-9_]{3,20}$/.test(value);
@@ -39,22 +45,8 @@ user_schema.pre('save', function(next) {
 });
 
 user_schema.method('compare_password', function(password) {
+  if (!this.password) return false;
   return bcrypt.compareSync(password, this.password);
 });
 
 module.exports = mongoose.model('User', user_schema);
-
-var _public_fields = [
-  'username',
-  'is_root',
-  'banned',
-  'token',
-  'token_updated_at',
-  'created_at',
-  'updated_at',
-  'last_logged_in_at',
-  'password_updated_at'
-];
-
-module.exports._public_fields = _public_fields;
-module.exports.public_fields = _public_fields.join(' ');
