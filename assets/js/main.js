@@ -206,7 +206,11 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
   },
   select_user_by_id: function(id) {
     var users = this.get('users');
-    this.set('current_user', users.findBy('id', id));
+    var user = users.findBy('id', id);
+    this.set('current_user', user);
+    // move object to front
+    users.unshiftObject(Ember.copy(user, true));
+    users.removeObject(user);
   },
   reset_user_token: function(user) {
     $.ajax({
