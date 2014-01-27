@@ -789,10 +789,25 @@ App.JobPermissionsController = Ember.Controller.extend({
       }, handle_error);
     },
     edit_user: function(user) {
+      if (!user) {
+        return alert('User is unavailable and may have been removed.');
+      }
       this.set('username', user.username);
       this.set('user_id', user._id);
       this.set('untouched', false);
       this.get('_find_user_input_view').send('trigger_dropdown');
+    },
+    remove_all_permissions: function() {
+      var self = this;
+      $.ajax({
+        url: '/jobs/' + this.get('controllers.job.job._id') + '/permissions',
+        type: 'DELETE'
+      }).then(function() {
+        job_perms.reload(function() {
+          self.set('user_id', '');
+          self.set('username', '');
+        });
+      }, handle_error);
     }
   }
 });

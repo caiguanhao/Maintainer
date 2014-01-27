@@ -384,6 +384,17 @@ app.put('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res
   });
 }));
 
+app.delete('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res, next) {
+  Job.findOne({ _id: req.params.job_id }).exec(function(error, job) {
+    if (error || !job) return next(error);
+    job.permissions = [];
+    job.save(function(error) {
+      if (error) return next(error);
+      res.send({ status: 'OK' });
+    });
+  });
+}));
+
 // get list of permissions
 app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }, 'permissions').populate({

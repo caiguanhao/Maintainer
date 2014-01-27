@@ -133,7 +133,7 @@
             {{/link-to}}
           {{else}}
             <div class="list-group-item">
-              <span class="glyphicon glyphicon-exclamation-sign"></span> No items.
+              <span class="glyphicon glyphicon-exclamation-sign"></span> No jobs yet.
             </div>
           {{/each}}
           {{#if App.Visibility.JobsCreate}}
@@ -256,10 +256,22 @@
             <div class="pull-right">
               {{match bits 4 "Read Only" 5 "Read and Execute" 7 "Read, Edit and Execute" "Unknown"}}
             </div>
-            <a href="#" {{action "edit_user" user}}>{{user.username}}</a>
+            <a href="#" {{action "edit_user" user}}>{{default user.username "(unavailable)"}}</a>
+          </div>
+        {{else}}
+          <div class="list-group-item">
+            <span class="glyphicon glyphicon-exclamation-sign"></span> No permission has been set yet.
           </div>
         {{/each}}
       </div>
+      {{#if permissions.length}}
+        <hr>
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger" {{action "remove_all_permissions"}} title="Remove all permissions of this job">
+            <span class="glyphicon glyphicon-trash"></span> Remove All Permissions
+          </button>
+        </div>
+      {{/if}}
     </div>
   </script>
   <script type="text/x-handlebars" id="job_revisions">
@@ -313,6 +325,10 @@
               {{/if}}
               {{default username "(unnamed)"}}
             {{/link-to}}
+          {{else}}
+            <div class="list-group-item">
+              <span class="glyphicon glyphicon-exclamation-sign"></span> No users yet.
+            </div>
           {{/each}}
           {{#link-to 'users.new' classNames="list-group-item"}}
             Create New
