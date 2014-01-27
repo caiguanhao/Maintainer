@@ -38,6 +38,10 @@ user_schema.pre('save', function(next) {
   next();
 });
 
+user_schema.method('compare_password', function(password) {
+  return bcrypt.compareSync(password, this.password);
+});
+
 module.exports = mongoose.model('User', user_schema);
 
 var _public_fields = [

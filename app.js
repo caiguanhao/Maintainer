@@ -43,8 +43,7 @@ app.post('/login', function(req, res, next) {
   };
   User.findOne({ username: username }, function(error, user) {
     if (error || !user) return forbid();
-    var bcrypt = require('bcrypt');
-    if (!bcrypt.compareSync(password, user.password)) return forbid();
+    if (!user.compare_password(password)) return forbid();
 
     if (user.banned) {
       res.writeHead(466, 'User Is Banned');
