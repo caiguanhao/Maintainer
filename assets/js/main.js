@@ -57,6 +57,12 @@ Ember.Handlebars.helper('match', function() {
   return _else;
 });
 
+function fmtdate(date) {
+  return moment(date).format("YYYY-MM-DD HH:mm:ss");
+}
+
+Ember.Handlebars.helper('fmtdate', fmtdate);
+
 /* Ember.js */
 App = Ember.Application.create({
   Visibility: {},
@@ -264,7 +270,7 @@ function handle_error(error, transition, originRoute) {
       err_msg += ' You have ' + error_obj.attempts_left +
         ' more attempts before your account is locked.';
     } else {
-      err_msg += ' Sorry, your account has been locked temporarily.';
+      err_msg += ' Sorry, the account has been locked temporarily.';
     }
     alert(err_msg);
     break;
@@ -277,8 +283,9 @@ function handle_error(error, transition, originRoute) {
     transitionTo('login', { queryParams: { needed: true } });
     break;
   case 429:
-    alert('The account is temporarily locked until ' + error_obj.until +
-      ' due to too many failed login attempts.');
+    alert('The account is temporarily locked due to too many failed login ' +
+      'attempts and it will be unlocked ' + moment(error_obj.until).fromNow() +
+      '.');
     break;
   case 430:
     transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
@@ -713,7 +720,7 @@ App.JobRevisionsRoute = Ember.Route.extend({
         for_swap_half_for_array_reverse(job.revisions);
         for (var i = 0; i < job.revisions.length; i++) {
           var rev = job.revisions[i];
-          rev.display_title = '[' + rev.created_at.replace('T', ' ').replace(/\..*$/, '') + '] ';
+          rev.display_title = '[' + fmtdate(rev.created_at) + '] ';
           rev.display_title += rev.title;
           if (i === 0) {
             rev.display_title += ' (latest)';

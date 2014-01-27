@@ -71,6 +71,11 @@ a.list-group-item:last-of-type {
 .dropdown-menu .text-danger {
   color: #a94442 !important;
 }
+.time {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #A2A2A2;
+}
 
 /* Terminal */
 

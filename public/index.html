@@ -22,6 +22,8 @@
   <script src="/js/vendor/term.js"></script>
   <script src="/js/vendor/tty.js"></script>
   <script src="/js/vendor/typeahead.js"></script>
+  <script src="/js/vendor/moment.js"></script>
+  <script src="/js/vendor/livestamp.js"></script>
   <script src="/js/main.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 </head>
@@ -395,23 +397,42 @@
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Token Updated At</label>
-        <div class="col-sm-8 text-only">{{default token_updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">
+          {{fmtdate token_updated_at}}
+          <span class="time" {{bind-attr data-livestamp="token_updated_at"}}></span>
+        </div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Created At</label>
-        <div class="col-sm-8 text-only">{{default created_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">
+          {{fmtdate created_at}}
+          <span class="time" {{bind-attr data-livestamp="created_at"}}></span>
+        </div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Updated At</label>
-        <div class="col-sm-8 text-only">{{default updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">
+          {{fmtdate updated_at}}
+          <span class="time" {{bind-attr data-livestamp="updated_at"}}></span>
+        </div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Password Updated At</label>
-        <div class="col-sm-8 text-only">{{default password_updated_at "Unknown"}}</div>
+        <div class="col-sm-8 text-only">
+          {{fmtdate password_updated_at}}
+          <span class="time" {{bind-attr data-livestamp="password_updated_at"}}></span>
+        </div>
       </div>
       <div class="form-group">
         <label class="col-sm-4 control-label">Last Logged In At</label>
-        <div class="col-sm-8 text-only">{{default last_logged_in_at "Unknown" "<br>"}}</div>
+        <div class="col-sm-8 text-only">
+          {{#each last_logged_in_at}}
+            <div>
+              {{fmtdate this}}
+              <span class="time" {{bind-attr data-livestamp="this"}}></span>
+            </div>
+          {{/each}}
+        </div>
       </div>
       {{#if user_alterable}}
         <hr>
