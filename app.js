@@ -456,10 +456,8 @@ app.get('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
 }));
 
 app.post('/users', authorize(SHOULD_BE_ROOT, function(req, res, next) {
-  var bcrypt = require('bcrypt');
   var username = req.body.username;
   var password = req.body.password;
-  password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   var now = new Date;
   var new_user = new User({
     username: username,
@@ -504,9 +502,7 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
       user.token_updated_at = new_date;
       break;
     case 'password':
-      var bcrypt = require('bcrypt');
       var password = req.body.password;
-      password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
       user.password = password;
       user.password_updated_at = new_date;
       break;
