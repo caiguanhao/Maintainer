@@ -770,7 +770,10 @@ App.JobPermissionsController = Ember.Controller.extend({
     }
   }.observes('username'),
   actions: {
-    grant_permissions: function(bits) {
+    grant_permissions: function(bits, confirm_message) {
+      if (confirm_message && !confirm(confirm_message.replace(/\s{2,}/, ' '))) {
+        return;
+      }
       var self = this;
       var user_id = this.get('user_id');
       if (!user_id) return;

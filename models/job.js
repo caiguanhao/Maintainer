@@ -23,4 +23,8 @@ job_schema.path('published.title').validate(function(value) {
   return value.length <= 30;
 }, 'Title is too long. It should be less than or equal to 30 characters.');
 
+job_schema.path('permissions').schema.path('bits').validate(function(value) {
+  return (value === 4 || value === 5 || value === 7);
+}, 'Permission bits should be 4 or 5 or 7.');
+
 module.exports = mongoose.model('Job', job_schema);

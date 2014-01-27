@@ -245,7 +245,11 @@
             <li><a href="#" {{action "grant_permissions" 4}}>Read Only</a></li>
             <li><a href="#" {{action "grant_permissions" 5}}>Read and Execute</a></li>
             <li class="divider"></li>
-            <li><a href="#" {{action "grant_permissions" 7}}>Read, Edit and Execute</a></li>
+            <li><a class="text-danger" href="#" {{action "grant_permissions" 7 
+              "Warning: Giving user write and execute permissions may harm the
+              system as any script can be executed. Make sure the user is trusted."}}>
+              <span class="glyphicon glyphicon-exclamation-sign"></span>
+              Read, Edit and Execute</a></li>
           </ul>
         </div>
       </div>
