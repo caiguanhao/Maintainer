@@ -1088,6 +1088,9 @@ App.CodeView = Ember.TextArea.extend({
       $editor.setValue(value || (this.get('placeholder') || ''));
     }
   }),
+  placeholder: function() {
+    return this.get('PLACEHOLDER') + '\n';
+  }.property('PLACEHOLDER'),
   init: function() {
     this._super();
     this.on("didInsertElement", this, this._CodeHorrorInit);
