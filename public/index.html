@@ -24,6 +24,7 @@
   <script src="/js/vendor/typeahead.js"></script>
   <script src="/js/vendor/moment.js"></script>
   <script src="/js/vendor/livestamp.js"></script>
+  <script src="/js/vendor/markdown.js"></script>
   <script src="/js/main.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 </head>
@@ -657,6 +658,9 @@
         {{outlet}}
       </div>
     </div>
+  </script>
+  <script type="text/x-handlebars" id="help_topic">
+    {{markdown content.content}}
   </script>
 </body>
 

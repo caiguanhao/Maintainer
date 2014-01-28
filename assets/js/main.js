@@ -42,6 +42,11 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
   return variable === check ? yes : no;
 });
 
+Ember.Handlebars.helper('markdown', function(content) {
+  content = content.replace(/^---(.|\n)*---\n/, '');
+  return new Handlebars.SafeString(markdown.toHTML(content));
+});
+
 Ember.Handlebars.helper('match', function() {
   var variable = arguments[0];
   var length = arguments.length;
@@ -1093,6 +1098,18 @@ var Help = App.Help.create();
 App.HelpRoute = Ember.Route.extend({
   model: function() {
     return Help.load_help();
+  }
+});
+
+App.HelpTopicController = Ember.ObjectController.extend({});
+
+App.HelpTopicRoute = Ember.Route.extend({
+  model: function(help) {
+    return $.getJSON('/help/' + help.help_topic);
+  },
+  setupController: function(controller, model) {
+    this._super.apply(this, arguments);
+    set_title(model.title);
   }
 });
 
