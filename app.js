@@ -550,6 +550,25 @@ app.delete('/users/:user_id', authorize(SHOULD_BE_ROOT, function(req, res, next)
   });
 }));
 
+app.get('/help/:help_topic?', unblock(function(req, res, next) {
+  var help_index = require('./doc/index');
+  var help_topic = req.params.help_topic;
+  if (help_topic && help_index.hasOwnProperty(help_topic)) {
+    var fs = require('fs');
+    var content = 'No content.';
+    try {
+      content = fs.readFileSync('doc/' + help_topic + '.md').toString();
+    } catch(error) {}
+    res.send({
+      slug: help_topic,
+      title: help_index[help_topic],
+      content: content
+    });
+  } else {
+    res.send(help_index);
+  }
+}));
+
 app.use(function(err, req, res, next) {
   res.status(err.status || 400);
   res.send({ error: err.toString() });

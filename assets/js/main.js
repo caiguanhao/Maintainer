@@ -375,7 +375,9 @@ App.Router.map(function() {
     this.route('new');
     this.resource('user', { path: ':user_id' });
   });
-  this.route('help');
+  this.resource('help', function() {
+    this.resource('help_topic', { path: ':help_topic' });
+  });
   this.route('profile');
   this.route('login');
   this.resource('not_found', { path: '/*path' });
@@ -1058,6 +1060,39 @@ App.UsersNewController = Ember.Controller.extend({
         });
       }, handle_error);
     }
+  }
+});
+
+App.HelpController = Ember.ArrayController.extend({});
+
+App.Help = Ember.Object.extend({
+  load_help: function() {
+    var self = this;
+    return Ember.Deferred.promise(function(promise) {
+      if (self.get('help')) {
+        promise.resolve(self.get('help'));
+      } else {
+        promise.resolve($.getJSON('/help').then(function(help) {
+          var new_array = [];
+          for (var slug in help) {
+            new_array.push({
+              slug: slug,
+              title: help[slug]
+            });
+          }
+          self.set('help', new_array);
+          return new_array;
+        }, handle_error));
+      }
+    });
+  }
+});
+
+var Help = App.Help.create();
+
+App.HelpRoute = Ember.Route.extend({
+  model: function() {
+    return Help.load_help();
   }
 });
 

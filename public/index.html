@@ -638,7 +638,25 @@
     </div>
   </script>
   <script type="text/x-handlebars" id="help">
-    <p>A server maintainer.</p>
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="list-group">
+          {{#each}}
+            {{#link-to 'help_topic' slug classNames="list-group-item"}}
+              {{default title slug}}
+            {{/link-to}}
+          {{else}}
+            <div class="list-group-item">
+              <span class="glyphicon glyphicon-exclamation-sign"></span>
+              No help topics yet.
+            </div>
+          {{/each}}
+        </div>
+      </div>
+      <div class="col-sm-8">
+        {{outlet}}
+      </div>
+    </div>
   </script>
 </body>
 

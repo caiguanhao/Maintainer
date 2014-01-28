@@ -46,4 +46,28 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', [ 'express', 'watch' ]);
 
+  grunt.registerTask('make_help_index', 'Generate help index JSON file', function() {
+    var path = require('path');
+    var doc_dir = 'doc';
+    var help_files = grunt.file.expand({
+      cwd: doc_dir
+    }, '*.md');
+    var index = {};
+    help_files.forEach(function(help_file) {
+      var file = grunt.file.read(path.join(doc_dir, help_file));
+      var yfm = file.match(/^---((.|\n)*)---\n/);
+      var title = '';
+      if (yfm) {
+        yfm = yfm[1].trim();
+        title = yfm.match(/^title:\s*(.*)$/mi)
+        if (title) title = title[1].trim();
+        title = title.replace(/^(["']?)(.*)\1$/, '$2');
+      }
+      var slug = path.basename(help_file, path.extname(help_file));
+      index[slug] = title;
+    });
+    grunt.file.write(path.join(doc_dir, 'index.json'),
+      JSON.stringify(index, null, 2) + '\n');
+  });
+
 };
