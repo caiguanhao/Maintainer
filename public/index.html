@@ -46,7 +46,9 @@
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
-              {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+              {{#if App.Visibility.JobsNavBarLink}}
+                {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+              {{/if}}
               {{#if App.Visibility.UsersNavBarLink}}
                 {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
               {{/if}}
@@ -121,28 +123,7 @@
   <script type="text/x-handlebars" id="index">
     <div class="row">
       <div class="col-md-7">
-        <h3>Maintainer</h3>
-        <p>
-          Maintainer is an single-page web application managing routine scripts
-          that may run on local or remote server. Jobs that created by a root
-          user can be set with different permissions to allow other users to
-          execute the jobs on their own. The job is some shell scripts that can
-          be executed on Linux server, and for the root user, you can also use
-          the browser terminal to access the server just like you are using
-          your system's GUI terminal app.
-        </p>
-        <p>
-          Maintainer is built with Node.js and Ember.js, meaning the whole
-          application is written in JavaScript, though some dependencies may
-          use other languages, too. The app uses Mongoose.js, a MongoDB object
-          modeling tool, to organize the app data and implements tty.js, a
-          browser terminal created with Socket.IO and Express, to create a
-          multi-user terminal interface.
-        </p>
-        <p>
-          This project is hosted on GitHub. You can get help from the Help
-          page.
-        </p>
+        {{markdown_from_function "Introduction"}}
       </div>
     </div>
   </script>

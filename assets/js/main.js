@@ -1,3 +1,28 @@
+function Introduction() {
+/*!
+### Maintainer
+
+Maintainer is an single-page web application managing routine scripts
+that may run on local or remote server. Jobs that created by a root
+user can be set with different permissions to allow other users to
+execute the jobs on their own. The job is some shell scripts that can
+be executed on Linux server, and for the root user, you can also use
+the browser terminal to access the server just like you are using
+your system's GUI terminal app.
+
+Maintainer is built with Node.js and Ember.js, meaning the whole
+application is written in JavaScript, though some dependencies may
+use other languages, too. The app uses Mongoose.js, a MongoDB object
+modeling tool, to organize the app data and implements tty.js, a
+browser terminal created with Socket.IO and Express, to create a
+multi-user terminal interface.
+
+This project is hosted on GitHub. You can get help from the Help
+page.
+*/
+  return get_first_multiline_comments(arguments.callee.toString());
+}
+
 /* extend jQuery's val() method to h1 */
 var get_set_val = {
   get: function(elem) {
@@ -28,6 +53,11 @@ function set_title(title) {
   document.title = (title ? title + ' - ' : '') + 'Maintainer';
 }
 
+function get_first_multiline_comments(content) {
+  var comments = content.match(/\/\*!?([\S\s]*?)\*\//);
+  return comments ? comments[1] : '';
+}
+
 // adding autofocus option to {{input}}
 Ember.TextField.reopen({
   attributeBindings: ['autofocus']
@@ -44,6 +74,11 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
 
 Ember.Handlebars.helper('markdown', function(content) {
   content = content.replace(/^---(.|\n)*---\n/, '');
+  return new Handlebars.SafeString(markdown.toHTML(content));
+});
+
+Ember.Handlebars.helper('markdown_from_function', function(func) {
+  var content = func ? window[func]() : '';
   return new Handlebars.SafeString(markdown.toHTML(content));
 });
 
@@ -74,9 +109,11 @@ App = Ember.Application.create({
   Visibility: {},
   SetVisibiltyForUser: function(user) {
     var is_root = false;
+    var is_user = !!user;
     if (user) {
       is_root = user.is_root;
     }
+    this.set('Visibility.JobsNavBarLink', is_user);
     this.set('Visibility.JobsCreate', is_root);
     this.set('Visibility.JobsOpenTerminal', is_root);
     this.set('Visibility.JobsPermissions', is_root);
