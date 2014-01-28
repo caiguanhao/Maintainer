@@ -1,3 +1,12 @@
+body {
+  padding-top: 70px;
+}
+.navbar-nav.navbar-right:last-child {
+  margin-right: 0;
+}
+.container {
+  max-width: 1000px;
+}
 [contenteditable]:empty:before {
   content: attr(placeholder);
   color: #ccc;
