@@ -13,14 +13,21 @@ module.exports = function(grunt) {
         }
       },
       server: {
-        files: [ '<%= pkg.main %>', 'models/**' ],
+        files: [ '<%= pkg.main %>', 'models/**', 'doc/index.json' ],
         tasks: [ 'express', 'delay' ],
         options: {
           spawn: false
         }
       },
       server_again: {
-        files: [ '<%= pkg.main %>', 'models/**' ],
+        files: [ '<%= pkg.main %>', 'models/**', 'doc/index.json' ],
+        options: {
+          livereload: true
+        }
+      },
+      doc: {
+        files: [ 'doc/*.md' ],
+        tasks: [ 'make_help_index' ],
         options: {
           livereload: true
         }

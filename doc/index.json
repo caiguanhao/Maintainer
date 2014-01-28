@@ -1,3 +1,4 @@
 {
-  "remote": "Run scripts on remote server"
+  "remote": "Run scripts on remote server",
+  "ssh": "SSH Configurations"
 }
