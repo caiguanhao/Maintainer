@@ -74,6 +74,12 @@
                       <li class="divider"></li>
                     {{/each}}
                     <li>
+                      {{#link-to "profile"}}
+                        <span class="glyphicon glyphicon-user"></span>
+                        View Profile
+                      {{/link-to}}
+                    </li>
+                    <li>
                       {{#link-to "login"}}
                         <span class="glyphicon glyphicon-plus"></span>
                         Add User
@@ -402,38 +408,7 @@
           <span class="time" {{bind-attr data-livestamp="token_updated_at"}}></span>
         </div>
       </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Created At</label>
-        <div class="col-sm-8 text-only">
-          {{fmtdate created_at}}
-          <span class="time" {{bind-attr data-livestamp="created_at"}}></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Updated At</label>
-        <div class="col-sm-8 text-only">
-          {{fmtdate updated_at}}
-          <span class="time" {{bind-attr data-livestamp="updated_at"}}></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Password Updated At</label>
-        <div class="col-sm-8 text-only">
-          {{fmtdate password_updated_at}}
-          <span class="time" {{bind-attr data-livestamp="password_updated_at"}}></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Last Logged In At</label>
-        <div class="col-sm-8 text-only">
-          {{#each last_logged_in_at}}
-            <div>
-              {{fmtdate this}}
-              <span class="time" {{bind-attr data-livestamp="this"}}></span>
-            </div>
-          {{/each}}
-        </div>
-      </div>
+      {{partial "user_dates"}}
       {{#if user_alterable}}
         <hr>
         <div class="form-group">
@@ -490,6 +465,40 @@
       {{/if}}
     </div>
   </script>
+  <script type="text/x-handlebars" id="_user_dates">
+    <div class="form-group">
+      <label class="col-sm-4 control-label">Created At</label>
+      <div class="col-sm-8 text-only">
+        {{fmtdate created_at}}
+        <span class="time" {{bind-attr data-livestamp="created_at"}}></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-4 control-label">Updated At</label>
+      <div class="col-sm-8 text-only">
+        {{fmtdate updated_at}}
+        <span class="time" {{bind-attr data-livestamp="updated_at"}}></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-4 control-label">Password Updated At</label>
+      <div class="col-sm-8 text-only">
+        {{fmtdate password_updated_at}}
+        <span class="time" {{bind-attr data-livestamp="password_updated_at"}}></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-4 control-label">Last Logged In At</label>
+      <div class="col-sm-8 text-only">
+        {{#each last_logged_in_at}}
+          <div>
+            {{fmtdate this}}
+            <span class="time" {{bind-attr data-livestamp="this"}}></span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </script>
   <script type="text/x-handlebars" id="users/new">
     <h3>Create New User</h3>
     <hr>
@@ -517,6 +526,45 @@
         </div>
       </div>
     </form>
+  </script>
+  <script type="text/x-handlebars" id="profile">
+    <div class="col-sm-8 col-sm-offset-2">
+      <h3>My Profile</h3>
+      <hr>
+      <div class="form-horizontal">
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Username</label>
+          <div class="col-sm-8 text-only">
+            {{username}}
+          </div>
+        </div>
+        {{partial "user_dates"}}
+        <hr>
+        <div class="form-group">
+          <div class="col-sm-8 col-sm-offset-2">
+            <ul class="list-group">
+              <li class="list-group-item">
+                {{input classNames="form-control" type="password"
+                  placeholder="Old Password" value=password}}
+              </li>
+              <li class="list-group-item">
+                {{input classNames="form-control" type="password"
+                  placeholder="New Password" value=new_password}}
+              </li>
+              <li class="list-group-item">
+                {{input classNames="form-control" type="password"
+                  placeholder="Retype New Password" value=new_password_again}}
+              </li>
+              <li class="list-group-item">
+                <button class="btn btn-default" type="button"
+                  {{bind-attr disabled="untouched_pwd"}}
+                  {{action "change_password"}}>Change Password</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </script>
   <script type="text/x-handlebars" id="login">
     <div class="col-sm-8 col-sm-offset-2">

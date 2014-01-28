@@ -16,8 +16,8 @@ var user_schema = new Schema({
   token: String,
   token_updated_at: Date,
 
-  login_attempts: { type: Number, default: 0 },
-  lock_until: Number,
+  login_attempts: { type: Number, default: 0, select: false },
+  lock_until: { type: Number, select: false },
 
   created_at: Date,
   updated_at: Date,
@@ -72,7 +72,8 @@ user_schema.static('authenticate', function(username, password, callbacks) {
     callbacks[callback_types[i]] = callbacks[callback_types[i]] || new Function;
   }
 
-  this.findOne({ username: username }, '+password', function(error, user) {
+  this.findOne({ username: username }, '+password +login_attempts +lock_until',
+    function(error, user) {
     if (error || !user) return callbacks.invalid.call(user);
 
     if (user.locked) {

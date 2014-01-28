@@ -208,6 +208,41 @@ app.delete('/login', authorize(function(req, res, next) {
   });
 }));
 
+app.get('/profile', authorize(function(req, res, next) {
+  res.send(req.user.sanitize());
+}));
+
+app.put('/profile/password', authorize(function(req, res, next) {
+  var password = req.body.password;
+  User.authenticate(req.user.username, password, {
+    success: function() {
+      var user = this;
+      var new_date = new Date;
+      user.password = password;
+      user.password_updated_at = new_date;
+      user.updated_at = new_date;
+      user.save(function(error) {
+        if (error) return next(error);
+        res.send(user.sanitize());
+      });
+    },
+    invalid: function() {
+      res.status(401);
+      res.send({ error: 'Invalid username or password.',
+        attempts_left: User.MAX_ATTEMPTS - this.login_attempts - 1 });
+    },
+    banned: function() {
+      res.writeHead(466, 'User Is Banned');
+      res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
+    },
+    exceed_max_attempts: function() {
+      res.writeHead(429, 'Too Many Attempts');
+      res.end(JSON.stringify({ error: 'The account is temporarily locked due ' +
+        'to too many failed login attempts.', until: new Date(this.lock_until) }));
+    }
+  });
+}));
+
 function job_permissions_for(user) {
   if (user.is_root) return {};
   return {

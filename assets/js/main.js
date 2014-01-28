@@ -58,6 +58,7 @@ Ember.Handlebars.helper('match', function() {
 });
 
 function fmtdate(date) {
+  if (!date) return '(unknown)';
   return moment(date).format("YYYY-MM-DD HH:mm:ss");
 }
 
@@ -335,6 +336,7 @@ App.Router.map(function() {
     this.route('new');
     this.resource('user', { path: ':user_id' });
   });
+  this.route('profile');
   this.route('login');
   this.resource('not_found', { path: '/*path' });
 });
@@ -1016,6 +1018,43 @@ App.UsersNewController = Ember.Controller.extend({
         });
       }, handle_error);
     }
+  }
+});
+
+App.ProfileController = Ember.ObjectController.extend({
+  untouched_pwd: true,
+  touch_pwd: function() {
+    this.set('untouched_pwd', !(this.get('password') &&
+      this.get('new_password') && this.get('new_password_again')));
+  }.observes('password', 'new_password', 'new_password_again'),
+  actions: {
+    change_password: function() {
+      if (this.get('new_password') !== this.get('new_password_again')) {
+        this.setProperties({
+          new_password: '',
+          new_password_again: ''
+        });
+        return alert('New passwords are not the same. Please retype them.')
+      }
+      var self = this;
+      $.ajax({
+        url: '/profile/password',
+        type: 'PUT',
+        data: this.getProperties('password', 'new_password')
+      }).then(function() {
+        self.setProperties({
+          password: '',
+          new_password: '',
+          new_password_again: ''
+        });
+      }, handle_error);
+    }
+  }
+});
+
+App.ProfileRoute = Ember.Route.extend({
+  model: function() {
+    return $.getJSON('/profile');
   }
 });
 
