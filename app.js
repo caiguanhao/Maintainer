@@ -31,6 +31,39 @@ var app = Server({
   beforeCreate: beforeCreate
 });
 
+var ERROR = {
+  invalid_username_password: function(res) {
+    res.status(401);
+    res.send({ error: 'Invalid username or password.',
+      attempts_left: User.MAX_ATTEMPTS - this.login_attempts - 1 });
+  },
+  permission_denied: function(res) {
+    res.status(403);
+    res.send({ error: 'Permission denied.' });
+  },
+  exceed_max_attempts: function(res) {
+    res.writeHead(429, 'Too Many Attempts');
+    res.end(JSON.stringify({ error: 'The account is temporarily locked due ' +
+      'to too many failed login attempts.', until: new Date(this.lock_until) }));
+  },
+  should_be_root: function(res) {
+    res.writeHead(430, 'Should Be Root');
+    res.end(JSON.stringify({ error: 'Permission denied.' }));
+  },
+  user_is_banned: function(res) {
+    res.writeHead(466, 'User Is Banned');
+    res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
+  },
+  not_enough_permissions: function(res) {
+    res.writeHead(488, 'Not Enough Permissions');
+    res.end(JSON.stringify({ error: 'Not Enough Permissions.' }));
+  },
+  root_cant_be_changed: function(res) {
+    res.writeHead(499, 'Root Can\'t Be Changed');
+    res.end(JSON.stringify({ error: 'Changing a root user is not allowed.' }));
+  }
+};
+
 var Job = require('./models/job');
 var User = require('./models/user');
 
@@ -40,18 +73,13 @@ app.post('/login', function(req, res, next) {
       res.send(this.sanitize());
     },
     invalid: function() {
-      res.status(401);
-      res.send({ error: 'Invalid username or password.',
-        attempts_left: User.MAX_ATTEMPTS - this.login_attempts - 1 });
+      ERROR.invalid_username_password.call(this, res);
     },
     banned: function() {
-      res.writeHead(466, 'User Is Banned');
-      res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
+      ERROR.user_is_banned.call(this, res);
     },
     exceed_max_attempts: function() {
-      res.writeHead(429, 'Too Many Attempts');
-      res.end(JSON.stringify({ error: 'The account is temporarily locked due ' +
-        'to too many failed login attempts.', until: new Date(this.lock_until) }));
+      ERROR.exceed_max_attempts.call(this, res);
     }
   });
 });
@@ -110,7 +138,6 @@ function find_script_to_run(job_id, user, callback) {
       write: script,
       allow: allow
     });
-
   });
 }
 
@@ -136,26 +163,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-function not_enough_permissions(res) {
-  res.writeHead(488, 'Not Enough Permissions');
-  res.end(JSON.stringify({ error: 'Not Enough Permissions.' }));
-}
-
-function permission_denied(res) {
-  res.status(403);
-  res.send({ error: 'Permission denied.' });
-}
-
-function should_be_root(res) {
-  res.writeHead(430, 'Should Be Root');
-  res.end(JSON.stringify({ error: 'Permission denied.' }));
-}
-
-function root_cant_be_changed(res) {
-  res.writeHead(499, 'Root Can\'t Be Changed');
-  res.end(JSON.stringify({ error: 'Changing a root user is not allowed.' }));
-}
-
 function unblock(callback) {
   return function(req, res, next) {
     callback(req, res, next);
@@ -171,7 +178,7 @@ function authorize() {
       _id: req.headers['x-user-id'],
       token: req.headers['x-user-token']
     }).exec(function(error, user) {
-      if (error || !user) return permission_denied(res);
+      if (error || !user) return ERROR.permission_denied(res);
 
       var callback, options, l = _arguments.length;
       if (l <= 1) {
@@ -185,7 +192,7 @@ function authorize() {
       for (var i = 0; i < options.length; i++) {
         switch (options[i]) {
         case SHOULD_BE_ROOT:
-          if (user.is_root !== true) return should_be_root(res);
+          if (user.is_root !== true) return ERROR.should_be_root(res);
           break;
         }
       }
@@ -227,18 +234,13 @@ app.put('/profile/password', authorize(function(req, res, next) {
       });
     },
     invalid: function() {
-      res.status(401);
-      res.send({ error: 'Invalid username or password.',
-        attempts_left: User.MAX_ATTEMPTS - this.login_attempts - 1 });
+      ERROR.invalid_username_password.call(this, res);
     },
     banned: function() {
-      res.writeHead(466, 'User Is Banned');
-      res.end(JSON.stringify({ error: 'You are banned by administrators.' }));
+      ERROR.user_is_banned.call(this, res);
     },
     exceed_max_attempts: function() {
-      res.writeHead(429, 'Too Many Attempts');
-      res.end(JSON.stringify({ error: 'The account is temporarily locked due ' +
-        'to too many failed login attempts.', until: new Date(this.lock_until) }));
+      ERROR.exceed_max_attempts.call(this, res);
     }
   });
 }));
@@ -347,7 +349,7 @@ app.put('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne(find).exec(function(error, job) {
     if (error || !job) return next(error);
     if (fetch_user_permissions(req.user, job).write !== true) {
-      return not_enough_permissions(res);
+      return ERROR.not_enough_permissions(res);
     }
     var updated_job = {
       title: title,
@@ -425,7 +427,7 @@ app.post('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
     if (error || !job) return next(error);
     if (fetch_user_permissions(req.user, job).write !== true) {
-      return not_enough_permissions(res);
+      return ERROR.not_enough_permissions(res);
     }
     job.available = true;
     job.save(function(error) {
@@ -439,7 +441,7 @@ app.delete('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }).exec().then(function(job) {
     if (job === null) throw null;
     if (fetch_user_permissions(req.user, job).write !== true) {
-      return not_enough_permissions(res);
+      return ERROR.not_enough_permissions(res);
     }
     var promise = new mongoose.Promise;
     if (job.available === true) {
@@ -507,7 +509,7 @@ app.put('/users/:user_id/:action(token|password|username|ban)', authorize(SHOULD
   var action = req.params.action;
   User.findOne({ _id: user_id }).exec(function(error, user) {
     if (error || !user) return next(error);
-    if (user.is_root) return root_cant_be_changed(res);
+    if (user.is_root) return ERROR.root_cant_be_changed(res);
     var new_date = new Date;
     switch (action) {
     case 'token':
@@ -538,7 +540,7 @@ app.delete('/users/:user_id', authorize(SHOULD_BE_ROOT, function(req, res, next)
   var user_id = req.params.user_id;
   User.findOne({ _id: user_id }).exec(function(error, user) {
     if (error || !user) return next(error);
-    if (user.is_root) return root_cant_be_changed(res);
+    if (user.is_root) return ERROR.root_cant_be_changed(res);
     user.remove(function(error) {
       if (error) return next(error);
       res.send({ status: 'OK' });
