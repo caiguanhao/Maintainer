@@ -362,7 +362,6 @@ App.ApplicationRoute = Ember.Route.extend({
 });
 
 App.Router.map(function() {
-  this.resource('about');
   this.resource('jobs', function() {
     this.route('new');
     this.resource('job', { path: ':job_id' }, function() {
@@ -376,6 +375,7 @@ App.Router.map(function() {
     this.route('new');
     this.resource('user', { path: ':user_id' });
   });
+  this.route('help');
   this.route('profile');
   this.route('login');
   this.resource('not_found', { path: '/*path' });
