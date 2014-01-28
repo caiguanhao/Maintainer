@@ -208,6 +208,19 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
     this.add_user_only(user);
     this.select_user_by_id(id);
   },
+  remove_current_user_when_expired: function(callbacks) {
+    var current_user = this.get('current_user');
+    if (!current_user || !current_user.id) return;
+    var users = this.get('users');
+    users.removeObject(users.findBy('id', current_user.id));
+    var new_user = users[0];
+    this.set('current_user', new_user);
+    if (new_user) {
+      callbacks.switched_to_new_user(current_user, new_user);
+    } else {
+      callbacks.if_no_user_left();
+    }
+  },
   remove_user_by_id: function(id) {
     var users = this.get('users');
     var user = users.findBy('id', id);
@@ -292,7 +305,21 @@ function handle_error(error, transition, originRoute) {
     } else if (this.url) {
       App.History.Add(this.url);
     }
-    transitionTo('login', { queryParams: { needed: true } });
+    if (LoggedInUsers.current_user) {
+      LoggedInUsers.remove_current_user_when_expired({
+        switched_to_new_user: function(old_user, new_user) {
+          alert('The session of your previous account "' + old_user.name +
+            '" has expired. The current user is now switched to "' +
+            new_user.name + '".');
+        },
+        if_no_user_left: function() {
+          transitionTo('login', { queryParams: { 
+            needed: 'Your session has expired. Please login again.' } });
+        }
+      });
+    } else {
+      transitionTo('login', { queryParams: { needed: true } });
+    }
     break;
   case 429:
     alert('The account is temporarily locked due to too many failed login ' +
@@ -300,7 +327,9 @@ function handle_error(error, transition, originRoute) {
       '.');
     break;
   case 430:
-    transitionTo('login', { queryParams: { needed: 'You must be a root user before you can proceed.' } });
+    transitionTo('login', { queryParams: { 
+      needed: 'You must be a root user before you can proceed. Otherwise, ' +
+      'go back to previous page.' } });
     break;
   case 488:
     alert('You don\'t have enough permissions to make this request.');
