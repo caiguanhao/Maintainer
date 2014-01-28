@@ -60,11 +60,17 @@ user_schema.method('compare_password', function(password) {
 });
 
 user_schema.method('generate_new_token', function(new_date) {
-  this.token = require('crypto').randomBytes(32).toString('hex');
+  this.token = this.constructor.generate_new_token();
   this.token_updated_at = new_date || new Date;
 });
 
-user_schema.static('authenticate', function(username, password, callbacks) {
+user_schema.static('generate_new_token', function() {
+  return require('crypto').randomBytes(32).toString('hex');
+});
+
+user_schema.static('authenticate',
+  function(username, password, options, callbacks) {
+  options = options || {};
   callbacks = callbacks || {};
   callback_types = [ 'success', 'invalid', 'banned', 'exceed_max_attempts' ];
 
@@ -72,7 +78,8 @@ user_schema.static('authenticate', function(username, password, callbacks) {
     callbacks[callback_types[i]] = callbacks[callback_types[i]] || new Function;
   }
 
-  this.findOne({ username: username }, '+password +login_attempts +lock_until',
+  var self = this;
+  self.findOne({ username: username }, '+password +login_attempts +lock_until',
     function(error, user) {
     if (error || !user) return callbacks.invalid.call(user);
 
@@ -95,7 +102,10 @@ user_schema.static('authenticate', function(username, password, callbacks) {
       } else {
         var update = { $inc: { login_attempts: 1 } };
         if (user.login_attempts + 1 >= MAX_ATTEMPTS && !user.locked) {
-          update.$set = { lock_until: Date.now() + LOCK_TIME };
+          update.$set = {
+            lock_until: Date.now() + LOCK_TIME,
+            token: self.generate_new_token()
+          };
         }
         user.update(update, function(error) {
           callbacks.invalid.call(user);
@@ -105,6 +115,12 @@ user_schema.static('authenticate', function(username, password, callbacks) {
     }
 
     if (user.banned) return callbacks.banned.call(user);
+
+    if (options.dry_authenticate) {
+      return callbacks.success.call(user);
+    }
+
+    // update user login info:
 
     var new_date = new Date;
     if (user.last_logged_in_at instanceof Array) {

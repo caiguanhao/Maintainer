@@ -79,6 +79,17 @@ App = Ember.Application.create({
   }
 });
 
+function find_view_by_viewname(name) {
+  var views = Ember.View.views;
+  for (var id in views) {
+    var view = views[id];
+    if (view.viewName === name) {
+      return view;
+    }
+  }
+  return null;
+}
+
 App.History = Ember.Object.create({
   Add: function(route_name) {
     if (!this.get('history')) this.set('history', []);
@@ -1029,32 +1040,76 @@ App.ProfileController = Ember.ObjectController.extend({
   }.observes('password', 'new_password', 'new_password_again'),
   actions: {
     change_password: function() {
-      if (this.get('new_password') !== this.get('new_password_again')) {
-        this.setProperties({
+      var self = this;
+      function reset_new_password() {
+        self.setProperties({
           new_password: '',
           new_password_again: ''
         });
-        return alert('New passwords are not the same. Please retype them.')
+        var view = find_view_by_viewname('new_password');
+        if (view) view.$().focus();
       }
-      var self = this;
+      if (this.get('new_password') !== this.get('new_password_again')) {
+        reset_new_password();
+        return alert('New passwords are not the same. Please retype them.');
+      }
       $.ajax({
         url: '/profile/password',
         type: 'PUT',
         data: this.getProperties('password', 'new_password')
       }).then(function() {
-        self.setProperties({
-          password: '',
-          new_password: '',
-          new_password_again: ''
+        Profile.reload_profile(self, function() {
+          self.setProperties({
+            password: '',
+            new_password: '',
+            new_password_again: ''
+          });
         });
-      }, handle_error);
+      }, function(error) {
+        reset_new_password();
+        handle_error.call(self, error);
+      });
     }
   }
 });
 
+App.Profile = App.ObjectNeedsAuthentication.extend({
+  load_profile: function() {
+    var self = this;
+    return Ember.Deferred.promise(function(promise) {
+      if (self.get('profile')) {
+        promise.resolve(self.get('profile'));
+      } else {
+        promise.resolve($.getJSON('/profile').then(function(profile) {
+          self.set('profile', profile);
+          return profile;
+        }, handle_error));
+      }
+    });
+  },
+  reload_profile: function(controller, callback) {
+    this.set('profile', null);
+    this.get('load_profile').call(this).then(function(profile) {
+      if (controller) controller.set('content', profile);
+      if (callback) callback();
+    });
+  },
+  reload: function() {
+    this.set('profile', null);
+    if (in_route_of('profile')) {
+      this.get('load_profile').call(this).then(function(profile) {
+        App.__container__.lookup('controller:profile').set('content', profile);
+        App.__container__.lookup('controller:profile').transitionToRoute('profile');
+      });
+    }
+  }
+});
+
+var Profile = App.Profile.create();
+
 App.ProfileRoute = Ember.Route.extend({
   model: function() {
-    return $.getJSON('/profile');
+    return Profile.load_profile();
   }
 });
 

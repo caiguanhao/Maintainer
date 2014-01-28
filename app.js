@@ -68,7 +68,7 @@ var Job = require('./models/job');
 var User = require('./models/user');
 
 app.post('/login', function(req, res, next) {
-  User.authenticate(req.body.username, req.body.password, {
+  User.authenticate(req.body.username, req.body.password, null, {
     success: function() {
       res.send(this.sanitize());
     },
@@ -222,6 +222,8 @@ app.get('/profile', authorize(function(req, res, next) {
 app.put('/profile/password', authorize(function(req, res, next) {
   var password = req.body.password;
   User.authenticate(req.user.username, password, {
+    dry_authenticate: true
+  }, {
     success: function() {
       var user = this;
       var new_date = new Date;
