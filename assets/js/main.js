@@ -74,12 +74,12 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
 
 Ember.Handlebars.helper('markdown', function(content) {
   content = content.replace(/^---(.|\n)*---\n/, '');
-  return new Handlebars.SafeString(markdown.toHTML(content));
+  return new Handlebars.SafeString(markdown.toHTML(content, 'Maruku'));
 });
 
 Ember.Handlebars.helper('markdown_from_function', function(func) {
   var content = func ? window[func]() : '';
-  return new Handlebars.SafeString(markdown.toHTML(content));
+  return new Handlebars.SafeString(markdown.toHTML(content, 'Maruku'));
 });
 
 Ember.Handlebars.helper('match', function() {
@@ -139,6 +139,7 @@ App.History = Ember.Object.create({
     if (route_name.indexOf('login') > -1) return;
     if (/^job/.test(route_name)) route_name = 'jobs';
     if (/^user/.test(route_name)) route_name = 'users';
+    if (/^help/.test(route_name)) route_name = 'help';
 
     this.get('history').unshiftObject(route_name);
     this.get('history').splice(3);
