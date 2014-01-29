@@ -262,6 +262,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
     } else {
       callbacks.if_no_user_left();
     }
+    App.Terminals.DestroyAll();
   },
   remove_user_by_id: function(id) {
     var users = this.get('users');

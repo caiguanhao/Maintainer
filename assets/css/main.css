@@ -95,7 +95,7 @@ a.list-group-item:last-of-type {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000;
+  z-index: 2000;
   box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 20px;
 }
 
