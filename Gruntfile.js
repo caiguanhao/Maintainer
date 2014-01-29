@@ -45,7 +45,7 @@ module.exports = function(grunt) {
   // page is reloaded before express server is restarted
   // the browser may fail to connect, so we delay the reload
   grunt.registerTask('delay', 'livereload is too fast to reload', function() {
-    setTimeout(this.async(), 500);
+    setTimeout(this.async(), 1000);
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');

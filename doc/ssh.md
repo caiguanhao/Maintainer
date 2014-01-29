@@ -50,3 +50,26 @@ Now type ``exit`` to log out and use SSH to log in again:
 
 If you log in to the system without typing password, it means you have
 successfully set up the public key authentication.
+
+### Disable Root Login And Password Authentication
+
+Open and edit the SSH daemon configuration file:
+
+    sudo vim /etc/ssh/sshd_config
+
+Lines started with a hash tag (``#``) is treated as comments. If the line
+doesn't look like a plain text, it is a configuration option but is not
+active. For example, if you want to disable password authentication method,
+find the line contains ``PasswordAuthentication``, remove hash tag if any,
+and add a ``no`` after it:
+
+    PasswordAuthentication no
+
+Same as above, to disable root login:
+
+    PermitRootLogin no
+
+Press ``esc`` and then ``ZZ`` to save and exit. After that, you need to
+restart the SSH daemon to take effect:
+
+    sudo service ssh restart

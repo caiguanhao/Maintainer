@@ -16,3 +16,5 @@ It is strongly recommended that you use the Public Key Authentication when
 connecting to remote server via SSH. If you haven't added your public key in
 authorized_keys file on remote server, you are free to use the browser
 terminal to add it. The browser terminal can be opened in the Jobs page.
+
+For more info, see [SSH Configurations](/#/help/ssh).
