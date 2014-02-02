@@ -137,9 +137,6 @@ App.History = Ember.Object.create({
     if (!this.get('history')) this.set('history', []);
 
     if (route_name.indexOf('login') > -1) return;
-    if (/^job/.test(route_name)) route_name = 'jobs';
-    if (/^user/.test(route_name)) route_name = 'users';
-    if (/^help/.test(route_name)) route_name = 'help';
 
     this.get('history').unshiftObject(route_name);
     this.get('history').splice(3);
@@ -174,7 +171,7 @@ Ember.Route.reopen({
       }
       set_title(title);
     }
-    App.History.Add(this.routeName);
+    App.History.Add(this.router.get('url'));
   }
 });
 
