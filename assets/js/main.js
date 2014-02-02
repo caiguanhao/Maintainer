@@ -72,6 +72,10 @@ Ember.Handlebars.helper('ternary', function(variable, check, yes, no) {
   return variable === check ? yes : no;
 });
 
+Ember.Handlebars.helper('plural', function(amount, singular, plural) {
+  return amount + ' ' + (amount >= 2 ? plural : singular);
+});
+
 Ember.Handlebars.helper('markdown', function(content) {
   content = content.replace(/^---(.|\n)*---\n/, '');
   return new Handlebars.SafeString(markdown.toHTML(content, 'Maruku'));
@@ -472,6 +476,13 @@ App.JobsNewController = Ember.Controller.extend({
   }
 });
 
+App.JobsIndexController = Ember.Controller.extend({
+  needs: 'jobs',
+  job_count: function() {
+    return this.get('controllers.jobs.content').length;
+  }.property('controllers.jobs.content')
+});
+
 App.Jobs = App.ObjectNeedsAuthentication.extend({
 
   load_jobs: function() {
@@ -512,10 +523,6 @@ App.Jobs = App.ObjectNeedsAuthentication.extend({
 });
 
 var Jobs = App.Jobs.create();
-
-App.JobIndexRoute = Ember.Route.extend({
-  title: false
-});
 
 App.JobsController = Ember.ArrayController.extend({
   needs: 'application',

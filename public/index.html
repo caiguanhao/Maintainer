@@ -175,7 +175,21 @@
   </script>
   <script type="text/x-handlebars" id="jobs/index">
     <div class="jumbotron">
-      <h2>Select a job from the left.</h2>
+      {{#if job_count}}
+        {{#if App.Visibility.JobsCreate}}
+          <h2>Select or create a job.</h2>
+        {{else}}
+          <h2>Select a job from the left.</h2>
+        {{/if}}
+        <p>Currently you have {{plural job_count "job" "jobs"}}.</p>
+      {{else}}
+        <h2>No jobs at the moment.</h2>
+        {{#if App.Visibility.JobsCreate}}
+          <p>Start creating job by clicking Create New button from the left.</p>
+        {{else}}
+          <p>Please wait for administrators to add jobs for you.</p>
+        {{/if}}
+      {{/if}}
     </div>
   </script>
   <script type="text/x-handlebars" id="job">
