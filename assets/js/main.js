@@ -479,8 +479,8 @@ App.JobsNewController = Ember.Controller.extend({
 App.JobsIndexController = Ember.Controller.extend({
   needs: 'jobs',
   job_count: function() {
-    return this.get('controllers.jobs.content').length;
-  }.property('controllers.jobs.content')
+    return this.get('controllers.jobs.content.length');
+  }.property('controllers.jobs.content.length')
 });
 
 App.Jobs = App.ObjectNeedsAuthentication.extend({
@@ -988,6 +988,13 @@ App.UsersRoute = Ember.Route.extend({
 });
 
 App.UsersController = Ember.ArrayController.extend({});
+
+App.UsersIndexController = Ember.Controller.extend({
+  needs: 'users',
+  user_count: function() {
+    return this.get('controllers.users.content.length')
+  }.property('controllers.users.content.length')
+});
 
 App.UserRoute = Ember.Route.extend({
   model: function(params) {

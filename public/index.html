@@ -381,6 +381,17 @@
       </div>
     </div>
   </script>
+  <script type="text/x-handlebars" id="users/index">
+    <div class="jumbotron">
+      {{#if user_count}}
+        <h2>Select or create a user.</h2>
+        <p>Currently you have {{plural user_count "user" "users"}}.</p>
+      {{else}}
+        <h2>No users at the moment.</h2>
+        <p>Start creating user by clicking Create New button from the left.</p>
+      {{/if}}
+    </div>
+  </script>
   <script type="text/x-handlebars" id="user">
     <h3>Edit User</h3>
     <hr>
