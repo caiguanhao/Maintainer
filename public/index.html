@@ -600,46 +600,62 @@
     <div class="col-sm-8 col-sm-offset-2">
       <h3>My Profile</h3>
       <hr>
-      <div class="form-horizontal">
-        <div class="form-group">
-          <label class="col-sm-4 control-label">Username</label>
-          <div class="col-sm-8 text-only">
-            {{username}}
+      <ul class="nav nav-tabs nav-justified">
+        <li class="active"><a href="#" data-target="#info" data-toggle="tab">Information</a></li>
+        <li><a href="#" data-target="#password" data-toggle="tab">Password</a></li>
+        <li><a href="#" data-target="#theme" data-toggle="tab">Theme</a></li>
+      </ul>
+      <div class="pad-bottom"></div>
+      <div class="tab-content">
+        <div class="tab-pane active" id="info">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Username</label>
+              <div class="col-sm-8 text-only">
+                {{username}}
+              </div>
+            </div>
+            {{partial "user_dates"}}
           </div>
         </div>
-        {{partial "user_dates"}}
-        <hr>
-        <div class="form-group">
-          <div class="col-sm-8 col-sm-offset-2">
-            <ul class="list-group">
-              <li class="list-group-item">
-                {{input classNames="form-control" type="password"
-                  placeholder="Old Password" value=password}}
-              </li>
-              <li class="list-group-item">
-                {{input classNames="form-control" type="password"
-                  placeholder="New Password" value=new_password
-                  viewName="new_password"}}
-              </li>
-              <li class="list-group-item">
-                {{input classNames="form-control" type="password"
-                  placeholder="Retype New Password" value=new_password_again}}
-              </li>
-              <li class="list-group-item">
-                <button class="btn btn-default" type="button"
-                  {{bind-attr disabled="untouched_pwd"}}
-                  {{action "change_password"}}>Change Password</button>
-              </li>
-            </ul>
+        <div class="tab-pane" id="password">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-2">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    {{input classNames="form-control" type="password"
+                      placeholder="Old Password" value=password}}
+                  </li>
+                  <li class="list-group-item">
+                    {{input classNames="form-control" type="password"
+                      placeholder="New Password" value=new_password
+                      viewName="new_password"}}
+                  </li>
+                  <li class="list-group-item">
+                    {{input classNames="form-control" type="password"
+                      placeholder="Retype New Password" value=new_password_again}}
+                  </li>
+                  <li class="list-group-item">
+                    <button class="btn btn-default" type="button"
+                      {{bind-attr disabled="untouched_pwd"}}
+                      {{action "change_password"}}>Change Password</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
-        <hr>
-        <div class="list-group">
-          {{#each themes}}
-            <a {{action "change_theme" this}}
-              {{bind-attr class=":list-group-item active:active"}}
-              href="#">{{NAME}}</a>
-          {{/each}}
+        <div class="tab-pane" id="theme">
+          <div class="form-horizontal">
+            <div class="list-group col-sm-8 col-sm-offset-2">
+              {{#each themes}}
+                <a {{action "change_theme" this}}
+                  {{bind-attr class=":list-group-item active:active"}}
+                  href="#">{{NAME}}</a>
+              {{/each}}
+            </div>
+          </div>
         </div>
       </div>
     </div>
