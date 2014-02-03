@@ -1182,7 +1182,9 @@ App.Themes = Ember.Object.create({
   themes: [],
   init: function() {
     for (var i = 0; i < window.THEMES.length; i++) {
-      var theme = Ember.Object.create(window.THEMES[i]);
+      var theme = Ember.Object.create({
+        name: window.THEMES[i]
+      });
       if (theme.get('name') === window.CURRENT_THEME) {
         theme.set('active', true);
       }

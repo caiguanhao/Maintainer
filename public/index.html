@@ -4,40 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Maintainer</title>
-  <script>
-    (function(){
-      window.THEMES = [{
-        name: 'default',
-        NAME: 'Default'
-      }, {
-        name: 'cerulean',
-        NAME: 'Cerulean'
-      }, {
-        name: 'slate',
-        NAME: 'Slate'
-      }, {
-        name: 'spacelab',
-        NAME: 'Spacelab'
-      }];
-      var theme = window.THEMES[0].name;
-      if (window.localStorage && window.localStorage.theme) {
-        var _theme = window.localStorage.theme;
-        if (_theme) {
-          for (var i = 0; i < window.THEMES.length; i++) {
-            if (window.THEMES[i].name === _theme) theme = _theme;
-          }
-        }
-      }
-      window.UPDATE_THEME = function(theme) {
-        window.CURRENT_THEME = theme;
-        window.localStorage.theme = theme;
-        document.getElementById('bootstrap').href =
-          '/css/vendor/bootstrap-' + theme + '.css';
-      };
-      document.writeln('<link id="bootstrap" rel="stylesheet">');
-      window.UPDATE_THEME(theme);
-    })();
-  </script>
+  <script src="/js/themes.js"></script>
   <link rel="stylesheet" href="/css/vendor/codemirror.css">
   <link rel="stylesheet" href="/css/vendor/codemirror-merge.css">
   <link rel="stylesheet" href="/css/main.css">
@@ -658,7 +625,7 @@
               {{#each themes}}
                 <a {{action "change_theme" this}}
                   {{bind-attr class=":list-group-item active:active"}}
-                  href="#">{{NAME}}</a>
+                  href="#">{{name}}</a>
               {{/each}}
             </div>
           </div>

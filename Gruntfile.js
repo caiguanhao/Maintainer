@@ -3,38 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     less: {
-      bootstrap_default: {
-        options: {
-          paths: [ 'assets/css/vendor/bootstrap/default' ]
-        },
-        files: {
-          'public/css/vendor/bootstrap-default.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
-        }
-      },
-      bootstrap_cerulean: {
-        options: {
-          paths: [ 'assets/css/vendor/bootstrap/cerulean' ]
-        },
-        files: {
-          'public/css/vendor/bootstrap-cerulean.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
-        }
-      },
-      bootstrap_slate: {
-        options: {
-          paths: [ 'assets/css/vendor/bootstrap/slate' ]
-        },
-        files: {
-          'public/css/vendor/bootstrap-slate.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
-        }
-      },
-      bootstrap_spacelab: {
-        options: {
-          paths: [ 'assets/css/vendor/bootstrap/spacelab' ]
-        },
-        files: {
-          'public/css/vendor/bootstrap-spacelab.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
-        }
-      }
+      /* make_theme_index task will put some targets here */
     },
     watch: {
       gruntfile: {
@@ -86,7 +55,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
 
-  grunt.registerTask('default', [ 'less', 'express', 'watch' ]);
+  grunt.registerTask('default', [ 'make_theme_index', 'less', 'express', 'watch' ]);
 
   grunt.registerTask('make_help_index', 'Generate help index JSON file', function() {
     var path = require('path');
@@ -110,6 +79,44 @@ module.exports = function(grunt) {
     });
     grunt.file.write(path.join(doc_dir, 'index.json'),
       JSON.stringify(index, null, 2) + '\n');
+  });
+
+  grunt.registerTask('make_theme_index', 'Generate theme index JSON file', function() {
+    var themes = grunt.file.expand({
+      cwd: 'assets/css/vendor/bootstrap',
+      filter: 'isDirectory'
+    }, '*', '!src');
+    var themes_str = JSON.stringify(themes);
+    var theme_js_file = 'assets/js/themes.js'
+    var theme_js = grunt.file.read(theme_js_file);
+    var deli_start = '/*! REPLACE-START */';
+    var deli_end = '/*! REPLACE-END */';
+    var start = theme_js.indexOf(deli_start);
+    var end = theme_js.indexOf(deli_end);
+    var new_theme_js;
+    if (start >= 0 && end > start + deli_start.length &&
+      theme_js.slice(start + deli_start.length, end) !== themes_str) {
+      new_theme_js = theme_js.slice(0, start + deli_start.length);
+      new_theme_js += themes_str;
+      new_theme_js += theme_js.slice(end);
+      grunt.file.write(theme_js_file, new_theme_js);
+      grunt.log.ok('Updated ' + theme_js_file);
+    } else {
+      grunt.log.ok('No need to update ' + theme_js_file);
+    }
+    var less = grunt.config('less');
+    themes.forEach(function(theme) {
+      var files = {};
+      files['public/css/vendor/bootstrap-' + theme + '.css'] =
+        'assets/css/vendor/bootstrap/src/bootstrap.less';
+      less['bootstrap-' + theme] = {
+        options: {
+          paths: [ 'assets/css/vendor/bootstrap/' + theme ]
+        },
+        files: files
+      };
+    });
+    grunt.config('less', less);
   });
 
 };
