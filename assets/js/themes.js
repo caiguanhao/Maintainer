@@ -1,5 +1,5 @@
 (function(){
-  window.THEMES = /*! REPLACE-START */["cerulean","default","slate","spacelab"]/*! REPLACE-END */;
+  window.THEMES = /*! REPLACE-START */["cerulean","default","slate","spacelab","united"]/*! REPLACE-END */;
   var theme = 'default';
   if (window.localStorage && window.localStorage.theme) {
     var _theme = window.localStorage.theme;
