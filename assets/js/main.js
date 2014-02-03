@@ -109,6 +109,10 @@ Ember.Handlebars.helper('match', function() {
   return _else;
 });
 
+Ember.Handlebars.helper('string', function(method, str) {
+  return Ember.String[method](str);
+});
+
 function fmtdate(date) {
   if (!date) return '(unknown)';
   return moment(date).format("YYYY-MM-DD HH:mm:ss");

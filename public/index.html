@@ -625,7 +625,7 @@
               {{#each themes}}
                 <a {{action "change_theme" this}}
                   {{bind-attr class=":list-group-item active:active"}}
-                  href="#">{{name}}</a>
+                  href="#">{{string "capitalize" name}}</a>
               {{/each}}
             </div>
           </div>
