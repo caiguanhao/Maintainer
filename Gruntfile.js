@@ -5,18 +5,34 @@ module.exports = function(grunt) {
     less: {
       bootstrap_default: {
         options: {
-          paths: [ 'assets/css/bootstrap/default' ]
+          paths: [ 'assets/css/vendor/bootstrap/default' ]
         },
         files: {
-          'public/css/vendor/bootstrap-default.css': 'assets/css/bootstrap/vendor/bootstrap.less'
+          'public/css/vendor/bootstrap-default.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
         }
       },
       bootstrap_cerulean: {
         options: {
-          paths: [ 'assets/css/bootstrap/cerulean' ]
+          paths: [ 'assets/css/vendor/bootstrap/cerulean' ]
         },
         files: {
-          'public/css/vendor/bootstrap-cerulean.css': 'assets/css/bootstrap/vendor/bootstrap.less'
+          'public/css/vendor/bootstrap-cerulean.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
+        }
+      },
+      bootstrap_slate: {
+        options: {
+          paths: [ 'assets/css/vendor/bootstrap/slate' ]
+        },
+        files: {
+          'public/css/vendor/bootstrap-slate.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
+        }
+      },
+      bootstrap_spacelab: {
+        options: {
+          paths: [ 'assets/css/vendor/bootstrap/spacelab' ]
+        },
+        files: {
+          'public/css/vendor/bootstrap-spacelab.css': 'assets/css/vendor/bootstrap/src/bootstrap.less'
         }
       }
     },
