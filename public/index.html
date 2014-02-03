@@ -163,7 +163,7 @@
           {{/if}}
         </div>
         {{#if App.Visibility.JobsOpenTerminal}}
-          <div class="btn-group">
+          <div class="btn-group pad-bottom">
             <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
               <span class="glyphicon glyphicon-new-window"></span> Open Terminal
             </button>
@@ -268,6 +268,7 @@
         </div>
       </div>
       {{outlet "for_permissions"}}
+      <div class="pad-bottom"></div>
     {{/if}}
   </script>
   <script type="text/x-handlebars" id="job/permissions">
@@ -681,6 +682,7 @@
   </script>
   <script type="text/x-handlebars" id="help_topic">
     {{markdown content.content}}
+    <div class="pad-bottom"></div>
   </script>
 </body>
 

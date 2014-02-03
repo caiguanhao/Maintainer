@@ -41,13 +41,15 @@ body {
   padding: 0 0 40px;
 }
 footer {
-  height: 40px;
-  overflow: hidden;
+  min-height: 40px;
   font-size: 12px;
   background-color: #f5f5f5;
 }
 .footer {
-  line-height: 40px;
+  padding-top: 12px;
+}
+.pad-bottom {
+  margin-bottom: 20px;
 }
 .list-group-item {
   white-space: nowrap;
