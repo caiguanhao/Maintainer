@@ -1234,13 +1234,12 @@ App.ProfileController = Ember.ObjectController.extend({
       var themes = this.get('themes');
       for (var i = 0; i < themes.length; i++) {
         if (themes[i].name === theme.name) {
-          window.CURRENT_THEME = theme.name;
+          window.UPDATE_THEME(theme.name);
           themes[i].set('active', true);
         } else {
           themes[i].set('active', false);
         }
       }
-      window.UPDATE_THEME();
     }
   }
 });
