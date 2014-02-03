@@ -1178,12 +1178,26 @@ App.HelpTopicRoute = Ember.Route.extend({
   }
 });
 
+App.Themes = Ember.Object.create({
+  themes: [],
+  init: function() {
+    for (var i = 0; i < window.THEMES.length; i++) {
+      var theme = Ember.Object.create(window.THEMES[i]);
+      if (theme.get('name') === window.CURRENT_THEME) {
+        theme.set('active', true);
+      }
+      this.get('themes').addObject(theme);
+    }
+  }
+});
+
 App.ProfileController = Ember.ObjectController.extend({
   untouched_pwd: true,
   touch_pwd: function() {
     this.set('untouched_pwd', !(this.get('password') &&
       this.get('new_password') && this.get('new_password_again')));
   }.observes('password', 'new_password', 'new_password_again'),
+  themes: App.Themes.themes,
   actions: {
     change_password: function() {
       var self = this;
@@ -1215,6 +1229,18 @@ App.ProfileController = Ember.ObjectController.extend({
         reset_new_password();
         handle_error.call(self, error);
       });
+    },
+    change_theme: function(theme) {
+      var themes = this.get('themes');
+      for (var i = 0; i < themes.length; i++) {
+        if (themes[i].name === theme.name) {
+          window.CURRENT_THEME = theme.name;
+          themes[i].set('active', true);
+        } else {
+          themes[i].set('active', false);
+        }
+      }
+      window.UPDATE_THEME();
     }
   }
 });
