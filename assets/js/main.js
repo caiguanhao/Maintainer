@@ -23,6 +23,14 @@ page.
   return get_first_multiline_comments(arguments.callee.toString());
 }
 
+function Footer() {
+/*!
+Copyright (C) 2014 caiguanhao. View Maintainer on
+[GitHub](https://github.com/caiguanhao/Maintainer).
+*/
+  return get_first_multiline_comments(arguments.callee.toString());
+}
+
 /* extend jQuery's val() method to h1 */
 var get_set_val = {
   get: function(elem) {
@@ -1149,6 +1157,13 @@ App.HelpRoute = Ember.Route.extend({
   model: function() {
     return Help.load_help();
   }
+});
+
+App.HelpIndexController = Ember.Controller.extend({
+  needs: 'help',
+  help_topic_count: function() {
+    return this.get('controllers.help.content.length');
+  }.property('controllers.help.content.length')
 });
 
 App.HelpTopicController = Ember.ObjectController.extend({});

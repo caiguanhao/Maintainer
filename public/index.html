@@ -31,91 +31,93 @@
 
 <body>
   <script type="text/x-handlebars">
-    <header>
-      <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            {{#link-to "index" classNames="navbar-brand"}}Maintainer{{/link-to}}
-          </div>
-          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-              {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
-              {{#if App.Visibility.JobsNavBarLink}}
-                {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
-              {{/if}}
-              {{#if App.Visibility.UsersNavBarLink}}
-                {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
-              {{/if}}
-              {{#view App.NavView}}{{#link-to "help"}}Help{{/link-to}}{{/view}}
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              {{#if LoggedInUsers.current_user}}
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <span class="glyphicon glyphicon-user"></span>
-                    <strong>{{LoggedInUsers.current_user.name}}</strong>
-                    <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu user-menu">
-                    {{#each LoggedInUsers.users}}
+    <div id="wrap">
+      <header>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              {{#link-to "index" classNames="navbar-brand"}}Maintainer{{/link-to}}
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
+                {{#if App.Visibility.JobsNavBarLink}}
+                  {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+                {{/if}}
+                {{#if App.Visibility.UsersNavBarLink}}
+                  {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
+                {{/if}}
+                {{#view App.NavView}}{{#link-to "help"}}Help{{/link-to}}{{/view}}
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                {{#if LoggedInUsers.current_user}}
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                      <span class="glyphicon glyphicon-user"></span>
+                      <strong>{{LoggedInUsers.current_user.name}}</strong>
+                      <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu user-menu">
+                      {{#each LoggedInUsers.users}}
+                        <li>
+                          <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}>
+                            <span class="glyphicon glyphicon-log-out"></span>
+                          </a>
+                          <a class="pull-left" href="#" {{action "switch_user" id}}>
+                            <span {{bind-attr class=":glyphicon is_root:glyphicon-certificate:glyphicon-user"}}></span>
+                            {{name}}
+                          </a>
+                          <div class="clearfix"></div>
+                        </li>
+                        <li class="divider"></li>
+                      {{/each}}
                       <li>
-                        <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}>
-                          <span class="glyphicon glyphicon-log-out"></span>
-                        </a>
-                        <a class="pull-left" href="#" {{action "switch_user" id}}>
-                          <span {{bind-attr class=":glyphicon is_root:glyphicon-certificate:glyphicon-user"}}></span>
-                          {{name}}
-                        </a>
-                        <div class="clearfix"></div>
+                        {{#link-to "profile"}}
+                          <span class="glyphicon glyphicon-user"></span>
+                          View Profile
+                        {{/link-to}}
                       </li>
-                      <li class="divider"></li>
-                    {{/each}}
-                    <li>
-                      {{#link-to "profile"}}
-                        <span class="glyphicon glyphicon-user"></span>
-                        View Profile
-                      {{/link-to}}
-                    </li>
-                    <li>
-                      {{#link-to "login"}}
-                        <span class="glyphicon glyphicon-plus"></span>
-                        Add User
-                      {{/link-to}}
-                    </li>
-                    <li>
-                      <a href="#" {{action "log_out"}}>
-                        <span class="glyphicon glyphicon-log-out"></span>
-                        Log Out All
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              {{else}}
-                {{#view App.NavView}}
-                  {{#link-to "login"}}
-                    <span class="glyphicon glyphicon-user"></span>
-                    Log In
-                  {{/link-to}}
-                {{/view}}
-              {{/if}}
-            </ul>
+                      <li>
+                        {{#link-to "login"}}
+                          <span class="glyphicon glyphicon-plus"></span>
+                          Add User
+                        {{/link-to}}
+                      </li>
+                      <li>
+                        <a href="#" {{action "log_out"}}>
+                          <span class="glyphicon glyphicon-log-out"></span>
+                          Log Out All
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                {{else}}
+                  {{#view App.NavView}}
+                    {{#link-to "login"}}
+                      <span class="glyphicon glyphicon-user"></span>
+                      Log In
+                    {{/link-to}}
+                  {{/view}}
+                {{/if}}
+              </ul>
+            </div>
           </div>
-        </div>
-      </nav>
-    </header>
-    <div id="content" class="container">
-      {{outlet}}
+        </nav>
+      </header>
+      <div id="content" class="container">
+        {{outlet}}
+      </div>
     </div>
     <footer>
       <div class="container">
         <div class="footer">
-          <p>Copyright</p>
+          {{markdown_from_function "Footer"}}
         </div>
       </div>
     </footer>
@@ -663,6 +665,18 @@
       <div class="col-sm-8">
         {{outlet}}
       </div>
+    </div>
+  </script>
+  <script type="text/x-handlebars" id="help/index">
+    <div class="jumbotron">
+      {{#if help_topic_count}}
+        <h2>Select a help topic.</h2>
+        <p>Get help from {{plural help_topic_count "help topic"
+          "help topics"}} on the left.</p>
+      {{else}}
+        <h2>No help topics at the moment.</h2>
+        <p>No help topics at the moment, or you can help writing one.</p>
+      {{/if}}
     </div>
   </script>
   <script type="text/x-handlebars" id="help_topic">
