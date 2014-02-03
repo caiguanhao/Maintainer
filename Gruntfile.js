@@ -2,6 +2,24 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    less: {
+      bootstrap_default: {
+        options: {
+          paths: [ 'assets/css/bootstrap/default' ]
+        },
+        files: {
+          'public/css/vendor/bootstrap-default.css': 'assets/css/bootstrap/vendor/bootstrap.less'
+        }
+      },
+      bootstrap_cerulean: {
+        options: {
+          paths: [ 'assets/css/bootstrap/cerulean' ]
+        },
+        files: {
+          'public/css/vendor/bootstrap-cerulean.css': 'assets/css/bootstrap/vendor/bootstrap.less'
+        }
+      }
+    },
     watch: {
       gruntfile: {
         files: [ 'Gruntfile.js' ]
@@ -48,6 +66,7 @@ module.exports = function(grunt) {
     setTimeout(this.async(), 1000);
   });
 
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
 
