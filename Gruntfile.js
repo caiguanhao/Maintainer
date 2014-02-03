@@ -35,6 +35,7 @@ module.exports = function(grunt) {
           livereload: true
         }
       }
+      /* make_theme_index task will put some targets here */
     },
     express: {
       server: {
@@ -104,6 +105,7 @@ module.exports = function(grunt) {
     } else {
       grunt.log.ok('No need to update ' + theme_js_file);
     }
+
     var less = grunt.config('less');
     themes.forEach(function(theme) {
       var files = {};
@@ -117,6 +119,18 @@ module.exports = function(grunt) {
       };
     });
     grunt.config('less', less);
+
+    var watch = grunt.config('watch');
+    themes.forEach(function(theme) {
+      watch['bootstrap-' + theme] = {
+        files: [ 'assets/css/vendor/bootstrap/' + theme + '/*.less' ],
+        tasks: [ 'make_theme_index', 'less:bootstrap-' + theme ],
+        options: {
+          livereload: true
+        }
+      }
+    });
+    grunt.config('watch', watch);
   });
 
 };
