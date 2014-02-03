@@ -70,7 +70,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
 
-  grunt.registerTask('default', [ 'express', 'watch' ]);
+  grunt.registerTask('default', [ 'less', 'express', 'watch' ]);
 
   grunt.registerTask('make_help_index', 'Generate help index JSON file', function() {
     var path = require('path');
