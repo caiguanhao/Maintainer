@@ -209,6 +209,11 @@ function Window(socket, params) {
   close_button.title = 'Close Window';
   close_button.className = 'tab';
 
+  help_button = document.createElement('div');
+  help_button.innerHTML = '<span class="glyphicon glyphicon-question-sign"></span>';
+  help_button.title = 'Get Help';
+  help_button.className = 'tab';
+
   title = document.createElement('div');
   title.className = 'title';
   title.innerHTML = '';
@@ -219,6 +224,7 @@ function Window(socket, params) {
   this.bar = bar;
   this.button = button;
   this.close_button = close_button;
+  this.help_button = help_button;
   this.title = title;
 
   this.params = params;
@@ -233,6 +239,7 @@ function Window(socket, params) {
   el.appendChild(bar);
   bar.appendChild(button);
   bar.appendChild(close_button);
+  bar.appendChild(help_button);
   bar.appendChild(title);
   body.appendChild(el);
 
@@ -257,6 +264,7 @@ Window.prototype.bind = function() {
     , grip = this.grip
     , button = this.button
     , close_button = this.close_button
+    , help_button = this.help_button
     , last = 0;
 
   on(button, 'click', function(ev) {
@@ -270,6 +278,11 @@ Window.prototype.bind = function() {
 
   on(close_button, 'click', function(ev) {
     self.destroy();
+    return cancel(ev);
+  });
+
+  on(help_button, 'click', function(ev) {
+    window.location.href = '/#/help/terminal';
     return cancel(ev);
   });
 
