@@ -113,7 +113,8 @@ module.exports = function(grunt) {
         'assets/css/vendor/bootstrap/src/bootstrap.less';
       less['bootstrap-' + theme] = {
         options: {
-          paths: [ 'assets/css/vendor/bootstrap/' + theme ]
+          paths: [ 'assets/css/vendor/bootstrap/' + theme,
+            'assets/css' ]
         },
         files: files
       };
