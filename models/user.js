@@ -19,6 +19,10 @@ var user_schema = new Schema({
   login_attempts: { type: Number, default: 0, select: false },
   lock_until: { type: Number, select: false },
 
+  preferences: {
+    theme: { type: String }
+  },
+
   created_at: Date,
   updated_at: Date,
   last_logged_in_at: [ Date ],

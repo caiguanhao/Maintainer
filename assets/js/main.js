@@ -233,9 +233,18 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       }
     }
     this.set('current_user', current_user);
+
+    try {
+      window.UPDATE_THEME(current_user.preferences.theme);
+    } catch(e) {}
+
     App.SetVisibiltyForUser(current_user);
   },
   current_users_did_changed: function() {
+    var current_user = this.get('current_user');
+    try {
+      window.UPDATE_THEME(current_user.preferences.theme);
+    } catch(e) {}
     if (window.localStorage) {
       window.localStorage.current_user = JSON.stringify(this.get('current_user'));
     }
@@ -248,6 +257,7 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       window.localStorage.users = JSON.stringify(this.get('users'));
     }
   }.observes('users.length'),
+
   add_user_only: function(user) {
     var id = user._id;
     var users = this.get('users');
@@ -256,7 +266,8 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
       id: id,
       name: user.username,
       token: user.token,
-      is_root: user.is_root
+      is_root: user.is_root,
+      preferences: user.preferences
     });
   },
   add_user: function(user) {
@@ -264,6 +275,8 @@ App.LoggedInUsers = Ember.Object.extend(Ember.ActionHandler, {
     this.add_user_only(user);
     this.select_user_by_id(id);
   },
+  update_current_user: Ember.aliasMethod('add_user'),
+
   remove_current_user_when_expired: function(callbacks) {
     var current_user = this.get('current_user');
     if (!current_user || !current_user.id) return;
@@ -1182,9 +1195,10 @@ App.HelpTopicRoute = Ember.Route.extend({
   }
 });
 
-App.Themes = Ember.Object.create({
+App.Themes = App.ObjectNeedsAuthentication.extend({
   themes: [],
   init: function() {
+    this._super();
     for (var i = 0; i < window.THEMES.length; i++) {
       var theme = Ember.Object.create({
         name: window.THEMES[i]
@@ -1194,8 +1208,18 @@ App.Themes = Ember.Object.create({
       }
       this.get('themes').addObject(theme);
     }
+  },
+  reload: function() {
+    var themes = this.get('themes');
+    for (var i = 0; i < themes.length; i++) {
+      if (themes[i].get('name') === window.CURRENT_THEME) {
+        themes[i].set('active', true);
+      } else {
+        themes[i].set('active', false);
+      }
+    }
   }
-});
+}).create();
 
 App.ProfileController = Ember.ObjectController.extend({
   untouched_pwd: true,
@@ -1237,11 +1261,23 @@ App.ProfileController = Ember.ObjectController.extend({
       });
     },
     change_theme: function(theme) {
+      function update(success) {
+        $.ajax({
+          url: '/preferences/theme',
+          type: 'PUT',
+          data: { theme: theme.name }
+        }).then(success, handle_error);
+      }
       var themes = this.get('themes');
       for (var i = 0; i < themes.length; i++) {
         if (themes[i].name === theme.name) {
-          window.UPDATE_THEME(theme.name);
-          themes[i].set('active', true);
+          update((function(_theme) {
+            return function(user) {
+              LoggedInUsers.update_current_user(user);
+              window.UPDATE_THEME(theme.name);
+              _theme.set('active', true);
+            };
+          })(themes[i]));
         } else {
           themes[i].set('active', false);
         }

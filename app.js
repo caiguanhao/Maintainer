@@ -247,6 +247,22 @@ app.put('/profile/password', authorize(function(req, res, next) {
   });
 }));
 
+app.put('/preferences/:action(theme)', authorize(function(req, res, next) {
+  var user = req.user;
+  var new_date = new Date;
+  switch (req.params.action) {
+  case 'theme':
+    var theme = req.body.theme;
+    user.preferences.theme = theme;
+    break;
+  }
+  user.updated_at = new_date;
+  user.save(function(error) {
+    if (error) return next(error);
+    res.send(user.sanitize());
+  });
+}));
+
 function job_permissions_for(user) {
   if (user.is_root) return {};
   return {
