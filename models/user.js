@@ -20,7 +20,7 @@ var user_schema = new Schema({
   lock_until: { type: Number, select: false },
 
   preferences: {
-    theme: { type: String }
+    theme: { type: String, default: 'default' }
   },
 
   created_at: Date,
@@ -50,6 +50,12 @@ user_schema.path('password').validate(function(value) {
     return true;
   }
 }, 'A password must be no shorter than 3 or longer than 20 characters.');
+
+user_schema.path('preferences.theme').validate(function(value) {
+  if (typeof value !== 'string') return false;
+  var themes = /*! REPLACE-START */["cerulean","default","slate","spacelab","united"]/*! REPLACE-END */;
+  return themes.indexOf(value) !== -1;
+}, 'It must be a valid theme.');
 
 user_schema.pre('save', function(next) {
   if (this.isModified('password')) {

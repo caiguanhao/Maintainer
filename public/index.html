@@ -620,13 +620,15 @@
           </div>
         </div>
         <div class="tab-pane" id="theme">
-          <div class="form-horizontal">
-            <div class="list-group col-sm-8 col-sm-offset-2">
-              {{#each themes}}
-                <a {{action "change_theme" this}}
-                  {{bind-attr class=":list-group-item active:active"}}
-                  href="#">{{string "capitalize" name}}</a>
-              {{/each}}
+          <div class="col-sm-8 col-sm-offset-2">
+            <div class="form-horizontal">
+              <div class="list-group">
+                {{#each themes}}
+                  <a {{action "change_theme" this}}
+                    {{bind-attr class=":list-group-item active:active"}}
+                    href="#">{{string "capitalize" name}}</a>
+                {{/each}}
+              </div>
             </div>
           </div>
         </div>

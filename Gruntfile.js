@@ -106,6 +106,22 @@ module.exports = function(grunt) {
       grunt.log.ok('No need to update ' + theme_js_file);
     }
 
+    var user_model_file = 'models/user.js'
+    var user_model = grunt.file.read(user_model_file);
+    var start = user_model.indexOf(deli_start);
+    var end = user_model.indexOf(deli_end);
+    var new_user_model;
+    if (start >= 0 && end > start + deli_start.length &&
+      user_model.slice(start + deli_start.length, end) !== themes_str) {
+      new_user_model = user_model.slice(0, start + deli_start.length);
+      new_user_model += themes_str;
+      new_user_model += user_model.slice(end);
+      grunt.file.write(user_model_file, new_user_model);
+      grunt.log.ok('Updated ' + user_model_file);
+    } else {
+      grunt.log.ok('No need to update ' + user_model_file);
+    }
+
     var less = grunt.config('less');
     themes.forEach(function(theme) {
       var files = {};
