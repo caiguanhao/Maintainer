@@ -338,7 +338,7 @@ app.put('/jobs/:job_id', authorize(function(req, res, next) {
   find.available = true;
   Job.findOne(find).exec(function(error, job) {
     if (error || !job) return next(error);
-    if (job.permissions_for_user(user).write !== true) {
+    if (job.permissions_for_user(req.user).write !== true) {
       return ERROR.not_enough_permissions(res);
     }
     var updated_job = {
@@ -416,7 +416,7 @@ app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, re
 app.post('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
     if (error || !job) return next(error);
-    if (job.permissions_for_user(user).write !== true) {
+    if (job.permissions_for_user(req.user).write !== true) {
       return ERROR.not_enough_permissions(res);
     }
     job.available = true;
