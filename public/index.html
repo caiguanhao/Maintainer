@@ -35,24 +35,35 @@
         <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
           <div class="container">
             <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <button type="button" class="navbar-toggle" data-toggle="collapse"
+                data-target="#navbar-collapse-1">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              {{#link-to "index" classNames="navbar-brand"}}Maintainer{{/link-to}}
+              {{#link-to "index" classNames="navbar-brand"}}
+                Maintainer
+              {{/link-to}}
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="collapse navbar-collapse" id="navbar-collapse-1">
               <ul class="nav navbar-nav">
-                {{#view App.NavView}}{{#link-to "index"}}Home{{/link-to}}{{/view}}
+                {{#view App.NavView}}
+                  {{#link-to "index"}}Home{{/link-to}}
+                {{/view}}
                 {{#if App.Visibility.JobsNavBarLink}}
-                  {{#view App.NavView}}{{#link-to "jobs"}}Jobs{{/link-to}}{{/view}}
+                  {{#view App.NavView}}
+                    {{#link-to "jobs"}}Jobs{{/link-to}}
+                  {{/view}}
                 {{/if}}
                 {{#if App.Visibility.UsersNavBarLink}}
-                  {{#view App.NavView}}{{#link-to "users"}}Users{{/link-to}}{{/view}}
+                  {{#view App.NavView}}
+                    {{#link-to "users"}}Users{{/link-to}}
+                  {{/view}}
                 {{/if}}
-                {{#view App.NavView}}{{#link-to "help"}}Help{{/link-to}}{{/view}}
+                {{#view App.NavView}}
+                  {{#link-to "help"}}Help{{/link-to}}
+                {{/view}}
               </ul>
               <ul class="nav navbar-nav navbar-right">
                 {{#if LoggedInUsers.current_user}}
@@ -65,11 +76,15 @@
                     <ul class="dropdown-menu user-menu">
                       {{#each LoggedInUsers.users}}
                         <li>
-                          <a class="pull-right" title="Log out" href="#" {{action "log_out" id}}>
+                          <a class="pull-right" title="Log out" href="#"
+                            {{action "log_out" id}}>
                             <span class="glyphicon glyphicon-log-out"></span>
                           </a>
-                          <a class="pull-left" href="#" {{action "switch_user" id}}>
-                            <span {{bind-attr class=":glyphicon is_root:glyphicon-certificate:glyphicon-user"}}></span>
+                          <a class="pull-left" href="#"
+                            {{action "switch_user" id}}>
+                            <span {{bind-attr class=":glyphicon
+                            is_root:glyphicon-certificate:glyphicon-user"}}>
+                            </span>
                             {{name}}
                           </a>
                           <div class="clearfix"></div>
@@ -133,13 +148,17 @@
       <div class="col-sm-4">
         <div class="job-filter">
           <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown">
               <span class="caret"></span>
-              Show <strong>{{ternary filter "trashed" "Trashed" "Current"}}</strong>
+              Show
+              <strong>{{ternary filter "trashed" "Trashed" "Current"}}</strong>
             </button>
             <ul class="dropdown-menu">
-              <li>{{#link-to 'jobs' (query-params filter=null)}}Current{{/link-to}}</li>
-              <li>{{#link-to 'jobs' (query-params filter="trashed")}}Trashed{{/link-to}}</li>
+              <li>{{#link-to 'jobs' (query-params filter=null)}}
+                Current{{/link-to}}</li>
+              <li>{{#link-to 'jobs' (query-params filter="trashed")}}
+                Trashed{{/link-to}}</li>
             </ul>
           </div>
         </div>
@@ -152,7 +171,8 @@
             {{/link-to}}
           {{else}}
             <a class="list-group-item">
-              <span class="glyphicon glyphicon-exclamation-sign"></span> No jobs yet.
+              <span class="glyphicon glyphicon-exclamation-sign"></span>
+              No jobs yet.
             </a>
           {{/each}}
           {{#if App.Visibility.JobsCreate}}
@@ -163,7 +183,8 @@
         </div>
         {{#if App.Visibility.JobsOpenTerminal}}
           <div class="btn-group pad-bottom">
-            <button type="button" class="btn btn-default" {{action "open_terminal"}} title="Open a terminal window">
+            <button type="button" class="btn btn-default"
+              {{action "open_terminal"}} title="Open a terminal window">
               <span class="glyphicon glyphicon-new-window"></span> Open Terminal
             </button>
           </div>
@@ -215,31 +236,43 @@
     <div class="row">
       <div class="col-sm-9">
         {{#unless job.available}}
-          <button type="button" class="btn btn-success" {{action "put_back"}} title="Put back">
+          <button type="button" class="btn btn-success"
+            {{action "put_back"}} title="Put back">
             <span class="glyphicon glyphicon-share"></span> Put Back
           </button>
         {{/unless}}
         {{#if job.permissions.write}}
           <div {{bind-attr class=":btn-group job.available:btn-show:hide"}}>
-            <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "update_job"}} title="Save this job">
+            <button {{bind-attr disabled="job.untouched"}} type="button"
+              class="btn btn-default" {{action "update_job"}}
+              title="Save this job">
               <span class="glyphicon glyphicon-floppy-disk"></span> Save
             </button>
-            <button {{bind-attr disabled="job.untouched"}} type="button" class="btn btn-default" {{action "reset_job"}} title="Undo changes made">
+            <button {{bind-attr disabled="job.untouched"}} type="button"
+              class="btn btn-default" {{action "reset_job"}}
+              title="Undo changes made">
               <span class="glyphicon glyphicon-repeat"></span>
             </button>
           </div>
         {{/if}}
         <div class="btn-group">
-          <button type="button" {{bind-attr class=":btn :btn-default job.useMergeView:active"}} {{action "toggle_view"}} title="Show or hide right view">
+          <button type="button" {{bind-attr class=":btn :btn-default
+            job.useMergeView:active"}} {{action "toggle_view"}}
+            title="Show or hide right view">
             <span class="glyphicon glyphicon-resize-horizontal"></span>
           </button>
-          <button type="button" {{bind-attr class=":btn :btn-default job.showingRevisions:active"}} {{action "toggle_show_revisions"}} title="Show or hide revisions">
-            <span class="glyphicon glyphicon-time"></span> {{job.revision_count}}
+          <button type="button" {{bind-attr class=":btn :btn-default
+            job.showingRevisions:active"}} {{action "toggle_show_revisions"}}
+            title="Show or hide revisions">
+            <span class="glyphicon glyphicon-time"></span>
+            {{job.revision_count}}
           </button>
         </div>
         {{#if job.permissions.execute}}
           <div class="btn-group">
-            <button type="button" class="btn btn-default" {{action "run_script"}} title="Open a terminal window and run the script">
+            <button type="button" class="btn btn-default"
+              {{action "run_script"}}
+              title="Open a terminal window and run the script">
               <span class="glyphicon glyphicon-play"></span> Run Script
             </button>
           </div>
@@ -248,7 +281,8 @@
       <div class="col-sm-3 text-right">
         {{#if job.permissions.write}}
           <div class="btn-group">
-            <button type="button" class="btn btn-danger" {{action "remove_job"}} title="Remove this job">
+            <button type="button" class="btn btn-danger"
+              {{action "remove_job"}} title="Remove this job">
               <span class="glyphicon glyphicon-trash"></span>
             </button>
           </div>
@@ -260,8 +294,11 @@
       <div class="row">
         <div class="col-sm-6">
           <div class="btn-group">
-            <button type="button" {{bind-attr class=":btn :btn-default job.showingPermissions:active"}} {{action "edit_permissions"}} title="Edit permissions of this job">
-              <span class="glyphicon glyphicon-eye-close"></span> Edit Permissions
+            <button type="button" {{bind-attr class=":btn :btn-default
+              job.showingPermissions:active"}} {{action "edit_permissions"}}
+              title="Edit permissions of this job">
+              <span class="glyphicon glyphicon-eye-close"></span>
+              Edit Permissions
             </button>
           </div>
         </div>
@@ -273,20 +310,25 @@
   <script type="text/x-handlebars" id="job/permissions">
     <div class="permission-content">
       <div class="input-group search-user">
-        {{view App.FindUserInputView classNames="form-control" placeholder="Search username and select one user" value=username}}
+        {{view App.FindUserInputView classNames="form-control"
+          placeholder="Search username and select one user" value=username}}
         <div class="input-group-btn">
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" {{bind-attr disabled="untouched"}}>
+          <button type="button" class="btn btn-default dropdown-toggle"
+            data-toggle="dropdown" {{bind-attr disabled="untouched"}}>
             Grant Permissions <span class="caret"></span>
           </button>
           <ul class="dropdown-menu pull-right">
             <li><a href="#" {{action "grant_permissions" 0}}>Forbidden</a></li>
             <li class="divider"></li>
             <li><a href="#" {{action "grant_permissions" 4}}>Read Only</a></li>
-            <li><a href="#" {{action "grant_permissions" 5}}>Read and Execute</a></li>
+            <li>
+              <a href="#" {{action "grant_permissions" 5}}>Read and Execute</a>
+            </li>
             <li class="divider"></li>
             <li><a class="text-danger" href="#" {{action "grant_permissions" 7 
               "Warning: Giving user write and execute permissions may harm the
-              system as any script can be executed. Make sure the user is trusted."}}>
+              system as any script can be executed.
+              Make sure the user is trusted."}}>
               <span class="glyphicon glyphicon-exclamation-sign"></span>
               Read, Edit and Execute</a></li>
           </ul>
@@ -297,21 +339,31 @@
         {{#each permissions}}
           <div class="list-group-item">
             <div class="pull-right">
-              {{match bits 4 "Read Only" 5 "Read and Execute" 7 "Read, Edit and Execute" "Unknown"}}
+              {{match bits
+                4 "Read Only"
+                5 "Read and Execute"
+                7 "Read, Edit and Execute"
+                "Unknown"}}
             </div>
-            <a href="#" {{action "edit_user" user}}>{{default user.username "(unavailable)"}}</a>
+            <a href="#" {{action "edit_user" user}}>
+              {{default user.username "(unavailable)"}}
+            </a>
           </div>
         {{else}}
           <div class="list-group-item">
-            <span class="glyphicon glyphicon-exclamation-sign"></span> No permission has been set yet.
+            <span class="glyphicon glyphicon-exclamation-sign"></span>
+            No permission has been set yet.
           </div>
         {{/each}}
       </div>
       {{#if permissions.length}}
         <hr>
         <div class="btn-group">
-          <button type="button" class="btn btn-danger" {{action "remove_all_permissions"}} title="Remove all permissions of this job">
-            <span class="glyphicon glyphicon-trash"></span> Remove All Permissions
+          <button type="button" class="btn btn-danger"
+            {{action "remove_all_permissions"}}
+            title="Remove all permissions of this job">
+            <span class="glyphicon glyphicon-trash"></span>
+            Remove All Permissions
           </button>
         </div>
       {{/if}}
@@ -322,10 +374,12 @@
       <h3>
         <div class="pull-right">
           <div class="btn-group">
-            <button type="button" class="btn btn-default" {{action "show_next_revision"}}>
+            <button type="button" class="btn btn-default"
+              {{action "show_next_revision"}}>
               <span class="glyphicon glyphicon-chevron-right"></span> Show Next
             </button>
-            <button type="button" class="btn btn-default" {{action "return_to_job"}}>
+            <button type="button" class="btn btn-default"
+              {{action "return_to_job"}}>
               <span class="glyphicon glyphicon-remove-circle"></span>
             </button>
           </div>
@@ -347,11 +401,13 @@
       {{view App.TitleView value=title placeholder="Title for the new job"
         is_writable=true}}
       <div class="code-content">
-        {{view App.CodeView value=content PLACEHOLDER="# Here types your content"
+        {{view App.CodeView value=content
+          PLACEHOLDER="# Here types your content"
           is_writable=true}}
       </div>
       <div class="btn-group">
-        <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">
+        <button {{bind-attr disabled="untouched"}} type="submit"
+          class="btn btn-default">
           <span class="glyphicon glyphicon-floppy-disk"></span> Create
         </button>
       </div>
@@ -370,7 +426,8 @@
             {{/link-to}}
           {{else}}
             <a class="list-group-item">
-              <span class="glyphicon glyphicon-exclamation-sign"></span> No users yet.
+              <span class="glyphicon glyphicon-exclamation-sign"></span>
+              No users yet.
             </a>
           {{/each}}
           {{#link-to 'users.new' classNames="list-group-item"}}
@@ -403,13 +460,17 @@
         <div class="col-sm-8 text-only">{{default _id "Unknown"}}</div>
       </div>
       <div class="form-group">
-        <label {{bind-attr for="view.username.elementId"}} class="col-sm-4 control-label">Username</label>
+        <label {{bind-attr for="view.username.elementId"}}
+          class="col-sm-4 control-label">Username</label>
         {{#if user_alterable}}
           <div class="col-sm-8">
             <div class="input-group">
-              {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
+              {{input viewName="username" value=username
+                classNames="form-control" type="text" placeholder="Username"}}
               <span class="input-group-btn">
-                <button class="btn btn-default" {{bind-attr disabled="untouched_uname"}} type="button" {{action "change_username"}}>Change</button>
+                <button class="btn btn-default"
+                  {{bind-attr disabled="untouched_uname"}} type="button"
+                  {{action "change_username"}}>Change</button>
               </span>
             </div>
           </div>
@@ -433,9 +494,13 @@
         <label class="col-sm-4 control-label">Status</label>
         <div class="col-sm-8 text-only">
           {{#if banned}}
-            <span class="text-danger"><span class="glyphicon glyphicon-minus-sign"></span> Banned</span>
+            <span class="text-danger">
+              <span class="glyphicon glyphicon-minus-sign"></span> Banned
+            </span>
           {{else}}
-            <span class="text-success"><span class="glyphicon glyphicon-ok-sign"></span> OK</span>
+            <span class="text-success">
+              <span class="glyphicon glyphicon-ok-sign"></span> OK
+            </span>
           {{/if}}
         </div>
       </div>
@@ -447,24 +512,30 @@
         <label class="col-sm-4 control-label">Token Updated At</label>
         <div class="col-sm-8 text-only">
           {{fmtdate token_updated_at}}
-          <span class="time" {{bind-attr data-livestamp="token_updated_at"}}></span>
+          <span class="time"
+            {{bind-attr data-livestamp="token_updated_at"}}></span>
         </div>
       </div>
       {{partial "user_dates"}}
       {{#if user_alterable}}
         <hr>
         <div class="form-group">
-          <label {{bind-attr for="view.password.elementId"}} class="col-sm-4 control-label">Password</label>
+          <label {{bind-attr for="view.password.elementId"}}
+            class="col-sm-4 control-label">Password</label>
           <div class="col-sm-8">
             <div class="input-group">
               <span class="input-group-btn">
-                <button class="btn btn-default" type="button" {{action "generate_password"}}>
+                <button class="btn btn-default" type="button"
+                  {{action "generate_password"}}>
                   <span class="glyphicon glyphicon-repeat"></span>
                 </button>
               </span>
-              {{input viewName="password" value=password classNames="form-control" type="text" placeholder="Password"}}
+              {{input viewName="password" value=password
+                classNames="form-control" type="text" placeholder="Password"}}
               <span class="input-group-btn">
-                <button class="btn btn-default" {{bind-attr disabled="untouched_pwd"}} type="button" {{action "change_password"}}>Change</button>
+                <button class="btn btn-default"
+                  {{bind-attr disabled="untouched_pwd"}} type="button"
+                  {{action "change_password"}}>Change</button>
               </span>
             </div>
           </div>
@@ -472,26 +543,34 @@
         <hr>
         <div class="form-group">
           <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-default" {{action "log_in_with_user"}} title="Log in with this user">
-            <span class="glyphicon glyphicon-log-in"></span> Log In With This User
+          <button type="button" class="btn btn-default"
+            {{action "log_in_with_user"}} title="Log in with this user">
+            <span class="glyphicon glyphicon-log-in"></span>
+            Log In With This User
           </button>
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-default" {{action "refresh_token"}} title="Regenerate the token of this user">
-            <span class="glyphicon glyphicon-repeat"></span> Regenerate User Token
+          <button type="button" class="btn btn-default"
+            {{action "refresh_token"}}
+            title="Regenerate the token of this user">
+            <span class="glyphicon glyphicon-repeat"></span>
+            Regenerate User Token
           </button>
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-8 col-sm-offset-4">
           {{#if banned}}
-            <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Unban this user">
-              <span class="glyphicon glyphicon-exclamation-sign"></span> Unban User
+            <button type="button" class="btn btn-warning"
+              {{action "ban_user"}} title="Unban this user">
+              <span class="glyphicon glyphicon-exclamation-sign"></span>
+              Unban User
             </button>
           {{else}}
-            <button type="button" class="btn btn-warning" {{action "ban_user"}} title="Ban this user">
+            <button type="button" class="btn btn-warning"
+              {{action "ban_user"}} title="Ban this user">
               <span class="glyphicon glyphicon-ban-circle"></span> Ban User
             </button>
           {{/if}}
@@ -499,7 +578,8 @@
         </div>
         <div class="form-group">
           <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-danger" {{action "remove_user"}} title="Remove this user">
+          <button type="button" class="btn btn-danger"
+            {{action "remove_user"}} title="Remove this user">
             <span class="glyphicon glyphicon-trash"></span> Remove User
           </button>
           </div>
@@ -526,7 +606,8 @@
       <label class="col-sm-4 control-label">Password Updated At</label>
       <div class="col-sm-8 text-only">
         {{fmtdate password_updated_at}}
-        <span class="time" {{bind-attr data-livestamp="password_updated_at"}}></span>
+        <span class="time"
+          {{bind-attr data-livestamp="password_updated_at"}}></span>
       </div>
     </div>
     <div class="form-group">
@@ -544,27 +625,34 @@
   <script type="text/x-handlebars" id="users/new">
     <h3>Create New User</h3>
     <hr>
-    <form class="form-horizontal" role="form" {{action "create_user" on="submit"}}>
+    <form class="form-horizontal" role="form"
+      {{action "create_user" on="submit"}}>
       <div class="form-group">
-        <label {{bind-attr for="view.username.elementId"}} class="col-sm-2 control-label">Username</label>
+        <label {{bind-attr for="view.username.elementId"}}
+          class="col-sm-2 control-label">Username</label>
         <div class="col-sm-8">
-          {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username"}}
+          {{input viewName="username" value=username
+            classNames="form-control" type="text" placeholder="Username"}}
         </div>
       </div>
       <div class="form-group">
-        <label {{bind-attr for="view.password.elementId"}} class="col-sm-2 control-label">Password</label>
+        <label {{bind-attr for="view.password.elementId"}}
+          class="col-sm-2 control-label">Password</label>
         <div class="col-sm-8">
           <div class="input-group">
-            {{input viewName="password" value=password classNames="form-control" type="text" placeholder="Password"}}
+            {{input viewName="password" value=password
+              classNames="form-control" type="text" placeholder="Password"}}
             <span class="input-group-btn">
-              <button class="btn btn-default" type="button" {{action "generate_password"}}>Generate</button>
+              <button class="btn btn-default" type="button"
+                {{action "generate_password"}}>Generate</button>
             </span>
           </div>
         </div>
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">Create</button>
+          <button {{bind-attr disabled="untouched"}} type="submit"
+            class="btn btn-default">Create</button>
         </div>
       </div>
     </form>
@@ -574,8 +662,10 @@
       <h3>My Profile</h3>
       <hr>
       <ul class="nav nav-tabs nav-justified">
-        <li class="active"><a href="#" data-target="#info" data-toggle="tab">Information</a></li>
-        <li><a href="#" data-target="#password" data-toggle="tab">Password</a></li>
+        <li class="active"><a href="#" data-target="#info"
+          data-toggle="tab">Information</a></li>
+        <li><a href="#" data-target="#password"
+          data-toggle="tab">Password</a></li>
         <li><a href="#" data-target="#theme" data-toggle="tab">Theme</a></li>
       </ul>
       <div class="pad-bottom"></div>
@@ -607,7 +697,8 @@
                   </li>
                   <li class="list-group-item">
                     {{input classNames="form-control" type="password"
-                      placeholder="Retype New Password" value=new_password_again}}
+                      placeholder="Retype New Password"
+                      value=new_password_again}}
                   </li>
                   <li class="list-group-item">
                     <button class="btn btn-default" type="button"
@@ -642,7 +733,9 @@
       {{#if error_message}}
         <div class="row">
           <div class="alert alert-danger col-sm-offset-2 col-sm-8">
-            <button type="button" class="close" {{action "dismiss"}}>&times;</button>
+            <button type="button" class="close" {{action "dismiss"}}>
+              &times;
+            </button>
             <span class="glyphicon glyphicon-exclamation-sign"></span>
             <strong>{{error_message}}</strong>
           </div>
@@ -650,20 +743,26 @@
       {{/if}}
       <form class="form-horizontal" role="form" {{action "log_in" on="submit"}}>
         <div class="form-group">
-          <label {{bind-attr for="view.username.elementId"}} class="col-sm-2 control-label">Username</label>
+          <label {{bind-attr for="view.username.elementId"}}
+            class="col-sm-2 control-label">Username</label>
           <div class="col-sm-10">
-            {{input viewName="username" value=username classNames="form-control" type="text" placeholder="Username" autofocus=true}}
+            {{input viewName="username" value=username
+              classNames="form-control" type="text"
+              placeholder="Username" autofocus=true}}
           </div>
         </div>
         <div class="form-group">
-          <label {{bind-attr for="view.password.elementId"}} class="col-sm-2 control-label">Password</label>
+          <label {{bind-attr for="view.password.elementId"}}
+            class="col-sm-2 control-label">Password</label>
           <div class="col-sm-10">
-            {{input viewName="password" value=password classNames="form-control" type="password" placeholder="Password"}}
+            {{input viewName="password" value=password
+              classNames="form-control" type="password" placeholder="Password"}}
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <button {{bind-attr disabled="untouched"}} type="submit" class="btn btn-default">
+            <button {{bind-attr disabled="untouched"}}
+              type="submit" class="btn btn-default">
               <span class="glyphicon glyphicon-log-in"></span>
               Sign in
             </button>
