@@ -73,11 +73,11 @@ footer {
   word-break: break-all;
 }
 .user-menu {
-  width: 200px;
+  width: 250px;
 }
 .user-menu .pull-left {
   clear: none;
-  width: 140px;
+  width: 190px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

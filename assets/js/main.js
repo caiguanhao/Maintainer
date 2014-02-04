@@ -364,7 +364,7 @@ function handle_error(error, transition, originRoute) {
     if (error_obj.attempts_left > 0) {
       err_msg += ' You have ' + error_obj.attempts_left +
         ' more attempts before your account is locked.';
-    } else {
+    } else if (error_obj.attempts_left === 0) {
       err_msg += ' Sorry, the account has been locked temporarily.';
     }
     alert(err_msg);
@@ -1037,6 +1037,10 @@ App.UserRoute = Ember.Route.extend({
   },
   serialize: function(user, params) {
     return { user_id: user._id };
+  },
+  setupController: function(controller, user) {
+    this._super.apply(this, arguments);
+    set_title(user.username);
   }
 });
 
@@ -1115,6 +1119,10 @@ App.UserController = Ember.ObjectController.extend({
       }, handle_error);
     }
   }
+});
+
+App.UsersNewRoute = Ember.Route.extend({
+  title: 'Create New User'
 });
 
 App.UsersNewController = Ember.Controller.extend({

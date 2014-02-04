@@ -93,8 +93,8 @@
                       {{/each}}
                       <li>
                         {{#link-to "profile"}}
-                          <span class="glyphicon glyphicon-user"></span>
-                          View Profile
+                          <span class="glyphicon glyphicon-cog"></span>
+                          Profile and Preferences
                         {{/link-to}}
                       </li>
                       <li>
@@ -177,6 +177,7 @@
           {{/each}}
           {{#if App.Visibility.JobsCreate}}
             {{#link-to 'jobs.new' classNames="list-group-item"}}
+              <span class="glyphicon glyphicon-plus"></span>
               Create New
             {{/link-to}}
           {{/if}}
@@ -431,6 +432,7 @@
             </a>
           {{/each}}
           {{#link-to 'users.new' classNames="list-group-item"}}
+            <span class="glyphicon glyphicon-plus"></span>
             Create New
           {{/link-to}}
         </div>
