@@ -134,6 +134,9 @@ function find_script_to_run(job_id, user, callback) {
                '# * the job has been moved to trash or does not exist;\n' +
                '# * you don\'t have permissions to run the script;\n';
     }
+    if (!user.is_root) {
+      allow = false;
+    }
     return callback({
       write: script,
       allow: allow
