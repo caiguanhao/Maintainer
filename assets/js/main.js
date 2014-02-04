@@ -1062,7 +1062,7 @@ App.UserController = Ember.ObjectController.extend({
   }.observes('username'),
 
   user_alterable: function() {
-    return !this.get('is_root');
+    return this.get('is_root') !== true;
   }.property('is_root'),
 
   actions: {

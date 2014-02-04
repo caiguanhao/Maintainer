@@ -456,137 +456,165 @@
   <script type="text/x-handlebars" id="user">
     <h3>Edit User</h3>
     <hr>
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label class="col-sm-4 control-label">ID</label>
-        <div class="col-sm-8 text-only">{{default _id "Unknown"}}</div>
+    <ul class="nav nav-tabs nav-justified">
+      <li class="active"><a href="#" data-target="#info"
+        data-toggle="tab">Information</a></li>
+      <li><a href="#" data-target="#password"
+        data-toggle="tab">Password</a></li>
+      <li><a href="#" data-target="#actions" data-toggle="tab">Actions</a></li>
+    </ul>
+    <div class="pad-bottom"></div>
+    <div class="tab-content">
+      <div class="tab-pane active" id="info">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-4 control-label">ID</label>
+            <div class="col-sm-8 text-only">{{default _id "Unknown"}}</div>
+          </div>
+          <div class="form-group">
+            <label {{bind-attr for="view.username.elementId"}}
+              class="col-sm-4 control-label">Username</label>
+            {{#if user_alterable}}
+              <div class="col-sm-8">
+                <div class="input-group">
+                  {{input viewName="username" value=username
+                    classNames="form-control" type="text" placeholder="Username"}}
+                  <span class="input-group-btn">
+                    <button class="btn btn-default"
+                      {{bind-attr disabled="untouched_uname"}} type="button"
+                      {{action "change_username"}}>Change</button>
+                  </span>
+                </div>
+              </div>
+            {{else}}
+              <div class="col-sm-8 text-only">
+                {{username}}
+              </div>
+            {{/if}}
+          </div>
+          {{#if is_root}}
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Type</label>
+              <div class="col-sm-8 text-only">
+                <span class="text-success">
+                  <span class="glyphicon glyphicon-certificate"></span> Root User
+                </span>
+              </div>
+            </div>
+          {{/if}}
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Status</label>
+            <div class="col-sm-8 text-only">
+              {{#if banned}}
+                <span class="text-danger">
+                  <span class="glyphicon glyphicon-minus-sign"></span> Banned
+                </span>
+              {{else}}
+                <span class="text-success">
+                  <span class="glyphicon glyphicon-ok-sign"></span> OK
+                </span>
+              {{/if}}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Token</label>
+            <div class="col-sm-8 text-only">{{default token "Unknown"}}</div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Token Updated At</label>
+            <div class="col-sm-8 text-only">
+              {{fmtdate token_updated_at}}
+              <span class="time"
+                {{bind-attr data-livestamp="token_updated_at"}}></span>
+            </div>
+          </div>
+          {{partial "user_dates"}}
+        </div>
       </div>
-      <div class="form-group">
-        <label {{bind-attr for="view.username.elementId"}}
-          class="col-sm-4 control-label">Username</label>
+      <div class="tab-pane" id="password">
         {{#if user_alterable}}
-          <div class="col-sm-8">
-            <div class="input-group">
-              {{input viewName="username" value=username
-                classNames="form-control" type="text" placeholder="Username"}}
-              <span class="input-group-btn">
-                <button class="btn btn-default"
-                  {{bind-attr disabled="untouched_uname"}} type="button"
-                  {{action "change_username"}}>Change</button>
-              </span>
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label {{bind-attr for="view.password.elementId"}}
+                class="col-sm-4 control-label">Password</label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button"
+                      {{action "generate_password"}}>
+                      <span class="glyphicon glyphicon-repeat"></span>
+                    </button>
+                  </span>
+                  {{input viewName="password" value=password
+                    classNames="form-control" type="text" placeholder="Password"}}
+                  <span class="input-group-btn">
+                    <button class="btn btn-default"
+                      {{bind-attr disabled="untouched_pwd"}} type="button"
+                      {{action "change_password"}}>Change</button>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         {{else}}
-          <div class="col-sm-8 text-only">
-            {{username}}
+          <div class="alert alert-danger">
+            You can't change this user.
           </div>
         {{/if}}
       </div>
-      {{#if is_root}}
-        <div class="form-group">
-          <label class="col-sm-4 control-label">Type</label>
-          <div class="col-sm-8 text-only">
-            <span class="text-success">
-              <span class="glyphicon glyphicon-certificate"></span> Root User
-            </span>
-          </div>
-        </div>
-      {{/if}}
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Status</label>
-        <div class="col-sm-8 text-only">
-          {{#if banned}}
-            <span class="text-danger">
-              <span class="glyphicon glyphicon-minus-sign"></span> Banned
-            </span>
-          {{else}}
-            <span class="text-success">
-              <span class="glyphicon glyphicon-ok-sign"></span> OK
-            </span>
-          {{/if}}
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Token</label>
-        <div class="col-sm-8 text-only">{{default token "Unknown"}}</div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 control-label">Token Updated At</label>
-        <div class="col-sm-8 text-only">
-          {{fmtdate token_updated_at}}
-          <span class="time"
-            {{bind-attr data-livestamp="token_updated_at"}}></span>
-        </div>
-      </div>
-      {{partial "user_dates"}}
-      {{#if user_alterable}}
-        <hr>
-        <div class="form-group">
-          <label {{bind-attr for="view.password.elementId"}}
-            class="col-sm-4 control-label">Password</label>
-          <div class="col-sm-8">
-            <div class="input-group">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button"
-                  {{action "generate_password"}}>
-                  <span class="glyphicon glyphicon-repeat"></span>
+      <div class="tab-pane" id="actions">
+        {{#if user_alterable}}
+          <div class="form-horizontal">
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-4">
+              <button type="button" class="btn btn-default"
+                {{action "log_in_with_user"}} title="Log in with this user">
+                <span class="glyphicon glyphicon-log-in"></span>
+                Log In With This User
+              </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-4">
+              <button type="button" class="btn btn-default"
+                {{action "refresh_token"}}
+                title="Regenerate the token of this user">
+                <span class="glyphicon glyphicon-repeat"></span>
+                Regenerate User Token
+              </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-4">
+              {{#if banned}}
+                <button type="button" class="btn btn-warning"
+                  {{action "ban_user"}} title="Unban this user">
+                  <span class="glyphicon glyphicon-exclamation-sign"></span>
+                  Unban User
                 </button>
-              </span>
-              {{input viewName="password" value=password
-                classNames="form-control" type="text" placeholder="Password"}}
-              <span class="input-group-btn">
-                <button class="btn btn-default"
-                  {{bind-attr disabled="untouched_pwd"}} type="button"
-                  {{action "change_password"}}>Change</button>
-              </span>
+              {{else}}
+                <button type="button" class="btn btn-warning"
+                  {{action "ban_user"}} title="Ban this user">
+                  <span class="glyphicon glyphicon-ban-circle"></span> Ban User
+                </button>
+              {{/if}}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-4">
+              <button type="button" class="btn btn-danger"
+                {{action "remove_user"}} title="Remove this user">
+                <span class="glyphicon glyphicon-trash"></span> Remove User
+              </button>
+              </div>
             </div>
           </div>
-        </div>
-        <hr>
-        <div class="form-group">
-          <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-default"
-            {{action "log_in_with_user"}} title="Log in with this user">
-            <span class="glyphicon glyphicon-log-in"></span>
-            Log In With This User
-          </button>
+        {{else}}
+          <div class="alert alert-danger">
+            You can't change this user.
           </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-default"
-            {{action "refresh_token"}}
-            title="Regenerate the token of this user">
-            <span class="glyphicon glyphicon-repeat"></span>
-            Regenerate User Token
-          </button>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-8 col-sm-offset-4">
-          {{#if banned}}
-            <button type="button" class="btn btn-warning"
-              {{action "ban_user"}} title="Unban this user">
-              <span class="glyphicon glyphicon-exclamation-sign"></span>
-              Unban User
-            </button>
-          {{else}}
-            <button type="button" class="btn btn-warning"
-              {{action "ban_user"}} title="Ban this user">
-              <span class="glyphicon glyphicon-ban-circle"></span> Ban User
-            </button>
-          {{/if}}
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-8 col-sm-offset-4">
-          <button type="button" class="btn btn-danger"
-            {{action "remove_user"}} title="Remove this user">
-            <span class="glyphicon glyphicon-trash"></span> Remove User
-          </button>
-          </div>
-        </div>
-      {{/if}}
+        {{/if}}
+      </div>
     </div>
   </script>
   <script type="text/x-handlebars" id="_user_dates">
@@ -734,7 +762,7 @@
       <hr>
       {{#if error_message}}
         <div class="row">
-          <div class="alert alert-danger col-sm-offset-2 col-sm-8">
+          <div class="alert alert-danger">
             <button type="button" class="close" {{action "dismiss"}}>
               &times;
             </button>
