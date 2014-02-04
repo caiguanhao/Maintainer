@@ -126,7 +126,7 @@ function find_script_to_run(job_id, user, callback) {
   Job.findOne(find, 'published.content permissions', function(error, job) {
     if (error || !job || !job.permissions) return;
 
-    var allow = fetch_user_permissions(user, job).execute;
+    var allow = job.permissions_for_user(user).execute;
     if (allow) {
       script = job.published.content.trim() + '\n';
     } else {
@@ -299,7 +299,7 @@ app.get('/jobs/:job_id?/:revision_id?', authorize(function(req, res, next) {
         });
       }
       for (var i = 0; i < content.length; i++) {
-        content[i].permissions = fetch_user_permissions(req.user, content[i]);
+        Job.sanitize_permissions_for_job(content[i], req.user);
       }
     }
     res.send(content);
@@ -326,40 +326,9 @@ app.post('/jobs', authorize(SHOULD_BE_ROOT, function(req, res, next) {
   });
   new_job.save(function(error) {
     if (error) return next(error);
-    res.send(new_job);
+    res.send(new_job.sanitize_permissions(req.user));
   });
 }));
-
-function fetch_user_permissions(user, job) {
-  if (user.is_root) {
-    return { read: true, write: true, execute: true };
-  }
-  var read = false, write = false, execute = false;
-  for (var i = 0; i < job.permissions.length; i++) {
-    var permission = job.permissions[i];
-    if (permission.user.toString() === user._id.toString()) {
-      switch (permission.bits) {
-      case 4:
-        read = true;
-        write = false;
-        execute = false;
-        break;
-      case 5:
-        read = true;
-        write = false;
-        execute = true;
-        break;
-      case 7:
-        read = true;
-        write = true;
-        execute = true;
-        break;
-      }
-      break;
-    }
-  }
-  return { read: read, write: write, execute: execute };
-}
 
 app.put('/jobs/:job_id', authorize(function(req, res, next) {
   var title = req.body.title;
@@ -369,7 +338,7 @@ app.put('/jobs/:job_id', authorize(function(req, res, next) {
   find.available = true;
   Job.findOne(find).exec(function(error, job) {
     if (error || !job) return next(error);
-    if (fetch_user_permissions(req.user, job).write !== true) {
+    if (job.permissions_for_user(user).write !== true) {
       return ERROR.not_enough_permissions(res);
     }
     var updated_job = {
@@ -447,7 +416,7 @@ app.post('/jobs/:job_id/permissions', authorize(SHOULD_BE_ROOT, function(req, re
 app.post('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id, available: false }).exec(function(error, job) {
     if (error || !job) return next(error);
-    if (fetch_user_permissions(req.user, job).write !== true) {
+    if (job.permissions_for_user(user).write !== true) {
       return ERROR.not_enough_permissions(res);
     }
     job.available = true;
@@ -461,7 +430,7 @@ app.post('/jobs/:job_id', authorize(function(req, res, next) {
 app.delete('/jobs/:job_id', authorize(function(req, res, next) {
   Job.findOne({ _id: req.params.job_id }).exec().then(function(job) {
     if (job === null) throw null;
-    if (fetch_user_permissions(req.user, job).write !== true) {
+    if (job.permissions_for_user(req.user).write !== true) {
       return ERROR.not_enough_permissions(res);
     }
     var promise = new mongoose.Promise;
