@@ -111,6 +111,40 @@ footer {
   color: #A2A2A2;
 }
 
+.spin {
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%;
+}
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loading .spin {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+.spin, .active .spin {
+  opacity: 0;
+  transition: opacity 0s linear;
+}
+
 /* Terminal */
 
 .window {

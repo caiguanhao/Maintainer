@@ -788,7 +788,9 @@
       <div class="col-sm-4">
         <div class="list-group">
           {{#each}}
-            {{#link-to 'help_topic' slug classNames="list-group-item"}}
+            {{#link-to 'help_topic' slug classNames="list-group-item"
+              loading=loading}}
+              <span class="glyphicon glyphicon-repeat spin pull-right"></span>
               {{default title slug}}
             {{/link-to}}
           {{else}}

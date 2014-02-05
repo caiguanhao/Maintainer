@@ -1194,8 +1194,17 @@ App.HelpIndexController = Ember.Controller.extend({
 App.HelpTopicController = Ember.ObjectController.extend({});
 
 App.HelpTopicRoute = Ember.Route.extend({
+  beforeModel: function(transition) {
+    var slug = transition.params.help_topic.help_topic;
+    Ember.set(this.modelFor('help').findBy('slug', slug), 'loading', true);
+  },
   model: function(help) {
     return $.getJSON('/help/' + help.help_topic);
+  },
+  afterModel: function() {
+    this.modelFor('help').forEach(function(help) {
+      Ember.set(help, 'loading', false);
+    });
   },
   setupController: function(controller, model) {
     this._super.apply(this, arguments);
