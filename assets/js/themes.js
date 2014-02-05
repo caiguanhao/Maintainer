@@ -1,5 +1,5 @@
 (function(){
-  window.THEMES = /*! REPLACE-START */["cerulean","default","slate","spacelab","united"]/*! REPLACE-END */;
+  window.THEMES = /*! REPLACE-START */["cerulean","default","kitchen-sink","slate","spacelab","united"]/*! REPLACE-END */;
   window.UPDATE_THEME = function(_theme) {
     var theme = 'default';
     for (var i = 0; i < window.THEMES.length; i++) {

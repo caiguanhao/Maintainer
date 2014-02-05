@@ -53,7 +53,7 @@ user_schema.path('password').validate(function(value) {
 
 user_schema.path('preferences.theme').validate(function(value) {
   if (typeof value !== 'string') return false;
-  var themes = /*! REPLACE-START */["cerulean","default","slate","spacelab","united"]/*! REPLACE-END */;
+  var themes = /*! REPLACE-START */["cerulean","default","kitchen-sink","slate","spacelab","united"]/*! REPLACE-END */;
   return themes.indexOf(value) !== -1;
 }, 'It must be a valid theme.');
 
