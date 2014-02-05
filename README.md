@@ -20,7 +20,7 @@ Files:
 
 * ``assets/js/main.js``: Ember scripts
 * ``app.js``: API
-* ``public/index.html``: Handlebars templates
+* ``index.hbs``: Handlebars templates
 * ``models/``: mongoose scripts
 * ``doc/``: Help topics
 

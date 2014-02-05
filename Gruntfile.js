@@ -60,7 +60,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
 
-  grunt.registerTask('default', [ 'make_theme_index', 'less', 'express', 'watch' ]);
+  grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
+
+  grunt.registerTask('copy_index', 'Copy index page', function() {
+    grunt.file.copy('index.hbs', 'public/index.html');
+  });
 
   grunt.registerTask('make_help_index', 'Generate help index JSON file', function() {
     var path = require('path');
