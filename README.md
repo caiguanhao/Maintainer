@@ -24,6 +24,12 @@ Files:
 * ``models/``: mongoose scripts
 * ``doc/``: Help topics
 
+Grunt
+-----
+
+Use ``grunt clean:bootstrap make_theme_index less`` to compile
+bootstrap theme LESS files.
+
 Developer
 ---------
 

@@ -5,6 +5,9 @@ module.exports = function(grunt) {
     less: {
       /* make_theme_index task will put some targets here */
     },
+    clean: {
+      bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
+    },
     watch: {
       gruntfile: {
         files: [ 'Gruntfile.js' ]
@@ -52,6 +55,7 @@ module.exports = function(grunt) {
     setTimeout(this.async(), 1000);
   });
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
@@ -124,6 +128,9 @@ module.exports = function(grunt) {
 
     var less = grunt.config('less');
     themes.forEach(function(theme) {
+      if (grunt.file.exists('public/css/vendor/bootstrap-' + theme + '.css')) {
+        return true;
+      }
       var files = {};
       files['public/css/vendor/bootstrap-' + theme + '.css'] =
         'assets/css/vendor/bootstrap/src/bootstrap.less';
@@ -135,6 +142,9 @@ module.exports = function(grunt) {
         files: files
       };
     });
+    if (Object.keys(less).length === 0) {
+      less = { no_need: {} };
+    }
     grunt.config('less', less);
 
     var watch = grunt.config('watch');
