@@ -579,7 +579,7 @@ App.JobsRoute = Ember.Route.extend({
           user_id: LoggedInUsers.current_user.id,
           user_token: LoggedInUsers.current_user.token
         },
-        hideBundleOutput: true
+        hideBundleOutput: false
       });
     },
     queryParamsDidChange: function(params_changed) {

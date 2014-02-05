@@ -85,12 +85,8 @@ tty.open = function() {
       term._hideBundleOutput = !!(term.window.params.hideBundleOutput);
     }
     if (term._hideBundleOutput) {
-      // if exception occurs, use indexOf
-      if (data.substr(0, 8) === '\x1b[?1034h') {
-        term._hideBundleOutput = false;
-      } else {
-        return;
-      }
+      term._hideBundleOutput = false;
+      return;
     }
     term.write(data);
   });
