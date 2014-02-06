@@ -3,6 +3,11 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     less: {
+      maintainer: {
+        files: {
+          'public/css/maintainer.css': [ 'assets/css/maintainer.less' ]
+        }
+      }
       /* make_theme_index task will put some targets here */
     },
     clean: {
@@ -13,7 +18,7 @@ module.exports = function(grunt) {
         files: [ 'Gruntfile.js' ]
       },
       js: {
-        files: [ 'assets/js/**/*.js', 'assets/css/**/*.css', 'public/**/*.html' ],
+        files: [ 'assets/js/**/*.js', 'public/**' ],
         options: {
           livereload: true
         }
@@ -37,6 +42,10 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         }
+      },
+      css: {
+        files: [ 'assets/css/**/*' ],
+        tasks: [ 'less:maintainer' ]
       },
       index: {
         files: [ 'index.hbs' ],
