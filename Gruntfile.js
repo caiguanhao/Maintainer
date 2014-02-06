@@ -37,6 +37,10 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         }
+      },
+      index: {
+        files: [ 'index.hbs' ],
+        tasks: [ 'copy_index' ]
       }
       /* make_theme_index task will put some targets here */
     },
@@ -46,7 +50,17 @@ module.exports = function(grunt) {
           script: '<%= pkg.main %>'
         }
       }
-    }
+    },
+    emberTemplates: {
+      compile: {
+        options: {
+          templateBasePath: "public/bs"
+        },
+        files: {
+          "public/s.js": ["public/bs/**/*.hbs"]
+        }
+      }
+    },
   });
 
   // page is reloaded before express server is restarted
@@ -59,11 +73,41 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
+  grunt.loadNpmTasks('grunt-ember-templates');
 
   grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
+  });
+
+  grunt.registerTask('split', 'Split index.hbs', function() {
+    var hbs = grunt.file.read('index.hbs');
+    var hbs_name = '', hbs_content = '';
+    var htmlparser = require("htmlparser2");
+    var parser = new htmlparser.Parser({
+      onopentag: function(name, attribs) {
+        if (name === "script") {
+          hbs_name = '';
+          hbs_content = '';
+        }
+        if (attribs.type === "text/x-handlebars") {
+          hbs_name = attribs.id;
+        }
+      },
+      ontext: function(text) {
+        hbs_content += text;
+      },
+      onclosetag: function(name) {
+        if (name === "script" && hbs_name !== '') {
+          hbs_content = hbs_content.replace(/^\s{2,}/mg, '');
+          hbs_content = hbs_content.trim() + '\n';
+          grunt.file.write('public/bs/' + hbs_name + '.hbs', hbs_content);
+        }
+      }
+    });
+    parser.write(hbs);
+    parser.end();
   });
 
   grunt.registerTask('make_help_index', 'Generate help index JSON file', function() {
