@@ -847,7 +847,8 @@
   <script uglify="maintainer" src="/js/vendor/livestamp.js"></script>
   <script uglify="maintainer" src="/js/vendor/markdown.js"></script>
 
-  <script src="/js/main.js"></script>
+  <script uglify="app" dest="/js/maintainer-app.js" src="/js/main.js"
+    options='{ "preserveComments": "some" }'></script>
   <script development src="http://localhost:35729/livereload.js"></script>
 </body>
 

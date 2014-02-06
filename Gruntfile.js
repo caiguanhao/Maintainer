@@ -101,7 +101,7 @@ module.exports = function(grunt) {
 
     var hbs = { name: '', content: '' };
     var prod_index = '';
-    var prod_uglify = { dest: {}, src: {} };
+    var prod_uglify = { options: {}, dest: {}, src: {} };
     var skip_this_tag = false;
 
     var htmlparser = require('htmlparser2');
@@ -123,16 +123,22 @@ module.exports = function(grunt) {
         if (is_script && attribs.uglify) {
           prod_uglify.dest[attribs.uglify] = prod_uglify.dest[attribs.uglify] || [];
           prod_uglify.src[attribs.uglify] = prod_uglify.src[attribs.uglify] || [];
+          if (attribs.dest) {
+            if (attribs.options) {
+              prod_uglify.options[attribs.uglify] = JSON.parse(attribs.options);
+            }
+            dest = attribs.dest;
+            prod_uglify.dest[attribs.uglify].push(dest);
+          }
           if (attribs.src || attribs['real-src']) {
             var src = attribs['real-src'] || ('assets' + attribs.src);
             src = src.replace(/[\n\s]{2,}/g, '');
             prod_uglify.src[attribs.uglify].push(src);
-            skip_this_tag = true;
-          } else {
-            var dest = '/js/' + attribs.uglify + '.js';
-            if (attribs.dest) dest = attribs.dest;
-            prod_uglify.dest[attribs.uglify].push(dest);
+          }
+          if (attribs.dest) {
             attribs = { src: dest };
+          } else {
+            skip_this_tag = true;
           }
         }
         if (is_script && attribs.type === 'text/x-handlebars') {
@@ -183,10 +189,12 @@ module.exports = function(grunt) {
             files['public' + prod_uglify.dest[pu][dest]] = prod_uglify.src[pu];
           }
           uglify[pu] = {
+            options: prod_uglify.options[pu],
             files: files
           };
         }
         grunt.config('uglify', uglify);
+        // console.log(JSON.stringify(uglify, null, 2));
       }
     });
     parser.write(index);
