@@ -17,6 +17,8 @@ module.exports = function(grunt) {
       /* analyze task will put some targets here */
     },
     clean: {
+      public_css: [ 'public/js/*.css' ],
+      public_js: [ 'public/js/*.js' ],
       bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
     },
     watch: {
@@ -94,7 +96,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
 
-  grunt.registerTask('production', [ 'make_theme_index', 'less', 'analyze', 'uglify', 'concat' ]);
+  grunt.registerTask('production', [ 'clean', 'make_theme_index', 'less', 'analyze', 'emberTemplates', 'uglify', 'concat' ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
