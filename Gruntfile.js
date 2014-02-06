@@ -11,6 +11,7 @@ module.exports = function(grunt) {
       /* make_theme_index task will put some targets here */
     },
     uglify: {
+      /* analyze task will put some targets here */
     },
     clean: {
       bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
@@ -100,6 +101,8 @@ module.exports = function(grunt) {
 
     var hbs = { name: '', content: '' };
     var prod_index = '';
+    var prod_uglify = {};
+    var skip_this_tag = false;
 
     var htmlparser = require('htmlparser2');
     var parser = new htmlparser.Parser({
@@ -109,21 +112,34 @@ module.exports = function(grunt) {
           hbs.name = '';
           hbs.content = '';
         }
+        if (is_script && attribs.uglify) {
+          prod_uglify[attribs.uglify] = prod_uglify[attribs.uglify] || [];
+          if (attribs.src) {
+            prod_uglify[attribs.uglify].push('assets' + attribs.src);
+            skip_this_tag = true;
+          } else {
+            attribs = { src: '/js/' + attribs.uglify + '.js' };
+          }
+        }
         if (is_script && attribs.type === 'text/x-handlebars') {
           hbs.name = attribs.id;
         } else {
-          prod_index += '<' + name;
-          for (var attrib in attribs) {
-            prod_index += ' ' + attrib + '="' + attribs[attrib] + '"';
+          if (skip_this_tag === false) {
+            prod_index += '<' + name;
+            for (var attrib in attribs) {
+              prod_index += ' ' + attrib + '="' + attribs[attrib] + '"';
+            }
+            prod_index += '>';
           }
-          prod_index += '>';
         }
       },
       ontext: function(text) {
         if (hbs.name !== '') {
           hbs.content += text;
         } else {
-          prod_index += text;
+          if (skip_this_tag === false) {
+            prod_index += text;
+          }
         }
       },
       onclosetag: function(name) {
@@ -133,12 +149,27 @@ module.exports = function(grunt) {
           grunt.file.write('public/bs/' + hbs.name + '.hbs', hbs.content);
         } else {
           if (void_elements.indexOf(name.toLowerCase()) > -1) return;
-          prod_index += '</' + name + '>';
+          if (skip_this_tag === false) {
+            prod_index += '</' + name + '>';
+          } else {
+            skip_this_tag = false;
+          }
         }
       },
       onend: function() {
+        prod_index = prod_index.replace(/^\s*$/mg, '');
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
+
+        var uglify = grunt.config('uglify');
+        for (pu in prod_uglify) {
+          var files = {};
+          files['public/js/' + pu + '.js'] = prod_uglify[pu];
+          uglify[pu] = {
+            files: files
+          };
+        }
+        grunt.config('uglify', uglify);
       }
     });
     parser.write(index);
