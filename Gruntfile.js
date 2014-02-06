@@ -10,6 +10,8 @@ module.exports = function(grunt) {
       }
       /* make_theme_index task will put some targets here */
     },
+    uglify: {
+    },
     clean: {
       bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
     },
@@ -69,7 +71,7 @@ module.exports = function(grunt) {
           "public/s.js": ["public/bs/**/*.hbs"]
         }
       }
-    },
+    }
   });
 
   // page is reloaded before express server is restarted
@@ -81,6 +83,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-express-server');
   grunt.loadNpmTasks('grunt-ember-templates');
 
@@ -90,32 +93,55 @@ module.exports = function(grunt) {
     grunt.file.copy('index.hbs', 'public/index.html');
   });
 
-  grunt.registerTask('split', 'Split index.hbs', function() {
-    var hbs = grunt.file.read('index.hbs');
-    var hbs_name = '', hbs_content = '';
-    var htmlparser = require("htmlparser2");
+  grunt.registerTask('analyze', 'Analyze index.hbs', function() {
+    var index = grunt.file.read('index.hbs');
+    var void_elements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+      'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
+    var hbs = { name: '', content: '' };
+    var prod_index = '';
+
+    var htmlparser = require('htmlparser2');
     var parser = new htmlparser.Parser({
       onopentag: function(name, attribs) {
-        if (name === "script") {
-          hbs_name = '';
-          hbs_content = '';
+        var is_script = (name === 'script');
+        if (is_script) {
+          hbs.name = '';
+          hbs.content = '';
         }
-        if (attribs.type === "text/x-handlebars") {
-          hbs_name = attribs.id;
+        if (is_script && attribs.type === 'text/x-handlebars') {
+          hbs.name = attribs.id;
+        } else {
+          prod_index += '<' + name;
+          for (var attrib in attribs) {
+            prod_index += ' ' + attrib + '="' + attribs[attrib] + '"';
+          }
+          prod_index += '>';
         }
       },
       ontext: function(text) {
-        hbs_content += text;
+        if (hbs.name !== '') {
+          hbs.content += text;
+        } else {
+          prod_index += text;
+        }
       },
       onclosetag: function(name) {
-        if (name === "script" && hbs_name !== '') {
-          hbs_content = hbs_content.replace(/^\s{2,}/mg, '');
-          hbs_content = hbs_content.trim() + '\n';
-          grunt.file.write('public/bs/' + hbs_name + '.hbs', hbs_content);
+        if (name === 'script' && hbs.name !== '') {
+          hbs.content = hbs.content.replace(/^\s{2,}/mg, '');
+          hbs.content = hbs.content.trim() + '\n';
+          grunt.file.write('public/bs/' + hbs.name + '.hbs', hbs.content);
+        } else {
+          if (void_elements.indexOf(name.toLowerCase()) > -1) return;
+          prod_index += '</' + name + '>';
         }
+      },
+      onend: function() {
+        prod_index = prod_index.trim() + '\n';
+        grunt.file.write('public/index.html', prod_index);
       }
     });
-    parser.write(hbs);
+    parser.write(index);
     parser.end();
   });
 
