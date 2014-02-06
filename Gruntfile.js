@@ -10,6 +10,9 @@ module.exports = function(grunt) {
       }
       /* make_theme_index task will put some targets here */
     },
+    concat: {
+      /* analyze task will put some targets here */
+    },
     uglify: {
       /* analyze task will put some targets here */
     },
@@ -85,12 +88,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-express-server');
   grunt.loadNpmTasks('grunt-ember-templates');
 
   grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
 
-  grunt.registerTask('production', [ 'make_theme_index', 'less', 'analyze', 'uglify' ]);
+  grunt.registerTask('production', [ 'make_theme_index', 'less', 'analyze', 'uglify', 'concat' ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
@@ -103,7 +107,11 @@ module.exports = function(grunt) {
 
     var hbs = { name: '', content: '' };
     var prod_index = '';
-    var prod_uglify = { options: {}, dest: {}, src: {} };
+    var prod_tasks = {
+      concat: { options: {}, dest: {}, src: {} },
+      uglify: { options: {}, dest: {}, src: {} }
+    };
+    var tasks = Object.keys(prod_tasks);
     var skip_this_tag = false;
 
     var htmlparser = require('htmlparser2');
@@ -122,25 +130,29 @@ module.exports = function(grunt) {
             delete attribs.production;
           }
         }
-        if (is_script && attribs.uglify) {
-          prod_uglify.dest[attribs.uglify] = prod_uglify.dest[attribs.uglify] || [];
-          prod_uglify.src[attribs.uglify] = prod_uglify.src[attribs.uglify] || [];
-          if (attribs.dest) {
-            if (attribs.options) {
-              prod_uglify.options[attribs.uglify] = JSON.parse(attribs.options);
+        if (is_script) {
+          for (var i = 0; i < tasks.length; i++) {
+            var task = tasks[i];
+            var target_name = attribs[task];
+            if (!target_name) continue;
+            prod_tasks[task].dest[target_name] = prod_tasks[task].dest[target_name] || [];
+            prod_tasks[task].src[target_name] = prod_tasks[task].src[target_name] || [];
+            if (attribs.dest) {
+              if (attribs.options) {
+                prod_tasks[task].options[target_name] = JSON.parse(attribs.options);
+              }
+              prod_tasks[task].dest[target_name].push(attribs.dest);
             }
-            dest = attribs.dest;
-            prod_uglify.dest[attribs.uglify].push(dest);
-          }
-          if (attribs.src || attribs['real-src']) {
-            var src = attribs['real-src'] || ('assets' + attribs.src);
-            src = src.replace(/[\n\s]{2,}/g, '');
-            prod_uglify.src[attribs.uglify].push(src);
-          }
-          if (attribs.dest) {
-            attribs = { src: dest };
-          } else {
-            skip_this_tag = true;
+            if (attribs.src || attribs['real-src']) {
+              var src = attribs['real-src'] || ('assets' + attribs.src);
+              src = src.replace(/[\n\s]{2,}/g, '');
+              prod_tasks[task].src[target_name].push(src);
+            }
+            if (attribs.dest) {
+              attribs = { src: attribs.dest };
+            } else {
+              skip_this_tag = true;
+            }
           }
         }
         if (is_script && attribs.type === 'text/x-handlebars') {
@@ -184,19 +196,22 @@ module.exports = function(grunt) {
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
 
-        var uglify = grunt.config('uglify');
-        for (var pu in prod_uglify.src) {
-          var files = {};
-          for (var dest in prod_uglify.dest[pu]) {
-            files['public' + prod_uglify.dest[pu][dest]] = prod_uglify.src[pu];
+        for (var i = 0; i < tasks.length; i++) {
+          var task = tasks[i];
+          var task_config = grunt.config(task) || {};
+          for (var pu in prod_tasks[task].src) {
+            var files = {};
+            for (var dest in prod_tasks[task].dest[pu]) {
+              files['public' + prod_tasks[task].dest[pu][dest]] = prod_tasks[task].src[pu];
+            }
+            task_config[pu] = {
+              options: prod_tasks[task].options[pu],
+              files: files
+            };
           }
-          uglify[pu] = {
-            options: prod_uglify.options[pu],
-            files: files
-          };
+          grunt.config(task, task_config);
+          // console.log(JSON.stringify(task_config, null, 2));
         }
-        grunt.config('uglify', uglify);
-        // console.log(JSON.stringify(uglify, null, 2));
       }
     });
     parser.write(index);
