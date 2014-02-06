@@ -827,7 +827,8 @@
   <script concat="ember" production="/js/vendor/handlebars.runtime-v1.3.0.min.js"></script>
   <script concat="ember" production="/js/vendor/ember.min.js"></script>
 
-  <script production="/js/maintainer-templates.js"></script>
+  <script production uglify="template" dest="/js/maintainer-templates.js"
+    real-src="public/js/maintainer-templates.js"></script>
 
   <script development src="/js/vendor/jquery-2.0.3.min.js"></script>
   <script development src="/js/vendor/handlebars-v1.3.0.js"></script>

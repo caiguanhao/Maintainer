@@ -3,6 +3,9 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     less: {
+      options: {
+        cleancss: true
+      },
       maintainer: {
         files: {
           'public/css/maintainer.css': [ 'assets/css/maintainer.less' ]
