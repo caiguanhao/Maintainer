@@ -69,7 +69,7 @@ module.exports = function(grunt) {
           templateBasePath: "public/bs"
         },
         files: {
-          "public/s.js": ["public/bs/**/*.hbs"]
+          "public/js/maintainer-templates.js": ["public/bs/**/*.hbs"]
         }
       }
     }
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
 
     var hbs = { name: '', content: '' };
     var prod_index = '';
-    var prod_uglify = {};
+    var prod_uglify = { dest: {}, src: {} };
     var skip_this_tag = false;
 
     var htmlparser = require('htmlparser2');
@@ -111,14 +111,26 @@ module.exports = function(grunt) {
         if (is_script) {
           hbs.name = '';
           hbs.content = '';
+
+          if (attribs.hasOwnProperty('development')) {
+            skip_this_tag = true;
+          }
+          if (attribs.hasOwnProperty('production')) {
+            attribs.src = attribs.production;
+            delete attribs.production;
+          }
         }
         if (is_script && attribs.uglify) {
-          prod_uglify[attribs.uglify] = prod_uglify[attribs.uglify] || [];
+          prod_uglify.dest[attribs.uglify] = prod_uglify.dest[attribs.uglify] || [];
+          prod_uglify.src[attribs.uglify] = prod_uglify.src[attribs.uglify] || [];
           if (attribs.src) {
-            prod_uglify[attribs.uglify].push('assets' + attribs.src);
+            prod_uglify.src[attribs.uglify].push('assets' + attribs.src);
             skip_this_tag = true;
           } else {
-            attribs = { src: '/js/' + attribs.uglify + '.js' };
+            var dest = '/js/' + attribs.uglify + '.js';
+            if (attribs.dest) dest = attribs.dest;
+            prod_uglify.dest[attribs.uglify].push(dest);
+            attribs = { src: dest };
           }
         }
         if (is_script && attribs.type === 'text/x-handlebars') {
@@ -162,9 +174,11 @@ module.exports = function(grunt) {
         grunt.file.write('public/index.html', prod_index);
 
         var uglify = grunt.config('uglify');
-        for (pu in prod_uglify) {
+        for (var pu in prod_uglify.src) {
           var files = {};
-          files['public/js/' + pu + '.js'] = prod_uglify[pu];
+          for (var dest in prod_uglify.dest[pu]) {
+            files['public' + prod_uglify.dest[pu][dest]] = prod_uglify.src[pu];
+          }
           uglify[pu] = {
             files: files
           };
