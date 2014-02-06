@@ -90,6 +90,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
 
+  grunt.registerTask('production', [ 'make_theme_index', 'less', 'analyze', 'uglify' ]);
+
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
   });
