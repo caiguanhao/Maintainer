@@ -123,8 +123,10 @@ module.exports = function(grunt) {
         if (is_script && attribs.uglify) {
           prod_uglify.dest[attribs.uglify] = prod_uglify.dest[attribs.uglify] || [];
           prod_uglify.src[attribs.uglify] = prod_uglify.src[attribs.uglify] || [];
-          if (attribs.src) {
-            prod_uglify.src[attribs.uglify].push('assets' + attribs.src);
+          if (attribs.src || attribs['real-src']) {
+            var src = attribs['real-src'] || ('assets' + attribs.src);
+            src = src.replace(/[\n\s]{2,}/g, '');
+            prod_uglify.src[attribs.uglify].push(src);
             skip_this_tag = true;
           } else {
             var dest = '/js/' + attribs.uglify + '.js';
@@ -170,6 +172,7 @@ module.exports = function(grunt) {
       },
       onend: function() {
         prod_index = prod_index.replace(/^\s*$/mg, '');
+        prod_index = prod_index.replace(/<\/script>\n{2,}/mg, '</script>\n');
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
 

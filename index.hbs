@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Maintainer</title>
-  <script src="/js/themes.js"></script>
+  <script uglify="head" dest="/js/head.js"></script>
+  <script uglify="head" src="/js/themes.js"></script>
+  <script uglify="head" src="/js/ember_env.js"></script>
   <link rel="stylesheet" href="/css/maintainer.css">
 </head>
 
@@ -821,10 +823,12 @@
     <div class="pad-bottom"></div>
   </script>
   <script src="/js/vendor/jquery-2.0.3.min.js"></script>
-  <script src="/js/vendor/handlebars-v1.3.0.js"></script>
-  <script src="/js/ember_env.js"></script>
-  <script src="/js/vendor/ember.js"></script>
 
+  <script development src="/js/vendor/handlebars-v1.3.0.js"></script>
+  <script development src="/js/vendor/ember.js"></script>
+
+  <script production="/js/vendor/handlebars.runtime-v1.3.0.js"></script>
+  <script production="/js/vendor/ember.min.js"></script>
   <script production="/js/maintainer-templates.js"></script>
 
   <script uglify="maintainer" dest="/js/maintainer-vendors.js"></script>
@@ -833,7 +837,9 @@
   <script uglify="maintainer" src="/js/vendor/codemirror.js"></script>
   <script uglify="maintainer" src="/js/vendor/codemirror/shell.js"></script>
   <script uglify="maintainer" src="/js/vendor/codemirror/merge.js"></script>
-  <script uglify="maintainer" src="/socket.io/socket.io.js"></script>
+  <script uglify="maintainer" src="/socket.io/socket.io.js"
+    real-src="node_modules/tty.js/node_modules/socket.io/
+    node_modules/socket.io-client/dist/socket.io.js"></script>
   <script uglify="maintainer" src="/js/vendor/term.js"></script>
   <script uglify="maintainer" src="/js/vendor/tty.js"></script>
   <script uglify="maintainer" src="/js/vendor/typeahead.js"></script>
