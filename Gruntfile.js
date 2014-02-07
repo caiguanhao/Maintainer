@@ -114,11 +114,58 @@ module.exports = function(grunt) {
     'emberTemplates',
     'clean:public_hbs',
     'uglify',
-    'concat'
+    'concat',
+    'hash'
   ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
+  });
+
+  grunt.registerTask('hash', 'Hash filenames of assets', function() {
+    var prod_index = '';
+    var index = grunt.file.read('public/index.html');
+    var crypto = require('crypto'), fs = require('fs');
+    var htmlparser = require('htmlparser2');
+    var parser = new htmlparser.Parser({
+      onopentag: function(name, attribs) {
+        if (name === 'script' && attribs.src) {
+          var old_filename = 'public' + attribs.src;
+          if (fs.existsSync(old_filename)) {
+            var js = fs.readFileSync(old_filename);
+            shasum = crypto.createHash('sha1');
+            shasum.update(js);
+            var hash = shasum.digest('hex');
+            var new_src = attribs.src.replace(/\.js$/, '-' + hash + '.js');
+            var new_filename = 'public' + new_src;
+            fs.renameSync(old_filename, new_filename);
+            grunt.log.ok('File ' + old_filename + ' renamed to ' + new_filename);
+            attribs.src = new_src;
+          }
+        }
+        prod_index += '<' + name;
+        for (var attrib in attribs) {
+          prod_index += ' ' + attrib + '="' + attribs[attrib] + '"';
+        }
+        prod_index += '>';
+      },
+      ontext: function(text) {
+        prod_index += text;
+      },
+      onclosetag: function(name) {
+        prod_index += '</' + name + '>';
+      },
+      onprocessinginstruction: function(name, data) {
+        prod_index += '<' + data + '>';
+      },
+      onend: function() {
+        prod_index = prod_index.trim() + '\n';
+        grunt.file.write('public/index.html', prod_index);
+        grunt.log.ok('File public/index.html generated.');
+      }
+    });
+    parser.write(index);
+    parser.end();
   });
 
   grunt.registerTask('analyze', 'Analyze index.hbs', function() {
