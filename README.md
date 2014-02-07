@@ -1,7 +1,7 @@
 Maintainer
 ==========
 
-Maintainer is an single-page web application managing routine scripts
+Maintainer is a single-page web application managing routine scripts
 that may run on local or remote server. Jobs that created by a root
 user can be set with different permissions to allow other users to
 execute the jobs on their own. The job is some shell scripts that can
@@ -27,8 +27,10 @@ Files:
 Grunt
 -----
 
-Use ``grunt clean:bootstrap make_theme_index less`` to compile
-bootstrap theme LESS files.
+Use ``grunt clean:bootstrap make_theme_index less`` to re-compile
+all bootstrap theme LESS files.
+
+Use ``grunt production`` to minify all assets for production use.
 
 Developer
 ---------

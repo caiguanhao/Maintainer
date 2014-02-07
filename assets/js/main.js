@@ -2,7 +2,7 @@ function Introduction() {
 /*!
 ### Maintainer
 
-Maintainer is an single-page web application managing routine scripts
+Maintainer is a single-page web application managing routine scripts
 that may run on local or remote server. Jobs that created by a root
 user can be set with different permissions to allow other users to
 execute the jobs on their own. The job is some shell scripts that can
