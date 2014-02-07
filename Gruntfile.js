@@ -122,25 +122,34 @@ module.exports = function(grunt) {
     grunt.file.copy('index.hbs', 'public/index.html');
   });
 
+  var htmlparser = require('htmlparser2');
+  htmlparser.void_elements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+  'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
   grunt.registerTask('hash', 'Hash filenames of assets', function() {
     var prod_index = '';
     var index = grunt.file.read('public/index.html');
     var crypto = require('crypto'), fs = require('fs');
-    var htmlparser = require('htmlparser2');
     var parser = new htmlparser.Parser({
       onopentag: function(name, attribs) {
-        if (name === 'script' && attribs.src) {
-          var old_filename = 'public' + attribs.src;
+        if ((name === 'link' && attribs.rel === 'stylesheet') ||
+          name === 'script') {
+          var src_tag = 'src', ext = '';
+          if (name === 'link') src_tag = 'href';
+          var old_filename = 'public' + attribs[src_tag];
           if (fs.existsSync(old_filename)) {
             var js = fs.readFileSync(old_filename);
             shasum = crypto.createHash('sha1');
             shasum.update(js);
             var hash = shasum.digest('hex');
-            var new_src = attribs.src.replace(/\.js$/, '-' + hash + '.js');
+            var dot = attribs[src_tag].lastIndexOf('.');
+            if (dot === -1) dot = undefined;
+            var new_src = attribs[src_tag].slice(0, dot);
+            new_src += '-' + hash + attribs[src_tag].slice(dot);
             var new_filename = 'public' + new_src;
             fs.renameSync(old_filename, new_filename);
             grunt.log.ok('File ' + old_filename + ' renamed to ' + new_filename);
-            attribs.src = new_src;
+            attribs[src_tag] = new_src;
           }
         }
         prod_index += '<' + name;
@@ -153,6 +162,7 @@ module.exports = function(grunt) {
         prod_index += text;
       },
       onclosetag: function(name) {
+        if (htmlparser.void_elements.indexOf(name.toLowerCase()) > -1) return;
         prod_index += '</' + name + '>';
       },
       onprocessinginstruction: function(name, data) {
@@ -170,8 +180,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('analyze', 'Analyze index.hbs', function() {
     var index = grunt.file.read('index.hbs');
-    var void_elements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
-      'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
 
     var hbs = { name: '', content: '' };
     var prod_index = '';
@@ -250,7 +258,7 @@ module.exports = function(grunt) {
           hbs.content = hbs.content.trim() + '\n';
           grunt.file.write('public/hbs/' + hbs.name + '.hbs', hbs.content);
         } else {
-          if (void_elements.indexOf(name.toLowerCase()) > -1) return;
+          if (htmlparser.void_elements.indexOf(name.toLowerCase()) > -1) return;
           if (skip_this_tag === false) {
             prod_index += '</' + name + '>';
           } else {
