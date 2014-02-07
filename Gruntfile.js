@@ -22,6 +22,7 @@ module.exports = function(grunt) {
     clean: {
       public_css: [ 'public/js/*.css' ],
       public_js: [ 'public/js/*.js' ],
+      public_hbs: [ 'public/hbs' ],
       bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
     },
     watch: {
@@ -74,10 +75,10 @@ module.exports = function(grunt) {
     emberTemplates: {
       compile: {
         options: {
-          templateBasePath: "public/bs"
+          templateBasePath: "public/hbs"
         },
         files: {
-          "public/js/maintainer-templates.js": ["public/bs/**/*.hbs"]
+          "public/js/maintainer-templates.js": ["public/hbs/**/*.hbs"]
         }
       }
     }
@@ -97,9 +98,24 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-express-server');
   grunt.loadNpmTasks('grunt-ember-templates');
 
-  grunt.registerTask('default', [ 'make_theme_index', 'less', 'copy_index', 'express', 'watch' ]);
+  grunt.registerTask('default', [
+    'make_theme_index',
+    'less',
+    'copy_index',
+    'express',
+    'watch'
+  ]);
 
-  grunt.registerTask('production', [ 'clean', 'make_theme_index', 'less', 'analyze', 'emberTemplates', 'uglify', 'concat' ]);
+  grunt.registerTask('production', [
+    'clean',
+    'make_theme_index',
+    'less',
+    'analyze',
+    'emberTemplates',
+    'clean:public_hbs',
+    'uglify',
+    'concat'
+  ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
@@ -185,7 +201,7 @@ module.exports = function(grunt) {
         if (name === 'script' && hbs.name !== '') {
           hbs.content = hbs.content.replace(/^\s{2,}/mg, '');
           hbs.content = hbs.content.trim() + '\n';
-          grunt.file.write('public/bs/' + hbs.name + '.hbs', hbs.content);
+          grunt.file.write('public/hbs/' + hbs.name + '.hbs', hbs.content);
         } else {
           if (void_elements.indexOf(name.toLowerCase()) > -1) return;
           if (skip_this_tag === false) {

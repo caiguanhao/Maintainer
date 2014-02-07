@@ -1,4 +1,5 @@
 node_modules
 public/css/vendor/*.css
 public/css/*.css
+public/js/*.js
 public/*.html
