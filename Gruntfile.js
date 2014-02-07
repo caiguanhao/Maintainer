@@ -75,10 +75,10 @@ module.exports = function(grunt) {
     emberTemplates: {
       compile: {
         options: {
-          templateBasePath: "public/hbs"
+          templateBasePath: 'public/hbs'
         },
         files: {
-          "public/js/maintainer-templates.js": ["public/hbs/**/*.hbs"]
+          'public/js/maintainer-templates.js': [ 'public/hbs/**/*.hbs' ]
         }
       }
     }
@@ -254,6 +254,12 @@ module.exports = function(grunt) {
       onclosetag: function(name) {
         if (name === 'script' && hbs.name !== '') {
           hbs.content = hbs.content.replace(/^\s{2,}/mg, '');
+          // handlebars tags should not have newline
+          // if there are no spaces any more
+          hbs.content = hbs.content.replace(/\{{2,}(.|\n)+?\}{2,}/g,
+            function(p) {
+            return p.replace(/\n/g, ' ');
+          });
           hbs.content = hbs.content.trim() + '\n';
           grunt.file.write('public/hbs/' + hbs.name + '.hbs', hbs.content);
         } else {
