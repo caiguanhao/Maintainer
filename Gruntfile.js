@@ -195,11 +195,15 @@ module.exports = function(grunt) {
           }
         }
       },
+      onprocessinginstruction: function(name, data) {
+        prod_index += '<' + data + '>';
+      },
       onend: function() {
         prod_index = prod_index.replace(/^\s*$/mg, '');
         prod_index = prod_index.replace(/<\/script>\n{2,}/mg, '</script>\n');
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
+        grunt.log.ok('File public/index.html generated.');
 
         for (var i = 0; i < tasks.length; i++) {
           var task = tasks[i];
@@ -216,6 +220,7 @@ module.exports = function(grunt) {
           }
           grunt.config(task, task_config);
           // console.log(JSON.stringify(task_config, null, 2));
+          grunt.log.ok('Modified ' + task + ' tasks.');
         }
       }
     });
