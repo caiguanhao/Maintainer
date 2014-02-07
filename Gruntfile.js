@@ -190,7 +190,6 @@ module.exports = function(grunt) {
     var tasks = Object.keys(prod_tasks);
     var skip_this_tag = false;
 
-    var htmlparser = require('htmlparser2');
     var parser = new htmlparser.Parser({
       onopentag: function(name, attribs) {
         var is_script = (name === 'script');

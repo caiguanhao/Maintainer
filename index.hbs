@@ -4,6 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Maintainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Maintainer is an single-page web application
+    managing routine scripts that may run on local or remote server.">
+  <meta name="author" content="caiguanhao">
   <script uglify="head" dest="/js/head.js"></script>
   <script uglify="head" src="/js/themes.js"></script>
   <script uglify="head" src="/js/ember_env.js"></script>
@@ -460,7 +464,8 @@
               <div class="col-sm-8">
                 <div class="input-group">
                   {{input viewName="username" value=username
-                    classNames="form-control" type="text" placeholder="Username"}}
+                    classNames="form-control" type="text"
+                    placeholder="Username"}}
                   <span class="input-group-btn">
                     <button class="btn btn-default"
                       {{bind-attr disabled="untouched_uname"}} type="button"
@@ -479,7 +484,8 @@
               <label class="col-sm-4 control-label">Type</label>
               <div class="col-sm-8 text-only">
                 <span class="text-success">
-                  <span class="glyphicon glyphicon-certificate"></span> Root User
+                  <span class="glyphicon glyphicon-certificate"></span>
+                  Root User
                 </span>
               </div>
             </div>
@@ -528,7 +534,8 @@
                     </button>
                   </span>
                   {{input viewName="password" value=password
-                    classNames="form-control" type="text" placeholder="Password"}}
+                    classNames="form-control" type="text"
+                    placeholder="Password"}}
                   <span class="input-group-btn">
                     <button class="btn btn-default"
                       {{bind-attr disabled="untouched_pwd"}} type="button"
@@ -824,7 +831,8 @@
   </script>
   <script concat="ember" dest="/js/jquery+handlebars+ember.js"></script>
   <script concat="ember" production="/js/vendor/jquery-2.0.3.min.js"></script>
-  <script concat="ember" production="/js/vendor/handlebars.runtime-v1.3.0.min.js"></script>
+  <script concat="ember"
+    production="/js/vendor/handlebars.runtime-v1.3.0.min.js"></script>
   <script concat="ember" production="/js/vendor/ember.min.js"></script>
 
   <script production uglify="template" dest="/js/maintainer-templates.js"

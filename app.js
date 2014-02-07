@@ -7,14 +7,9 @@ var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/maintainer');
 
-Server.prototype.initMiddleware = function() {
-  this.use(express.bodyParser());
-  this.use(express.static(__dirname + '/assets'));
-  this.use(express.static(__dirname + '/public'));
-};
+Server.prototype.initMiddleware = function() {};
 
-Server.prototype.initRoutes = function() {
-};
+Server.prototype.initRoutes = function() {};
 
 Session.prototype.handleData = function(id, data) {
   var terms = this.terms;
@@ -29,6 +24,15 @@ var app = Server({
   limitPerUser: 10,  // some users may have a less limit set in beforeCreate
   runScriptOnStart: runScriptOnStart,
   beforeCreate: beforeCreate
+});
+
+app.use(express.bodyParser());
+app.use(express.static(__dirname + '/public'));
+app.configure('development', function() {
+  app.use(express.static(__dirname + '/assets'));
+});
+app.configure('production', function() {
+  app.io.disable('browser client');
 });
 
 var ERROR = {
