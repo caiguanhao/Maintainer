@@ -35,6 +35,10 @@ You may need to install ``grunt-cli`` to run grunt tasks and
 
     npm -g i grunt-cli pm2
 
+To run pm2 in production mode, remember to run with
+``NODE_ENV=production``. And add ``export NODE_ENV=production``
+to /etc/init.d/pm2-init.sh if you use ``pm2 startup ubuntu``.
+
 Install ``nginx`` and create a config file:
 
     upstream maintainerApp {
