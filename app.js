@@ -18,9 +18,15 @@ Session.prototype.handleData = function(id, data) {
   terms[id].write(data);
 };
 
+var port = 3000;
+
+if (process.env.NODE_ENV === 'production') {
+  port = 21012;
+}
+
 var app = Server({
   shell: 'bash',
-  port: 3000,
+  port: port,
   limitPerUser: 10,  // some users may have a less limit set in beforeCreate
   runScriptOnStart: runScriptOnStart,
   beforeCreate: beforeCreate
