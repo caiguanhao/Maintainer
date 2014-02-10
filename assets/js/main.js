@@ -491,7 +491,7 @@ App.JobsNewController = Ember.Controller.extend({
             title: '',
             content: ''
           });
-          self.transitionToRoute('job', new_job);
+          self.transitionToRoute('job', new_job._id);
         });
       }, function(error) {
         self.set('touched', true);
