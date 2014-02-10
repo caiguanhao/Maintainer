@@ -402,4 +402,33 @@ module.exports = function(grunt) {
     grunt.config('watch', watch);
   });
 
+  grunt.registerTask('addroot', 'addroot:<username>:<password>',
+    function(username, password) {
+    if (!username || !password) {
+      grunt.fail.fatal('Please provide username and password.');
+    }
+    var finish = this.async();
+    var mongoose = require('mongoose');
+    mongoose.connect('mongodb://localhost/maintainer');
+    var User = require('./models/user');
+    var now = new Date;
+    var new_user = new User({
+      username: username,
+      password: password,
+      is_root: true,
+      banned: false,
+      token: User.generate_new_token(),
+      token_updated_at: now,
+      created_at: now,
+      updated_at: now,
+      last_logged_in_at: [ now ],
+      password_updated_at: now
+    });
+    new_user.save(function(error) {
+      if (error) grunt.fail.fatal(JSON.stringify(error, null, 2));
+      grunt.log.ok(JSON.stringify(new_user, null, 2));
+      finish();
+    });
+  });
+
 };
