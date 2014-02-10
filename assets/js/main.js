@@ -137,6 +137,27 @@ App = Ember.Application.create({
   }
 });
 
+// Don't use loading route, because it will break
+// temporary_fix in App.JobsController
+// which will cause revision pages repeatly reloading
+
+// App.LoadingRoute = Ember.Route.extend({
+//   activate: function() {
+//     this._super();
+//     Pace.restart();
+//   },
+//   deactivate: function() {
+//     this._super();
+//     Pace.stop();
+//   }
+// })
+
+$(document).ajaxStart(function() {
+  // Pace.restart();
+}).ajaxStop(function() {
+  Pace.stop();
+});
+
 function find_view_by_viewname(name) {
   var views = Ember.View.views;
   for (var id in views) {
