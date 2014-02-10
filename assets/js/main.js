@@ -419,7 +419,7 @@ function handle_error(error, transition, originRoute) {
       } else if (typeof(error) === 'string') {
         alert(error);
       } else {
-        alert('Unknown error.');
+        alert('Service unavailable. Please try again later.');
       }
     }
   }
