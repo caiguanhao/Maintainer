@@ -24,13 +24,51 @@ Files:
 * ``models/``: mongoose scripts
 * ``doc/``: Help topics
 
+Install
+-------
+
+Make sure you have installed ``build-essentials`` and ``mongodb``
+before you run ``npm i`` to install dependencies.
+
+You may need to install ``grunt-cli`` to run grunt tasks and
+``pm2`` to run the app:
+
+    npm -g i grunt-cli pm2
+
+Install ``nginx`` and create a config file:
+
+    upstream maintainerApp {
+      server 127.0.0.1:21012;
+    }
+
+    server {
+      server_name <SERVER_NAME>;
+      listen 80;
+      client_max_body_size 1m;
+      keepalive_timeout 5;
+      root /srv/Maintainer/public;
+      access_log /srv/Maintainer/log/access.log;
+      error_log /srv/Maintainer/log/error.log;
+      error_page 500 502 503 504 /500.html;
+      location = /500.html {
+        root /srv/Maintainer/public;
+      }
+      try_files $uri/index.html $uri.html $uri @app;
+      location @app {
+        proxy_intercept_errors on;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://maintainerApp;
+      }
+    }
+
 Grunt
 -----
 
-Use ``grunt clean:bootstrap make_theme_index less`` to re-compile
-all bootstrap theme LESS files.
-
 Use ``grunt production`` to minify all assets for production use.
+
+Use ``grunt addroot:<user>:<pass>`` to add a root user.
 
 Developer
 ---------
