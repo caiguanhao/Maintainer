@@ -27,7 +27,7 @@ Files:
 Install
 -------
 
-Make sure you have installed ``build-essentials`` and ``mongodb``
+Make sure you have installed ``build-essential`` and ``mongodb``
 before you run ``npm i`` to install dependencies.
 
 You may need to install ``grunt-cli`` to run grunt tasks and
