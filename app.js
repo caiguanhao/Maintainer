@@ -107,6 +107,11 @@ function beforeCreate(bundle, callback) {
     function(error, user) {
     if (error || !user) return;
 
+    // remove NODE_ENV environment variable
+    // if this sets to production, the NODE_ENV in browser terminal will
+    // be production too, which cause apps like npm to work in production mode
+    process.env.NODE_ENV = '';
+
     if (user.is_root) {
       if (bundle.job) {
         return find_script_to_run(bundle.job, user, callback);
