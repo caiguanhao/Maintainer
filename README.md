@@ -24,6 +24,11 @@ Files:
 * ``models/``: mongoose scripts
 * ``doc/``: Help topics
 
+Screenshot
+----------
+
+![maintainer](https://f.cloud.github.com/assets/1284703/2134408/bbbc6da0-92e3-11e3-80fa-7d92491dfce8.png)
+
 Install
 -------
 
