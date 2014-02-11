@@ -64,6 +64,9 @@ Install ``nginx`` and create a config file:
         proxy_set_header Host $http_host;
         proxy_redirect off;
         proxy_pass http://maintainerApp;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
       }
     }
 
