@@ -20,9 +20,10 @@ module.exports = function(grunt) {
       /* analyze task will put some targets here */
     },
     clean: {
-      public_css: [ 'public/js/*.css' ],
+      public_css: [ 'public/css/*.css' ],
       public_js: [ 'public/js/*.js' ],
       public_hbs: [ 'public/hbs' ],
+      compressed: [ 'public/**/*.gz' ],
       bootstrap: [ 'public/css/vendor/bootstrap-*.css' ]
     },
     watch: {
@@ -115,16 +116,31 @@ module.exports = function(grunt) {
     'clean:public_hbs',
     'uglify',
     'concat',
-    'hash'
+    'hash',
+    'compress'
   ]);
 
   grunt.registerTask('copy_index', 'Copy index page', function() {
     grunt.file.copy('index.hbs', 'public/index.html');
   });
 
+  grunt.registerTask('compress', 'Compress assets files', function() {
+    var finish = this.async();
+    var fs = require('fs');
+    var exec = require('child_process').exec;
+    exec('gzip -f1k css/*.css css/vendor/*.css js/*.js', {
+      cwd: fs.realpathSync('public')
+    }, function(error, stdout, stderr) {
+      if (stderr) grunt.fail.fatal(stderr);
+      if (error) grunt.fail.fatal(error);
+      grunt.log.ok('Asset files compressed.')
+      finish();
+    })
+  });
+
   var htmlparser = require('htmlparser2');
   htmlparser.void_elements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
-  'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+    'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
 
   grunt.registerTask('hash', 'Hash filenames of assets', function() {
     var prod_index = '';
