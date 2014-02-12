@@ -8,11 +8,21 @@
   <meta name="description" content="Maintainer is a single-page web application
     managing routine scripts that may run on local or remote server.">
   <meta name="author" content="caiguanhao">
+  <!--[if gt IE 9]><!-->
   <script uglify="head" dest="/js/head.js"></script>
   <script uglify="head" src="/js/themes.js"></script>
   <script uglify="head" src="/js/ember_env.js"></script>
   <script uglify="head" src="/js/vendor/pace.js"></script>
   <link rel="stylesheet" href="/css/maintainer.css">
+  <!--<![endif]-->
+  <!--[if lte IE 9]>
+  <style>
+    a { color: #428BCA; text-decoration: none; }
+    a:hover, a:focus { color: #2A6496; text-decoration: underline; }
+    .ie-warnings { text-align: center; font-family: Arial; font-size: 14px;
+      line-height: 20px; }
+  </style>
+  <!--<![endif]-->
 </head>
 
 <body>
@@ -313,7 +323,7 @@
               <a href="#" {{action "grant_permissions" 5}}>Read and Execute</a>
             </li>
             <li class="divider"></li>
-            <li><a class="text-danger" href="#" {{action "grant_permissions" 7 
+            <li><a class="text-danger" href="#" {{action "grant_permissions" 7
               "Warning: Giving user write and execute permissions may harm the
               system as any script can be executed.
               Make sure the user is trusted."}}>
@@ -830,6 +840,11 @@
     {{markdown content.content}}
     <div class="pad-bottom"></div>
   </script>
+  <!--[if gt IE 9]><!-->
+  <script development src="/js/vendor/jquery-2.0.3.min.js"></script>
+  <script development src="/js/vendor/handlebars-v1.3.0.js"></script>
+  <script development src="/js/vendor/ember.js"></script>
+
   <script concat="ember" dest="/js/jquery+handlebars+ember.js"></script>
   <script concat="ember" production="/js/vendor/jquery-2.0.3.min.js"></script>
   <script concat="ember"
@@ -838,10 +853,6 @@
 
   <script production uglify="template" dest="/js/maintainer-templates.js"
     real-src="public/js/maintainer-templates.js"></script>
-
-  <script development src="/js/vendor/jquery-2.0.3.min.js"></script>
-  <script development src="/js/vendor/handlebars-v1.3.0.js"></script>
-  <script development src="/js/vendor/ember.js"></script>
 
   <script uglify="maintainer" dest="/js/maintainer-vendors.js"></script>
   <script uglify="maintainer" src="/js/vendor/bootstrap.min.js"></script>
@@ -862,6 +873,23 @@
   <script uglify="app" dest="/js/maintainer-app.js" src="/js/main.js"
     options='{ "preserveComments": "some" }'></script>
   <script development src="http://localhost:35729/livereload.js"></script>
+  <!--<![endif]-->
+  <!--[if lte IE 9]>
+    <div class="ie-warnings">
+      <b>Your browser is out of date.</b>
+      <br>
+      Please upgrade to IE 10 or use Chrome or Firefox browser.
+      <br>
+      Download Chrome from:
+      <a href="https://www.google.com/chrome/">Google</a> |
+      <a href="http://dl.pconline.com.cn/download/51614-1.html">
+        PCOnline (Windows)
+      </a>
+      <br>
+      Download Firefox from:
+      <a href="http://www.mozilla.org/en-US/firefox/new/">Mozilla</a>
+    </div>
+  <![endif]-->
 </body>
 
 </html>

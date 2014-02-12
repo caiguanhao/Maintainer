@@ -168,6 +168,9 @@ module.exports = function(grunt) {
       onprocessinginstruction: function(name, data) {
         prod_index += '<' + data + '>';
       },
+      oncomment: function(data) {
+        prod_index += '<!--' + data + '-->';
+      },
       onend: function() {
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
@@ -274,9 +277,15 @@ module.exports = function(grunt) {
       onprocessinginstruction: function(name, data) {
         prod_index += '<' + data + '>';
       },
+      oncomment: function(data) {
+        prod_index += '\n  <!--' + data + '-->\n';
+      },
       onend: function() {
         prod_index = prod_index.replace(/^\s*$/mg, '');
+        prod_index = prod_index.replace(/(<(link|meta).+?>)\n{2,}/mg, '$1\n');
+        prod_index = prod_index.replace(/<body>\n{2,}/, '<body>\n');
         prod_index = prod_index.replace(/<\/script>\n{2,}/mg, '</script>\n');
+        prod_index = prod_index.replace(/-->\n{2,}/g, '-->\n');
         prod_index = prod_index.trim() + '\n';
         grunt.file.write('public/index.html', prod_index);
         grunt.log.ok('File public/index.html generated.');
