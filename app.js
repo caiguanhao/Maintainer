@@ -103,7 +103,7 @@ function beforeCreate(bundle, callback) {
 
   var number_of_terminals_for_this_user = Object.keys(this.terms).length;
 
-  User.findOne({ _id: bundle.user_id, token: bundle.user_token }, 
+  User.findOne({ _id: bundle.user_id, token: bundle.user_token },
     function(error, user) {
     if (error || !user) return;
 
@@ -239,13 +239,14 @@ app.get('/profile', authorize(function(req, res, next) {
 
 app.put('/profile/password', authorize(function(req, res, next) {
   var password = req.body.password;
+  var new_password = req.body.new_password;
   User.authenticate(req.user.username, password, {
     dry_authenticate: true
   }, {
     success: function() {
       var user = this;
       var new_date = new Date;
-      user.password = password;
+      user.password = new_password;
       user.password_updated_at = new_date;
       user.updated_at = new_date;
       user.save(function(error) {
